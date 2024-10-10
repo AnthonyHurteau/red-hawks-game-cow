@@ -1,0 +1,33 @@
+{
+  "name": "red-hawks-game-cow-api",
+  "version": "1.0.0",
+  "main": "app.js",
+  "author": "Anthony Hurteau",
+  "license": "MIT",
+  "scripts": {
+    "lint": "eslint '*.ts' --quiet --fix",
+    "compile": "tsc",
+    "dev": "npm run sam:debug & npm run esbuild-dev",
+    "build": "npm run esbuild",
+    "clean": "rimraf ./dist && rimraf ../.aws-sam",
+    "esbuild-dev": "npm run clean && esbuild app.ts --outfile=dist/app.js --bundle --platform=node --target=node20 --sourcemap --watch --minify",
+    "esbuild": "npm run clean && esbuild app.ts --outfile=dist/app.js --bundle --platform=node --target=node20 --sourcemap --minify",
+    "sam:debug": "AWS_PROFILE=red-hawks-game-cow sam local start-api --template ../template.yaml --debug-function ApiFunction --warm-containers EAGER -p 8080"
+  },
+  "dependencies": {
+    "esbuild": "^0.14.14"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.92",
+    "@types/node": "^20.5.7",
+    "@typescript-eslint/eslint-plugin": "^5.10.2",
+    "@typescript-eslint/parser": "^5.10.2",
+    "eslint": "^8.8.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "prettier": "^2.5.1",
+    "rimraf": "^3.0.2",
+    "ts-node": "^10.9.1",
+    "typescript": "^4.8.4"
+  }
+}
