@@ -1,4 +1,6 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
+import { DynamoDbClient } from "./services/dynamoDbClient";
+import { DynamoDB } from "aws-sdk";
 
 /**
  *
@@ -10,13 +12,16 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
  *
  */
 
+const dynamoDbClient = new DynamoDbClient();
+
 export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+    const origin = (event.headers.Origin || event.headers.origin) as string;
+
     try {
+        const result = await dynamoDbClient.getDocumentsAsync("Player");
         return {
             statusCode: 200,
-            body: JSON.stringify({
-                message: "hello world!",
-            }),
+            body: result ? JSON.stringify(result) : JSON.stringify([]),
         };
     } catch (err) {
         console.log(err);

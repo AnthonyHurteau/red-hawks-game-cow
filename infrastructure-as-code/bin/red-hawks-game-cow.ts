@@ -12,5 +12,5 @@ new RedHawksGameCowStack(app, "RedHawksGameCowStack", {
   env: { account: process.env.AWS_ACCOUNT, region: process.env.AWS_REGION },
   stackName,
   description: `The ${appName} IaC stack.`,
-  tableName: `${appName}Table`,
+  appName,
 });
