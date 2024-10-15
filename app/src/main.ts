@@ -3,23 +3,21 @@ import "./assets/main.css"
 import { createApp } from "vue"
 import { createPinia } from "pinia"
 import PrimeVue from "primevue/config"
-import Aura from "@primevue/themes/aura"
-import Button from "primevue/button"
+import Listbox from "primevue/listbox"
 
 import App from "./App.vue"
 import router from "./router"
+import { AppTheme } from "./theme"
 
 const app = createApp(App)
 
 app.use(createPinia())
 app.use(router)
 
-app.component("AppButton", Button)
-
 app.use(PrimeVue, {
   // Default theme configuration
   theme: {
-    preset: Aura,
+    preset: AppTheme,
     options: {
       prefix: "p",
       darkModeSelector: "system",
@@ -27,5 +25,6 @@ app.use(PrimeVue, {
     }
   }
 })
+app.component("AppListbox", Listbox)
 
 app.mount("#app")
