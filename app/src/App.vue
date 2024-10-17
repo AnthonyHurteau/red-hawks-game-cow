@@ -4,11 +4,9 @@ import HeaderBar from "./components/HeaderBar.vue"
 </script>
 
 <template>
-  <div class="bg-surface-900 h-screen">
-    <HeaderBar />
+  <HeaderBar />
 
-    <RouterView />
-  </div>
+  <RouterView />
 </template>
 
 <style scoped></style>

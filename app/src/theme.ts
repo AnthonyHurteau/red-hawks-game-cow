@@ -4,31 +4,38 @@ import Aura from "@primevue/themes/aura"
 export const AppTheme = definePreset(Aura, {
   semantic: {
     primary: {
-      50: "{zinc.50}",
-      100: "{zinc.100}",
-      200: "{zinc.200}",
-      300: "{zinc.300}",
-      400: "{zinc.400}",
-      500: "{zinc.500}",
-      600: "{zinc.600}",
-      700: "{zinc.700}",
-      800: "{zinc.800}",
-      900: "{zinc.900}",
-      950: "{zinc.950}"
+      50: "#fef2f2",
+      100: "#fee2e2",
+      200: "#fecaca",
+      300: "#fba6a6",
+      400: "#f77272",
+      500: "#ee4545",
+      600: "#da2828",
+      700: "#b81d1d",
+      800: "#981c1c",
+      900: "#6e1a1a",
+      950: "#450a0a"
     },
     colorScheme: {
       light: {
         primary: {
-          color: "#6e1a1a",
+          color: "{primary.900}",
           inverseColor: "#ffffff",
-          hoverColor: "{red.800}",
-          activeColor: "{red.500}"
+          hoverColor: "{primary.700}",
+          activeColor: "{primary.400}"
         },
         highlight: {
           background: "{zinc.950}",
           focusBackground: "{zinc.700}",
           color: "#ffffff",
           focusColor: "#ffffff"
+        },
+        content: {
+          background: "{surface.0}",
+          hoverBackground: "{surface.100}",
+          borderColor: "{surface.200}",
+          color: "{text.color}",
+          hoverColor: "{text.hover.color}"
         },
         surface: {
           0: "#ffffff",
@@ -47,30 +54,38 @@ export const AppTheme = definePreset(Aura, {
       },
       dark: {
         primary: {
-          color: "#6e1a1a",
+          color: "{primary.900}",
           inverseColor: "#ffffff",
-          hoverColor: "{red.800}",
-          activeColor: "{red.500}"
+          hoverColor: "{primary.700}",
+          activeColor: "{primary.400}"
         },
         highlight: {
-          background: "rgba(250, 250, 250, .16)",
-          focusBackground: "rgba(250, 250, 250, .24)",
+          background: "color-mix(in srgb, {primary.950}, transparent 75%)",
+          focusBackground: "color-mix(in srgb, {primary.400}, transparent 76%)",
           color: "rgba(255,255,255,.87)",
           focusColor: "rgba(255,255,255,.87)"
         },
+        content: {
+          background: "{surface.900}",
+          hoverBackground: "{surface.800}",
+          borderColor: "{primary.900}",
+          // borderColor: "{surface.700}",
+          color: "{text.color}",
+          hoverColor: "{text.hover.color}"
+        },
         surface: {
           0: "#ffffff",
-          50: "{slate.50}",
-          100: "{slate.100}",
-          200: "{slate.200}",
-          300: "{slate.300}",
-          400: "{slate.400}",
-          500: "{slate.500}",
-          600: "{slate.600}",
-          700: "{slate.700}",
-          800: "{slate.800}",
-          900: "{slate.900}",
-          950: "{slate.950}"
+          50: "{zinc.50}",
+          100: "{zinc.100}",
+          200: "{zinc.200}",
+          300: "{zinc.300}",
+          400: "{zinc.400}",
+          500: "{zinc.500}",
+          600: "{zinc.600}",
+          700: "{zinc.700}",
+          800: "{zinc.800}",
+          900: "{zinc.900}",
+          950: "{zinc.950}"
         }
       }
     }

@@ -29,10 +29,10 @@ Resources:
         Variables:
           TABLE_NAME:
       Events:
-        HelloWorld:
+        Players:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
-            Path: /hello
+            Path: /players
             Method: get
     # Metadata: # Manage esbuild properties
     #   BuildMethod: esbuild

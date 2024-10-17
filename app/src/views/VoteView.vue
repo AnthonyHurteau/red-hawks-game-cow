@@ -1,5 +1,13 @@
 <script setup lang="ts">
+import { usePlayersStore } from "@/stores/players"
 import PlayerList from "../components/PlayerList.vue"
+import { onMounted } from "vue"
+
+const counterStore = usePlayersStore()
+
+onMounted(() => {
+  counterStore.getPlayers()
+})
 </script>
 
 <template>
