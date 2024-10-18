@@ -69,7 +69,6 @@ export const AppTheme = definePreset(Aura, {
           background: "{surface.900}",
           hoverBackground: "{surface.800}",
           borderColor: "{primary.900}",
-          // borderColor: "{surface.700}",
           color: "{text.color}",
           hoverColor: "{text.hover.color}"
         },

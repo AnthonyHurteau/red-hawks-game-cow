@@ -25,8 +25,16 @@ const selectedPlayer = ref()
         <div class="basis-8/12">
           {{ slotProps.option.firstName }} {{ slotProps.option.lastName }}
         </div>
-        <div v-if="slotProps.selected" class="basis-2/12"><CowIcon /></div>
-        <div v-else class="basis-2/12"></div>
+        <div
+          v-if="slotProps.selected"
+          class="basis-2/12"
+        >
+          <CowIcon />
+        </div>
+        <div
+          v-else
+          class="basis-2/12"
+        ></div>
       </div>
     </template>
   </AppListbox>
