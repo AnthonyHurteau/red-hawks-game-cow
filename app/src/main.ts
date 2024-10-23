@@ -8,6 +8,7 @@ import Listbox from "primevue/listbox"
 import App from "./App.vue"
 import router from "./router"
 import { AppTheme } from "./theme"
+import ProgressSpinner from "primevue/progressspinner"
 
 const app = createApp(App)
 
@@ -29,5 +30,6 @@ app.use(PrimeVue, {
   }
 })
 app.component("AppListbox", Listbox)
+app.component("AppProgressSpinner", ProgressSpinner)
 
 app.mount("#app")

@@ -1,6 +1,5 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
-import { DynamoDbClient } from "./services/dynamoDbClient";
-import { DynamoDB } from "aws-sdk";
+import { DynamoDbClient } from "../../common/services/dynamoDbClient";
 
 /**
  *
@@ -12,7 +11,7 @@ import { DynamoDB } from "aws-sdk";
  *
  */
 
-const dynamoDbClient = new DynamoDbClient();
+const dynamoDbClient = new DynamoDbClient(process.env.TABLE_NAME as string);
 
 export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     const origin = (event.headers.Origin || event.headers.origin) as string;

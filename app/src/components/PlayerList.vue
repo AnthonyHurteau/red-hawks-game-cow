@@ -1,19 +1,19 @@
 <script setup lang="ts">
-import { usePlayersStore } from "@/stores/players"
 import { ref } from "vue"
 import CowIcon from "./CowIcon.vue"
+import { useActiveGameStore } from "@/stores/activeGame"
 
-const playerStore = usePlayersStore()
+const activeGameStore = useActiveGameStore()
 const selectedPlayer = ref()
 </script>
 
 <template>
   <AppListbox
     v-model="selectedPlayer"
-    :options="playerStore.players"
+    :options="activeGameStore.activeGame?.players"
     optionLabel="id"
     scrollHeight="100%"
-    class="w-full bg-transparent border-0"
+    class="w-full bg-transparent border-0 px-5"
   >
     <template #option="slotProps">
       <div

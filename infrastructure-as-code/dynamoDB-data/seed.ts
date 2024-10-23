@@ -5,9 +5,12 @@ interface Player {
   lastName: { S: string };
   position: { S: string };
   core: { BOOL: boolean };
+  created: { S: string };
+  modified: { S: string };
 }
 
 const partitionKey = "Type#Player";
+const date = new Date().toISOString();
 
 export const dataInit: { PutRequest: { Item: Player } }[] = [
   {
@@ -19,6 +22,8 @@ export const dataInit: { PutRequest: { Item: Player } }[] = [
         lastName: { S: "St-Arnaud" },
         position: { S: "D" },
         core: { BOOL: true },
+        created: { S: date },
+        modified: { S: date },
       },
     },
   },
@@ -31,6 +36,8 @@ export const dataInit: { PutRequest: { Item: Player } }[] = [
         lastName: { S: "Soucy" },
         position: { S: "F" },
         core: { BOOL: true },
+        created: { S: date },
+        modified: { S: date },
       },
     },
   },
@@ -43,6 +50,8 @@ export const dataInit: { PutRequest: { Item: Player } }[] = [
         lastName: { S: "Hurteau" },
         position: { S: "D" },
         core: { BOOL: true },
+        created: { S: date },
+        modified: { S: date },
       },
     },
   },
@@ -55,6 +64,8 @@ export const dataInit: { PutRequest: { Item: Player } }[] = [
         lastName: { S: "Dolan-Théoret" },
         position: { S: "G" },
         core: { BOOL: true },
+        created: { S: date },
+        modified: { S: date },
       },
     },
   },
@@ -67,6 +78,8 @@ export const dataInit: { PutRequest: { Item: Player } }[] = [
         lastName: { S: "Desrochers" },
         position: { S: "F" },
         core: { BOOL: true },
+        created: { S: date },
+        modified: { S: date },
       },
     },
   },
@@ -79,6 +92,8 @@ export const dataInit: { PutRequest: { Item: Player } }[] = [
         lastName: { S: "Brunone" },
         position: { S: "F" },
         core: { BOOL: true },
+        created: { S: date },
+        modified: { S: date },
       },
     },
   },
@@ -91,6 +106,8 @@ export const dataInit: { PutRequest: { Item: Player } }[] = [
         lastName: { S: "Leroux" },
         position: { S: "F" },
         core: { BOOL: true },
+        created: { S: date },
+        modified: { S: date },
       },
     },
   },
@@ -103,6 +120,8 @@ export const dataInit: { PutRequest: { Item: Player } }[] = [
         lastName: { S: "Podtetenev" },
         position: { S: "F" },
         core: { BOOL: true },
+        created: { S: date },
+        modified: { S: date },
       },
     },
   },
@@ -115,6 +134,8 @@ export const dataInit: { PutRequest: { Item: Player } }[] = [
         lastName: { S: "Blais" },
         position: { S: "D" },
         core: { BOOL: true },
+        created: { S: date },
+        modified: { S: date },
       },
     },
   },
@@ -127,6 +148,8 @@ export const dataInit: { PutRequest: { Item: Player } }[] = [
         lastName: { S: "Alie-Messier" },
         position: { S: "D" },
         core: { BOOL: true },
+        created: { S: date },
+        modified: { S: date },
       },
     },
   },
@@ -139,6 +162,8 @@ export const dataInit: { PutRequest: { Item: Player } }[] = [
         lastName: { S: "Brodeur" },
         position: { S: "F" },
         core: { BOOL: true },
+        created: { S: date },
+        modified: { S: date },
       },
     },
   },
@@ -151,6 +176,8 @@ export const dataInit: { PutRequest: { Item: Player } }[] = [
         lastName: { S: "Côté" },
         position: { S: "F" },
         core: { BOOL: true },
+        created: { S: date },
+        modified: { S: date },
       },
     },
   },

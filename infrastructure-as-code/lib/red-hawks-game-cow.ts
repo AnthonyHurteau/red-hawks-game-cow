@@ -21,7 +21,7 @@ export class RedHawksGameCowStack extends Stack {
   constructor(scope: Construct, id: string, props: Props) {
     super(scope, id, props);
     const { appName } = props;
-    const tableName = `${appName}Table`;
+    const tableName = `${appName}-db`;
 
     const table = new TableV2(this, tableName, {
       tableName: tableName,
