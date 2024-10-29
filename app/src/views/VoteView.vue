@@ -1,24 +1,25 @@
 <script setup lang="ts">
 import PlayerList from "../components/PlayerList.vue"
-import { onMounted } from "vue"
 import VoteTitle from "@/components/VoteTitle.vue"
 import { useActiveGameStore } from "@/stores/activeGame"
 
 const activeGameStore = useActiveGameStore()
-
-onMounted(() => {
-  activeGameStore.getActiveGame()
-})
 </script>
 
 <template>
-  <main>
+  <main class="min-h-full flex flex-col">
     <VoteTitle />
     <div
-      v-if="activeGameStore.activeGame?.players.length === 0"
-      class="h-[calc(100vh-210px)] flex justify-center items-center"
+      v-if="activeGameStore.loading"
+      class="flex justify-center items-center grow"
     >
       <AppProgressSpinner />
+    </div>
+    <div
+      v-else-if="!activeGameStore.activeGame"
+      class="flex justify-center items-center grow"
+    >
+      <h1 class="text-2xl">Aucun vote n'a été activé!</h1>
     </div>
     <PlayerList v-else />
   </main>

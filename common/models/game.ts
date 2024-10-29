@@ -8,6 +8,21 @@ export interface Game extends BaseEntity {
   votes: Vote[];
 }
 
+export class GameInit implements Game {
+  id = "";
+  date: Date = new Date();
+  players: Player[] = [];
+  votes: Vote[] = [];
+}
+
 export interface ActiveGame extends Game {
   isVoteComplete: boolean;
+}
+
+export class ActiveGameInit implements ActiveGame {
+  id = "";
+  date: Date = new Date();
+  players: Player[] = [];
+  votes: Vote[] = [];
+  isVoteComplete: boolean = false;
 }

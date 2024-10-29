@@ -9,6 +9,8 @@ import App from "./App.vue"
 import router from "./router"
 import { AppTheme } from "./theme"
 import ProgressSpinner from "primevue/progressspinner"
+import Drawer from "primevue/drawer"
+import Button from "primevue/button"
 
 const app = createApp(App)
 
@@ -29,7 +31,9 @@ app.use(PrimeVue, {
     }
   }
 })
+app.component("AppButton", Button)
 app.component("AppListbox", Listbox)
 app.component("AppProgressSpinner", ProgressSpinner)
+app.component("AppDrawer", Drawer)
 
 app.mount("#app")

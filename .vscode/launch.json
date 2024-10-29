@@ -1,0 +1,37 @@
+{
+    "configurations": [
+        {
+            "name": "startApp",
+            "type": "node",
+            "request": "launch",
+            "cwd": "${workspaceRoot}/app",
+            "runtimeExecutable": "npm",
+            "runtimeArgs": [
+                "run",
+                "dev"
+            ]
+        },
+        {
+            "name": "startActiveGameApi",
+            "type": "node",
+            "request": "launch",
+            "preLaunchTask": "runActiveGameApi",
+        },
+        {
+            "name": "startVotesApi",
+            "type": "node",
+            "request": "launch",
+            "preLaunchTask": "runVotesApi",
+        },
+    ],
+    "compounds": [
+        {
+            "name": "Full Stack",
+            "configurations": [
+                "startApp",
+                "startActiveGameApi",
+                "startVotesApi"
+            ]
+        }
+    ]
+}

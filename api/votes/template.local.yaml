@@ -29,21 +29,11 @@ Resources:
         Variables:
           TABLE_NAME:
       Events:
-        GetActiveGame:
-          Type: Api
+        GetVotes:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
-            Path: /activeGame
+            Path: /votes
             Method: get
-        PostActiveGame:
-          Type: Api
-          Properties:
-            Path: /activeGame
-            Method: post
-        PutActiveGame:
-          Type: Api
-          Properties:
-            Path: /activeGame
-            Method: put
     # Metadata: # Manage esbuild properties
     #   BuildMethod: esbuild
     #   BuildProperties:

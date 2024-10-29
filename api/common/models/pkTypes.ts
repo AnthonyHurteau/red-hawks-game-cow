@@ -1,1 +1,1 @@
-export type PkType = "Player" | "ActiveGame";
+export type PkType = "Player" | "ActiveGame" | "Game" | "Vote" | "User";

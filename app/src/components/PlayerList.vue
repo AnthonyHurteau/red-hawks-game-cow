@@ -12,7 +12,7 @@ const selectedPlayer = ref()
     v-model="selectedPlayer"
     :options="activeGameStore.activeGame?.players"
     optionLabel="id"
-    scrollHeight="100%"
+    scrollHeight="calc(95vh - 210px)"
     class="w-full bg-transparent border-0 px-5"
   >
     <template #option="slotProps">

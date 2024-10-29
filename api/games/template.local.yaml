@@ -11,7 +11,7 @@ Globals:
     Timeout: 3
   Api:
     Cors:
-      AllowMethods: "'GET,OPTIONS'"
+      AllowMethods: "'GET,POST,OPTIONS'"
       AllowHeaders: "'content-type'"
       AllowOrigin: "'http://localhost:5173'"
 
@@ -29,11 +29,16 @@ Resources:
         Variables:
           TABLE_NAME:
       Events:
-        Players:
-          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+        GetGames:
+          Type: Api
           Properties:
-            Path: /players
+            Path: /games
             Method: get
+        PostGames:
+          Type: Api
+          Properties:
+            Path: /games
+            Method: post
     # Metadata: # Manage esbuild properties
     #   BuildMethod: esbuild
     #   BuildProperties:

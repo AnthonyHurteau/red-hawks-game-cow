@@ -1,0 +1,87 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "buildVotesApi",
+            "type": "shell",
+            "command": "npm run esbuild-dev",
+            "options": {
+                "cwd": "${workspaceFolder}/api/votes/src"
+            },
+            "isBackground": true,
+            "problemMatcher": [
+                {
+                    "base": "$tsc-watch",
+                    "background": {
+                        "activeOnStart": true,
+                        "beginsPattern": "watching for changes...",
+                        "endsPattern": "build finished"
+                    }
+                }
+            ]
+        },
+        {
+            "label": "runVotesApi",
+            "type": "shell",
+            "command": "npm run sam:debug",
+            "options": {
+                "cwd": "${workspaceFolder}/api/votes/src"
+            },
+            "isBackground": true,
+            "problemMatcher": [
+                {
+                    "base": "$tsc-watch",
+                    "background": {
+                        "activeOnStart": true,
+                        "beginsPattern": "Mounting ApiFunction",
+                        "endsPattern": "Running on http://127.0.0.1:8080"
+                    }
+                }
+            ],
+            "dependsOn": [
+                "buildVotesApi"
+            ]
+        },
+        {
+            "label": "buildActiveGameApi",
+            "type": "shell",
+            "command": "npm run esbuild-dev",
+            "options": {
+                "cwd": "${workspaceFolder}/activeGame/votes/src"
+            },
+            "isBackground": true,
+            "problemMatcher": [
+                {
+                    "base": "$tsc-watch",
+                    "background": {
+                        "activeOnStart": true,
+                        "beginsPattern": "watching for changes...",
+                        "endsPattern": "build finished"
+                    }
+                }
+            ]
+        },
+        {
+            "label": "runActiveGameApi",
+            "type": "shell",
+            "command": "npm run sam:debug",
+            "options": {
+                "cwd": "${workspaceFolder}/api/activeGame/src"
+            },
+            "isBackground": true,
+            "problemMatcher": [
+                {
+                    "base": "$tsc-watch",
+                    "background": {
+                        "activeOnStart": true,
+                        "beginsPattern": "Mounting ApiFunction",
+                        "endsPattern": "Running on http://127.0.0.1:8081"
+                    }
+                }
+            ],
+            "dependsOn": [
+                "buildActiveGameApi"
+            ]
+        }
+    ]
+}

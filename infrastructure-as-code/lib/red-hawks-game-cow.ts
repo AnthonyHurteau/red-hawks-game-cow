@@ -7,6 +7,7 @@ import {
 import {
   AttributeType,
   Billing,
+  ProjectionType,
   TableClass,
   TableV2,
 } from "aws-cdk-lib/aws-dynamodb";
@@ -21,11 +22,12 @@ export class RedHawksGameCowStack extends Stack {
   constructor(scope: Construct, id: string, props: Props) {
     super(scope, id, props);
     const { appName } = props;
-    const tableName = `${appName}-db`;
+    const tableName = `${appName}`;
+    const partitionKey = "pk";
 
     const table = new TableV2(this, tableName, {
       tableName: tableName,
-      partitionKey: { name: "pk", type: AttributeType.STRING },
+      partitionKey: { name: partitionKey, type: AttributeType.STRING },
       billing: Billing.onDemand(),
       removalPolicy: RemovalPolicy.RETAIN,
       deletionProtection: true,
@@ -33,6 +35,13 @@ export class RedHawksGameCowStack extends Stack {
       pointInTimeRecovery: true,
       tableClass: TableClass.STANDARD,
       timeToLiveAttribute: "TimeToLive",
+    });
+
+    const userId = "userId";
+    table.addLocalSecondaryIndex({
+      indexName: `${partitionKey}-${userId}-index`,
+      sortKey: { name: userId, type: AttributeType.STRING },
+      projectionType: ProjectionType.ALL,
     });
 
     new custom_resources.AwsCustomResource(this, `${tableName}-seed-data`, {

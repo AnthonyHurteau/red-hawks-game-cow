@@ -21,7 +21,7 @@ export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGat
         try {
             const result = await dynamoDbClient.getDocumentsAsync<ActiveGame>("ActiveGame");
 
-            if (result) {
+            if (result && result.length > 0) {
                 return {
                     statusCode: 200,
                     body: JSON.stringify(result[0]),
@@ -47,7 +47,16 @@ export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGat
 
             if (previousActiveGames) {
                 for (const previousActiveGame of previousActiveGames) {
-                    await dynamoDbClient.deleteDocumentAsync("ActiveGame", previousActiveGame.id);
+                    if (previousActiveGame.isVoteComplete) {
+                        await dynamoDbClient.deleteDocumentAsync("ActiveGame", previousActiveGame.id);
+                    } else {
+                        return {
+                            statusCode: 400,
+                            body: JSON.stringify({
+                                message: "There is an active vote in progress",
+                            }),
+                        };
+                    }
                 }
             }
 
@@ -64,7 +73,7 @@ export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGat
             }
             activeGame.players = corePlayers;
 
-            const result = await dynamoDbClient.createDocumentAsync<ActiveGame>(activeGame);
+            const result = await dynamoDbClient.createDocumentAsync<ActiveGame>("ActiveGame", activeGame);
 
             return {
                 statusCode: 200,
@@ -76,6 +85,28 @@ export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGat
                 statusCode: 500,
                 body: JSON.stringify({
                     message: "Error creating active game",
+                }),
+            };
+        }
+    } else if (event.httpMethod === HttpVerbs.PUT) {
+        try {
+            const activeGame = JSON.parse(event.body as string) as ActiveGame;
+            const result = await dynamoDbClient.updateDocumentAsync<ActiveGame>(
+                "ActiveGame",
+                activeGame.id,
+                activeGame,
+            );
+
+            return {
+                statusCode: 200,
+                body: JSON.stringify(result),
+            };
+        } catch (err) {
+            console.error(err);
+            return {
+                statusCode: 500,
+                body: JSON.stringify({
+                    message: "Error updating active game",
                 }),
             };
         }
