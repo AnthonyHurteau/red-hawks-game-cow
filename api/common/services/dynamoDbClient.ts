@@ -2,7 +2,7 @@ import { DynamoDB } from "aws-sdk";
 import { DbEntity, DbEntityInit, indexKey, partitionKey } from "../models/dbEntity";
 import { BaseEntity } from "../../../common/models/baseEntity";
 import { PkType } from "../models/pkTypes";
-import { IndexType } from "aws-sdk/clients/resourceexplorer2";
+import { IndexType } from "../models/indexTypes";
 
 export class DynamoDbClient {
     private readonly dynamoDbDocumentClient: DynamoDB.DocumentClient;
@@ -13,7 +13,7 @@ export class DynamoDbClient {
         this.tableName = tableName;
     }
 
-    async getDocumentAsync<T extends DbEntity>(pkType: PkType, id: string): Promise<T | undefined> {
+    async getDocumentAsync<T extends BaseEntity>(pkType: PkType, id: string): Promise<T | undefined> {
         const pk = partitionKey(pkType);
         const params = {
             TableName: this.tableName,
@@ -38,10 +38,11 @@ export class DynamoDbClient {
                 ":pk": pk,
             },
         };
-        try {
-            const results = await this.dynamoDbDocumentClient.query(params).promise();
 
-            return results.Items as T[];
+        try {
+            const result = await this.dynamoDbDocumentClient.query(params).promise();
+
+            return result.Items as T[];
         } catch (error) {
             console.error(error);
         }
@@ -49,11 +50,11 @@ export class DynamoDbClient {
         return undefined;
     }
 
-    async getDocumentByIndexAsync<T extends BaseEntity>(
+    async getDocumentsByIndexAsync<T extends BaseEntity>(
         pkType: PkType,
         indexKeyAttribute: IndexType,
         indexValue: string,
-    ): Promise<T | undefined> {
+    ): Promise<T[] | undefined> {
         const pk = partitionKey(pkType);
         const indexName = indexKey(indexKeyAttribute);
 
@@ -62,7 +63,7 @@ export class DynamoDbClient {
             IndexName: indexName,
             KeyConditionExpression: "#pk = :pkValue AND #indexKey = :indexValue",
             ExpressionAttributeNames: {
-                "#pk": pk,
+                "#pk": "pk",
                 "#indexKey": indexKeyAttribute,
             },
             ExpressionAttributeValues: {
@@ -70,6 +71,15 @@ export class DynamoDbClient {
                 ":indexValue": indexValue,
             },
         };
+
+        try {
+            const result = await this.dynamoDbDocumentClient.query(params).promise();
+            return result.Items as T[];
+        } catch (error) {
+            console.error(error);
+        }
+
+        return undefined;
     }
 
     async createDocumentAsync<T extends BaseEntity>(pkType: PkType, item: T): Promise<T | undefined> {
@@ -94,7 +104,7 @@ export class DynamoDbClient {
 
     async updateDocumentAsync<T extends BaseEntity>(pkType: PkType, id: string, item: T): Promise<T | undefined> {
         try {
-            let entity = await this.getDocumentAsync(pkType, id);
+            let entity = (await this.getDocumentAsync(pkType, id)) as T & DbEntity;
 
             if (entity) {
                 entity = { ...entity, ...item };

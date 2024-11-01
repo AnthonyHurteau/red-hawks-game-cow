@@ -23,6 +23,12 @@
             "request": "launch",
             "preLaunchTask": "runVotesApi",
         },
+        {
+            "name": "startUsersApi",
+            "type": "node",
+            "request": "launch",
+            "preLaunchTask": "runUsersApi",
+        },
     ],
     "compounds": [
         {
@@ -30,7 +36,8 @@
             "configurations": [
                 "startApp",
                 "startActiveGameApi",
-                "startVotesApi"
+                "startVotesApi",
+                "startUsersApi"
             ]
         }
     ]

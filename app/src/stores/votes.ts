@@ -1,7 +1,7 @@
 import { ref } from "vue"
 import { defineStore } from "pinia"
 import { get, post, put, remove } from "@/services/api"
-import type { Vote } from "../../../common/models/vote"
+import { VoteInit, type Vote } from "../../../common/models/vote"
 import { useUserStore } from "./user"
 
 const API_URL = import.meta.env.VITE_VOTE_API_URL
@@ -9,8 +9,9 @@ const ENDPOINT = "votes"
 const URL = `${API_URL}/${ENDPOINT}`
 
 export const useVotesStore = defineStore("votes", () => {
+  const voteInit = new VoteInit()
   const votes = ref<Vote[]>([])
-  const vote = ref<Vote | null>(null)
+  const vote = ref<Vote>(voteInit)
   const loading = ref(false)
   const error = ref<Error | null>(null)
 
@@ -30,19 +31,21 @@ export const useVotesStore = defineStore("votes", () => {
     }
   }
 
-  async function setVote(playerId: string) {
+  async function setVote(playerId: string | null) {
     loading.value = true
     try {
       const user = userStore.user
       if (user) {
-        const newVote: Vote = { id: "", userId: user, playerId }
-        if (!vote.value) {
-          vote.value = await post<Vote>(URL, newVote)
-        } else if (vote.value.playerId !== playerId) {
-          newVote.id = vote.value.id
-          vote.value = await put<Vote>(URL, newVote)
-        } else if (vote.value.playerId === playerId) {
-          vote.value = null
+        if (playerId) {
+          const newVote: Vote = { id: "", userId: user, playerId }
+          if (!vote.value) {
+            vote.value = await post<Vote>(URL, newVote)
+          } else if (vote.value.playerId !== playerId) {
+            newVote.id = vote.value.id
+            vote.value = await put<Vote>(URL, newVote)
+          }
+        } else {
+          vote.value = voteInit
           await remove(URL, user)
         }
       }
@@ -53,5 +56,5 @@ export const useVotesStore = defineStore("votes", () => {
     }
   }
 
-  return { votes, getVote, setVote, loading, error }
+  return { vote, votes, getVote, setVote, loading, error }
 })

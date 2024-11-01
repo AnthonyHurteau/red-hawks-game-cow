@@ -1,1 +1,1 @@
-export type IndexType = "UserId";
+export type IndexType = "userId";

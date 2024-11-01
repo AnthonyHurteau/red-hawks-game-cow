@@ -1,10 +1,26 @@
 <script setup lang="ts">
-import { ref } from "vue"
 import CowIcon from "./CowIcon.vue"
 import { useActiveGameStore } from "@/stores/activeGame"
+import { useVotesStore } from "@/stores/votes"
+import { computed } from "vue"
+import type { Player } from "../../../common/models/player"
 
 const activeGameStore = useActiveGameStore()
-const selectedPlayer = ref()
+const votesStore = useVotesStore()
+
+const selectedPlayer = computed({
+  get() {
+    if (activeGameStore.activeGame && votesStore.vote) {
+      const vote = votesStore.vote
+      const players = activeGameStore.activeGame.players
+      return players.find((player) => player.id === vote.playerId) || null
+    }
+    return null
+  },
+  set(value: Player | null) {
+    votesStore.setVote(value ? value.id : null)
+  }
+})
 </script>
 
 <template>

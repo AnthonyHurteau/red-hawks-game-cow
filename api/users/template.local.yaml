@@ -11,7 +11,7 @@ Globals:
     Timeout: 3
   Api:
     Cors:
-      AllowMethods: "'GET,POST,PUT,DELETE,OPTIONS'"
+      AllowMethods: "'GET,POST,OPTIONS'"
       AllowHeaders: "'content-type'"
       AllowOrigin: "'http://localhost:5173'"
 
@@ -29,26 +29,16 @@ Resources:
         Variables:
           TABLE_NAME:
       Events:
-        GetVotes:
-          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+        GetUsers:
+          Type: Api
           Properties:
-            Path: /votes
+            Path: /users
             Method: get
-        PostVotes:
+        PostUsers:
           Type: Api
           Properties:
-            Path: /votes
+            Path: /users
             Method: post
-        PutVotes:
-          Type: Api
-          Properties:
-            Path: /votes
-            Method: put
-        DeleteVotes:
-          Type: Api
-          Properties:
-            Path: /votes
-            Method: delete
     # Metadata: # Manage esbuild properties
     #   BuildMethod: esbuild
     #   BuildProperties:

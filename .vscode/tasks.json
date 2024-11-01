@@ -82,6 +82,47 @@
             "dependsOn": [
                 "buildActiveGameApi"
             ]
+        },
+        {
+            "label": "builUsersApi",
+            "type": "shell",
+            "command": "npm run esbuild-dev",
+            "options": {
+                "cwd": "${workspaceFolder}/users/votes/src"
+            },
+            "isBackground": true,
+            "problemMatcher": [
+                {
+                    "base": "$tsc-watch",
+                    "background": {
+                        "activeOnStart": true,
+                        "beginsPattern": "watching for changes...",
+                        "endsPattern": "build finished"
+                    }
+                }
+            ]
+        },
+        {
+            "label": "runUsersApi",
+            "type": "shell",
+            "command": "npm run sam:debug",
+            "options": {
+                "cwd": "${workspaceFolder}/api/users/src"
+            },
+            "isBackground": true,
+            "problemMatcher": [
+                {
+                    "base": "$tsc-watch",
+                    "background": {
+                        "activeOnStart": true,
+                        "beginsPattern": "Mounting ApiFunction",
+                        "endsPattern": "Running on http://127.0.0.1:8083"
+                    }
+                }
+            ],
+            "dependsOn": [
+                "buildUsersApi"
+            ]
         }
     ]
 }

@@ -19,11 +19,35 @@ export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGat
         if (event.queryStringParameters) {
             try {
                 const userId = event.queryStringParameters.userId;
-                const result = await dynamoDbClient.getDocumentsAsync<Vote>("Vote", event.queryStringParameters);
-                return {
-                    statusCode: 200,
-                    body: result ? JSON.stringify(result) : JSON.stringify([]),
-                };
+
+                if (userId) {
+                    const result = await dynamoDbClient.getDocumentsByIndexAsync<Vote>("Vote", "userId", userId);
+
+                    if (result && result.length > 0) {
+                        if (result.length > 1) {
+                            console.warn("More than one vote found for userId", userId);
+                            for (let i = 0; i < result.length; i++) {
+                                await dynamoDbClient.deleteDocumentAsync("Vote", result[i].id);
+                            }
+                        }
+                        return {
+                            statusCode: 200,
+                            body: JSON.stringify(result[0]),
+                        };
+                    } else {
+                        return {
+                            statusCode: 204,
+                            body: "",
+                        };
+                    }
+                } else {
+                    return {
+                        statusCode: 400,
+                        body: JSON.stringify({
+                            message: "Missing userId",
+                        }),
+                    };
+                }
             } catch (err) {
                 console.error(err);
                 return {

@@ -25,7 +25,7 @@ export const useActiveGameStore = defineStore("activeGame", () => {
 
   async function createActiveGame() {
     try {
-      if (activeGame.value && !activeGame.value.isVoteComplete) {
+      if (!activeGame.value || (activeGame.value && !activeGame.value.isVoteComplete)) {
         const newActiveGame = new ActiveGameInit()
         const result = await post<ActiveGame>(URL, newActiveGame)
         activeGame.value = result

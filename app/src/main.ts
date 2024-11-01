@@ -11,6 +11,7 @@ import { AppTheme } from "./theme"
 import ProgressSpinner from "primevue/progressspinner"
 import Drawer from "primevue/drawer"
 import Button from "primevue/button"
+import Password from "primevue/password"
 
 const app = createApp(App)
 
@@ -35,5 +36,6 @@ app.component("AppButton", Button)
 app.component("AppListbox", Listbox)
 app.component("AppProgressSpinner", ProgressSpinner)
 app.component("AppDrawer", Drawer)
+app.component("AppPassword", Password)
 
 app.mount("#app")
