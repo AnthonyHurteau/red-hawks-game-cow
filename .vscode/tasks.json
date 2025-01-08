@@ -47,7 +47,7 @@
             "type": "shell",
             "command": "npm run esbuild-dev",
             "options": {
-                "cwd": "${workspaceFolder}/activeGame/votes/src"
+                "cwd": "${workspaceFolder}/api/activeGame/src"
             },
             "isBackground": true,
             "problemMatcher": [
@@ -84,11 +84,11 @@
             ]
         },
         {
-            "label": "builUsersApi",
+            "label": "buildUsersApi",
             "type": "shell",
             "command": "npm run esbuild-dev",
             "options": {
-                "cwd": "${workspaceFolder}/users/votes/src"
+                "cwd": "${workspaceFolder}/api/users/src"
             },
             "isBackground": true,
             "problemMatcher": [

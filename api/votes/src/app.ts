@@ -1,6 +1,7 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { DynamoDbClient } from "../../common/services/dynamoDbClient";
 import { Vote } from "../../../common/models/vote";
+import { createMockVotesAsync } from "./services/mockVotes";
 
 /**
  *
@@ -19,6 +20,7 @@ export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGat
         if (event.queryStringParameters) {
             try {
                 const userId = event.queryStringParameters.userId;
+                const mockVote = event.queryStringParameters.mockVote;
 
                 if (userId) {
                     const result = await dynamoDbClient.getDocumentsByIndexAsync<Vote>("Vote", "userId", userId);
@@ -40,11 +42,17 @@ export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGat
                             body: "",
                         };
                     }
+                } else if (mockVote) {
+                    await createMockVotesAsync(dynamoDbClient, 11);
+                    return {
+                        statusCode: 200,
+                        body: JSON.stringify("Success"),
+                    };
                 } else {
                     return {
                         statusCode: 400,
                         body: JSON.stringify({
-                            message: "Missing userId",
+                            message: "Bad Parameters",
                         }),
                     };
                 }

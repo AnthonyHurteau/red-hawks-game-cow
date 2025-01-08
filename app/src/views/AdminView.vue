@@ -1,17 +1,30 @@
 <script setup lang="ts">
+import AdminPassword from "@/components/AdminPassword.vue"
+import AppLoading from "@/components/AppLoading.vue"
+import AdminGameVote from "@/components/AdminGameVote.vue"
 import { useActiveGameStore } from "@/stores/activeGame"
+import { useUserStore } from "@/stores/user"
 
 const activeGameStore = useActiveGameStore()
+const userStore = useUserStore()
 </script>
 
 <template>
   <main class="min-h-full flex flex-col">
-    <div class="flex justify-center items-center pt-4">
+    <div class="flex justify-center items-center py-10">
       <h1 class="text-4xl text-muted-color">Administration</h1>
     </div>
-    <div class="flex justify-center items-center grow">
+    <AppLoading v-if="userStore.loading" />
+    <div
+      v-else-if="!userStore.loading"
+      class="flex justify-center items-center"
+    >
+      <AdminPassword v-if="!userStore.isAdmin" />
       <AppButton
-        v-if="!activeGameStore.activeGame || activeGameStore.activeGame.isVoteComplete"
+        v-else-if="
+          userStore.isAdmin &&
+          (!activeGameStore.activeGame || activeGameStore.activeGame.isVoteComplete)
+        "
         type="button"
         rounded
         outlined
@@ -20,15 +33,12 @@ const activeGameStore = useActiveGameStore()
         label="Activer le vote"
         @click="activeGameStore.createActiveGame()"
       />
-      <AppButton
-        v-else-if="!activeGameStore.activeGame.isVoteComplete"
-        type="button"
-        rounded
-        outlined
-        raised
-        class="bg-highlight"
-        label="Fermer le vote"
-        @click="activeGameStore.closeActiveGameVote()"
+      <AdminGameVote
+        v-else-if="
+          userStore.isAdmin &&
+          activeGameStore.activeGame &&
+          !activeGameStore.activeGame.isVoteComplete
+        "
       />
     </div>
   </main>

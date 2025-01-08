@@ -34,7 +34,7 @@ export class RedHawksGameCowStack extends Stack {
       sortKey: { name: "id", type: AttributeType.STRING },
       pointInTimeRecovery: true,
       tableClass: TableClass.STANDARD,
-      timeToLiveAttribute: "TimeToLive",
+      timeToLiveAttribute: "timeToLive",
     });
 
     const userId = "userId";

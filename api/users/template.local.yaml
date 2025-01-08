@@ -28,6 +28,7 @@ Resources:
       Environment:
         Variables:
           TABLE_NAME:
+          ADMIN_PASSWORD:
       Events:
         GetUsers:
           Type: Api

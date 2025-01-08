@@ -82,10 +82,22 @@ export class DynamoDbClient {
         return undefined;
     }
 
-    async createDocumentAsync<T extends BaseEntity>(pkType: PkType, item: T): Promise<T | undefined> {
-        item.id = crypto.randomUUID();
-
+    async createDocumentAsync<T extends BaseEntity>(
+        pkType: PkType,
+        item: T,
+        timeToLive: number | null = null,
+    ): Promise<T | undefined> {
         let entity = new DbEntityInit(pkType);
+
+        if (timeToLive) {
+            entity.timeToLive = timeToLive;
+        }
+        // Because the front end sends the id as an empty string, we need to assign the entity id so that it doesn't get
+        // overwritten by the item id when we merge the two objects using the spread operator.
+        if (item.id === "") {
+            item.id = entity.id;
+        }
+
         entity = { ...entity, ...item };
 
         const params = {

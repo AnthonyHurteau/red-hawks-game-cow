@@ -17,6 +17,17 @@ export const useVotesStore = defineStore("votes", () => {
 
   const userStore = useUserStore()
 
+  async function getVotes() {
+    loading.value = true
+    try {
+      votes.value = await get<Vote[]>(URL)
+    } catch (e) {
+      error.value = e as Error
+    } finally {
+      loading.value = false
+    }
+  }
+
   async function getVote() {
     loading.value = true
     try {
@@ -37,7 +48,11 @@ export const useVotesStore = defineStore("votes", () => {
       const user = userStore.user
       if (user) {
         if (playerId) {
-          const newVote: Vote = { id: "", userId: user, playerId }
+          const newVote: Vote = {
+            ...voteInit,
+            userId: user,
+            playerId: playerId
+          }
           if (!vote.value) {
             vote.value = await post<Vote>(URL, newVote)
           } else if (vote.value.playerId !== playerId) {
@@ -56,5 +71,16 @@ export const useVotesStore = defineStore("votes", () => {
     }
   }
 
-  return { vote, votes, getVote, setVote, loading, error }
+  async function mockVotes() {
+    loading.value = true
+    try {
+      await get<string>(URL, { mockVote: "true" })
+    } catch (e) {
+      error.value = e as Error
+    } finally {
+      loading.value = false
+    }
+  }
+
+  return { vote, votes, getVote, getVotes, setVote, mockVotes, loading, error }
 })

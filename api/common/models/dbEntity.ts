@@ -7,6 +7,7 @@ export interface DbEntity extends BaseEntity {
     pk: string;
     created: string;
     modified: string;
+    timeToLive?: number;
 }
 
 export class DbEntityInit implements DbEntity {
@@ -14,6 +15,7 @@ export class DbEntityInit implements DbEntity {
     id: string = uuidv4();
     created: string = new Date().toISOString();
     modified: string = new Date().toISOString();
+    timeToLive?: number;
 
     constructor(pkType: PkType) {
         this.pk = partitionKey(pkType);

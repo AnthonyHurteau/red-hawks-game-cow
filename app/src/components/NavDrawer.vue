@@ -1,22 +1,40 @@
 <script setup lang="ts">
-import { ref } from "vue"
+import { computed, ref, type ComputedRef, type Ref } from "vue"
 import { RouterLink } from "vue-router"
 import AppLogo from "./AppLogo.vue"
 import { ROUTE_NAMES } from "@/router"
+import { useUserStore } from "@/stores/user"
+
+interface NavItem {
+  title: string
+  icon: string
+  routeName: ROUTE_NAMES
+  adminOnly: boolean
+}
 
 const visible = ref(false)
-const navItems = ref([
+const navItems: Ref<NavItem[]> = ref([
   {
     title: "Vote",
     icon: "pi pi-check-circle",
-    routeName: ROUTE_NAMES.VOTE
+    routeName: ROUTE_NAMES.VOTE,
+    adminOnly: false
   },
   {
     title: "Administration",
     icon: "pi pi-cog",
-    routeName: ROUTE_NAMES.ADMIN
+    routeName: ROUTE_NAMES.ADMIN,
+    adminOnly: true
   }
 ])
+
+const userStore = useUserStore()
+
+const filteredNavItems: ComputedRef<NavItem[]> = computed(() => {
+  return navItems.value.filter((item) => {
+    return !item.adminOnly || userStore.isAdmin
+  })
+})
 </script>
 
 <template>
@@ -58,7 +76,7 @@ const navItems = ref([
           <ul class="list-none p-4 m-0 overflow-hidden">
             <li
               class="py-2"
-              v-for="(item, index) in navItems"
+              v-for="(item, index) in filteredNavItems"
               :key="index"
             >
               <RouterLink

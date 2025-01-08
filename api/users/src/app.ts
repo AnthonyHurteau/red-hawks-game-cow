@@ -1,7 +1,9 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { DynamoDbClient } from "../../common/services/dynamoDbClient";
 import { HttpVerbs } from "../../common/enums/httpVerbs";
+import { Auth } from "../../../common/models/auth";
 import { User } from "../../../common/models/user";
+import { timeToLive } from "../../common/services/timeToLiveHelper";
 
 /**
  *
@@ -48,7 +50,7 @@ export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGat
                 return {
                     statusCode: 500,
                     body: JSON.stringify({
-                        message: "Error fetching active game",
+                        message: "Error fetching user",
                     }),
                 };
             }
@@ -62,13 +64,31 @@ export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGat
         }
     } else if (event.httpMethod === HttpVerbs.POST) {
         try {
-            const user = JSON.parse(event.body as string) as User;
+            const userAuth = JSON.parse(event.body as string) as Auth;
 
-            const result = await dynamoDbClient.createDocumentAsync<User>("User", user);
+            if (userAuth.password !== process.env.ADMIN_PASSWORD) {
+                return {
+                    statusCode: 403,
+                    body: JSON.stringify({
+                        message: "Unauthorized",
+                    }),
+                };
+            }
+
+            const adminUser: User = {
+                id: userAuth.userId,
+                isAdmin: true,
+            };
+
+            const ttl = timeToLive(6, "months");
+
+            await dynamoDbClient.createDocumentAsync<User>("User", adminUser, ttl);
+
+            userAuth.isAdmin = true;
 
             return {
                 statusCode: 200,
-                body: JSON.stringify(result),
+                body: JSON.stringify(userAuth),
             };
         } catch (err) {
             console.error(err);
