@@ -35,10 +35,10 @@ export const useActiveGameStore = defineStore("activeGame", () => {
     }
   }
 
-  async function closeActiveGameVote() {
+  async function manageActiveGameVote(isVoteComplete = false) {
     try {
       if (activeGame.value) {
-        activeGame.value.isVoteComplete = true
+        activeGame.value.isVoteComplete = isVoteComplete
         const updatedActiveGame = activeGame.value
         const result = await put<ActiveGame>(URL, updatedActiveGame)
         activeGame.value = result
@@ -48,5 +48,22 @@ export const useActiveGameStore = defineStore("activeGame", () => {
     }
   }
 
-  return { activeGame, getActiveGame, createActiveGame, closeActiveGameVote, loading, error }
+  const getPlayerById = (playerId: string) => {
+    if (activeGame.value) {
+      const player = activeGame.value.players.find((player) => player.id === playerId)
+      return player
+    } else {
+      throw new Error("Active game not found")
+    }
+  }
+
+  return {
+    activeGame,
+    getActiveGame,
+    createActiveGame,
+    manageActiveGameVote,
+    getPlayerById,
+    loading,
+    error
+  }
 })

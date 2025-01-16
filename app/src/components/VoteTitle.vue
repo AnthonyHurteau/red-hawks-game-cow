@@ -5,7 +5,9 @@
         <h2 class="text-xl">La</h2>
       </div>
       <div class="flex-1 skew-y-3 bg-emphasis shadow-lg w-80">
-        <h1 class="text-4xl tracking-wide">&#8902;&#8902;&#8902; VACHE &#8902;&#8902;&#8902;</h1>
+        <h1 class="text-3xl tracking-wide inline-block">&#8902;&#8902;&#8902;</h1>
+        <h2 class="text-xs inline-block -translate-y-1">&nbsp;petite&nbsp;</h2>
+        <h1 class="text-3xl tracking-wide inline-block">VACHE &#8902;&#8902;&#8902;</h1>
       </div>
       <div class="flex-1 skew-x-6 bg-highlight-emphasis shadow-lg w-60 pl-8 translate-x-12">
         <h2 class="text-xl">du match</h2>

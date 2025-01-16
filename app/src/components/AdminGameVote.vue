@@ -1,12 +1,11 @@
 <script setup lang="ts">
+import AppLoading from "@/components/AppLoading.vue"
 import { useActiveGameStore } from "@/stores/activeGame"
 import { useVotesStore } from "@/stores/votes"
-import { computed, onMounted } from "vue"
+import { computed, onMounted, ref } from "vue"
 import type { Vote } from "../../../common/models/vote"
-
-interface GroupedVotes {
-  [playerId: string]: Vote[]
-}
+import { basis, type BasisKey } from "@/utils/dynamicTailwindClasses"
+import type { GroupedVotes } from "../../../common/models/groupedVotes"
 
 const activeGameStore = useActiveGameStore()
 const votesStore = useVotesStore()
@@ -17,7 +16,7 @@ onMounted(() => {
 
 const groupedVotes = computed(() => {
   const votes = votesStore.votes
-  const grouped = votes.reduce((accumulator: GroupedVotes, currentValue) => {
+  const grouped = votes.reduce((accumulator, currentValue) => {
     if (!accumulator[currentValue.playerId]) {
       accumulator[currentValue.playerId] = []
     }
@@ -25,27 +24,65 @@ const groupedVotes = computed(() => {
     return accumulator
   }, {} as GroupedVotes)
 
-  return grouped
+  return Object.entries(grouped).sort((a, b) => b[1].length - a[1].length)
 })
+
+const voteGraphBasis = computed(() => (votes: Vote[]) => {
+  const nominator = Math.min(
+    Math.max(Math.round((votes.length / votesStore.votes.length) * 12), 1),
+    12
+  ) as BasisKey
+  return basis[nominator]
+})
+
+const getPlayerName = (playerId: string) => {
+  const player = activeGameStore.getPlayerById(playerId)
+  return `${player!.firstName} ${player!.lastName}`
+}
 </script>
 
 <template>
   <div
     class="flex flex-wrap justify-center items-center gap-10 overflow-auto h-[calc(100vh-200px)] pb-10"
   >
-    <div class="flex w-full">
-      <ul>
-        <li
-          class="flex w-full h-12 items-center justify-around rounded-border border-2 border-primary shadow-xl"
-          v-for="(vote, i) in groupedVotes"
-          :key="i"
+    <TransitionGroup
+      tag="div"
+      class="flex w-10/12 flex-wrap gap-2"
+      move-class="transition duration-500 ease-in-out"
+      enter-active="transition duration-500 ease-in-out"
+      leave-active="transition duration-500 ease-in-out"
+      enter-from="opacity-0 translate-x-1/4"
+      leave-to="opacity-0 translate-x-1/4"
+      leave-action="absolute"
+    >
+      <div
+        v-for="([playerId, votes], index) in groupedVotes"
+        :key="playerId"
+        class="flex basis-full justify-start relative"
+      >
+        <div
+          :class="[
+            'flex h-12 items-center justify-around rounded-border border-2 border-primary shadow-xl transition duration-1000 ease-in-out text-xs',
+            voteGraphBasis(votes)
+          ]"
         >
-          {{ vote[0].playerId }}
-        </li>
-      </ul>
-    </div>
+          <div class="absolute inset-0 overflow-visible whitespace-nowrap pt-4 pl-2">
+            {{ activeGameStore.activeGame?.isVoteComplete ? getPlayerName(playerId) : "" }}
+          </div>
+        </div>
+      </div>
+    </TransitionGroup>
 
-    <div class="flex w-full justify-center">
+    <div
+      class="flex w-full justify-center"
+      v-if="votesStore.loading"
+    >
+      <AppLoading />
+    </div>
+    <div
+      class="flex w-full justify-center"
+      v-if="!votesStore.loading && !activeGameStore.activeGame!.isVoteComplete"
+    >
       <AppButton
         type="button"
         rounded
@@ -57,7 +94,10 @@ const groupedVotes = computed(() => {
       />
     </div>
 
-    <div class="flex w-full justify-center">
+    <div
+      class="flex w-full justify-center"
+      v-if="!votesStore.loading && !activeGameStore.activeGame!.isVoteComplete"
+    >
       <AppButton
         type="button"
         rounded
@@ -65,7 +105,36 @@ const groupedVotes = computed(() => {
         raised
         class="bg-highlight"
         label="Fermer le vote"
-        @click="activeGameStore.closeActiveGameVote()"
+        @click="activeGameStore.manageActiveGameVote(true)"
+      />
+    </div>
+
+    <div
+      class="flex w-full justify-center"
+      v-if="!votesStore.loading && activeGameStore.activeGame!.isVoteComplete"
+    >
+      <AppButton
+        type="button"
+        rounded
+        outlined
+        raised
+        class="bg-highlight"
+        label="Réouvrir le vote"
+        @click="activeGameStore.manageActiveGameVote(false)"
+      />
+    </div>
+    <div
+      class="flex w-full justify-center"
+      v-if="!votesStore.loading && activeGameStore.activeGame!.isVoteComplete"
+    >
+      <AppButton
+        type="button"
+        rounded
+        outlined
+        raised
+        class="bg-highlight"
+        label="Nouveau vote"
+        @click="activeGameStore.createActiveGame()"
       />
     </div>
   </div>

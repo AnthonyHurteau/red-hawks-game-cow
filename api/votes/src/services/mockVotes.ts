@@ -6,17 +6,13 @@ export const createMockVotesAsync = async (dynamoDbClient: DynamoDbClient, numbe
     const activeGame = await dynamoDbClient.getDocumentsAsync<ActiveGame>("ActiveGame");
     if (activeGame) {
         const votes = await generateMockVotesAsync(numberOfVotes, activeGame[0]);
-        if (votes && votes.length > 0) {
+        if (votes) {
             const existingVotes = await dynamoDbClient.getDocumentsAsync<Vote>("Vote");
             if (existingVotes && existingVotes.length > 0) {
-                for (let i = 0; i < existingVotes.length; i++) {
-                    await dynamoDbClient.deleteDocumentAsync("Vote", existingVotes[i].id);
-                }
+                const existingVoteIds = existingVotes.map((vote) => vote.id);
+                await dynamoDbClient.deleteDocumentsAsync("Vote", existingVoteIds);
             }
-
-            for (let i = 0; i < votes.length; i++) {
-                await dynamoDbClient.createDocumentAsync<Vote>("Vote", votes[i]);
-            }
+            await dynamoDbClient.createDocumentsAsync<Vote>("Vote", votes);
         }
     }
 };

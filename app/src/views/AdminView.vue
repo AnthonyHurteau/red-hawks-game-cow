@@ -20,26 +20,35 @@ const userStore = useUserStore()
       class="flex justify-center items-center"
     >
       <AdminPassword v-if="!userStore.isAdmin" />
-      <AppButton
-        v-else-if="
-          userStore.isAdmin &&
-          (!activeGameStore.activeGame || activeGameStore.activeGame.isVoteComplete)
-        "
-        type="button"
-        rounded
-        outlined
-        raised
-        class="bg-highlight"
-        label="Activer le vote"
-        @click="activeGameStore.createActiveGame()"
-      />
-      <AdminGameVote
-        v-else-if="
-          userStore.isAdmin &&
-          activeGameStore.activeGame &&
-          !activeGameStore.activeGame.isVoteComplete
-        "
-      />
+      <div class="flex flex-col">
+        <AdminGameVote v-if="userStore.isAdmin && activeGameStore.activeGame" />
+        <div
+          v-if="
+            userStore.isAdmin &&
+            (!activeGameStore.activeGame || activeGameStore.activeGame.isVoteComplete)
+          "
+          class="flex flex-col gap-4"
+        >
+          <AppButton
+            type="button"
+            rounded
+            outlined
+            raised
+            class="bg-highlight"
+            label="Réouvrir le vote"
+            @click="activeGameStore.manageActiveGameVote(false)"
+          />
+          <AppButton
+            type="button"
+            rounded
+            outlined
+            raised
+            class="bg-highlight"
+            label="Nouveau vote"
+            @click="activeGameStore.createActiveGame()"
+          />
+        </div>
+      </div>
     </div>
   </main>
 </template>

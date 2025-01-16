@@ -3,6 +3,7 @@ import { DbEntity, DbEntityInit, indexKey, partitionKey } from "../models/dbEnti
 import { BaseEntity } from "../../../common/models/baseEntity";
 import { PkType } from "../models/pkTypes";
 import { IndexType } from "../models/indexTypes";
+import { BatchWriteItemRequestMap } from "aws-sdk/clients/dynamodb";
 
 export class DynamoDbClient {
     private readonly dynamoDbDocumentClient: DynamoDB.DocumentClient;
@@ -114,6 +115,45 @@ export class DynamoDbClient {
         return undefined;
     }
 
+    async createDocumentsAsync<T extends BaseEntity>(
+        pkType: PkType,
+        items: T[],
+        timeToLive: number | null = null,
+    ): Promise<(T | undefined)[]> {
+        const entities = items.map((item) => {
+            let entity = new DbEntityInit(pkType);
+
+            if (timeToLive) {
+                entity.timeToLive = timeToLive;
+            }
+
+            if (item.id === "") {
+                item.id = entity.id;
+            }
+
+            return { ...entity, ...item };
+        });
+
+        const params = {
+            RequestItems: {
+                [this.tableName]: entities.map((entity) => ({
+                    PutRequest: {
+                        Item: entity,
+                    },
+                })),
+            },
+        };
+
+        try {
+            await this.dynamoDbDocumentClient.batchWrite(params).promise();
+            return items;
+        } catch (error) {
+            console.error(error);
+        }
+
+        return items.map(() => undefined);
+    }
+
     async updateDocumentAsync<T extends BaseEntity>(pkType: PkType, id: string, item: T): Promise<T | undefined> {
         try {
             let entity = (await this.getDocumentAsync(pkType, id)) as T & DbEntity;
@@ -158,6 +198,30 @@ export class DynamoDbClient {
             } else {
                 return false;
             }
+        } catch (error) {
+            console.error(error);
+        }
+
+        return undefined;
+    }
+
+    async deleteDocumentsAsync(pkType: PkType, ids: string[]): Promise<boolean | undefined> {
+        try {
+            const pk = partitionKey(pkType);
+            const deleteRequests = ids.map((id) => ({
+                DeleteRequest: {
+                    Key: { pk, id },
+                },
+            }));
+
+            const params = {
+                RequestItems: {
+                    [this.tableName]: deleteRequests,
+                },
+            };
+
+            await this.dynamoDbDocumentClient.batchWrite(params).promise();
+            return true;
         } catch (error) {
             console.error(error);
         }

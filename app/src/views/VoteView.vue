@@ -2,6 +2,7 @@
 import AppLoading from "@/components/AppLoading.vue"
 import PlayerList from "../components/PlayerList.vue"
 import VoteTitle from "@/components/VoteTitle.vue"
+import WinningCows from "@/components/WinningCows.vue"
 import { useActiveGameStore } from "@/stores/activeGame"
 
 const activeGameStore = useActiveGameStore()
@@ -17,6 +18,7 @@ const activeGameStore = useActiveGameStore()
     >
       <h1 class="text-2xl">Aucun vote n'a été activé!</h1>
     </div>
-    <PlayerList v-else />
+    <PlayerList v-else-if="!activeGameStore.activeGame.isVoteComplete" />
+    <WinningCows v-else-if="activeGameStore.activeGame.isVoteComplete" />
   </main>
 </template>

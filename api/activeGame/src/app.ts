@@ -3,6 +3,7 @@ import { DynamoDbClient } from "../../common/services/dynamoDbClient";
 import { HttpVerbs } from "../../common/enums/httpVerbs";
 import { ActiveGame } from "../../../common/models/game";
 import { Player } from "../../../common/models/player";
+import { Vote } from "../../../common/models/vote";
 
 /**
  *
@@ -91,6 +92,16 @@ export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGat
     } else if (event.httpMethod === HttpVerbs.PUT) {
         try {
             const activeGame = JSON.parse(event.body as string) as ActiveGame;
+
+            if (activeGame.isVoteComplete) {
+                const votes = await dynamoDbClient.getDocumentsAsync<Vote>("Vote");
+                if (votes) {
+                    activeGame.votes = votes;
+                }
+            } else if (!activeGame.isVoteComplete) {
+                activeGame.votes = [];
+            }
+
             const result = await dynamoDbClient.updateDocumentAsync<ActiveGame>(
                 "ActiveGame",
                 activeGame.id,

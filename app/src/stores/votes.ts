@@ -75,6 +75,7 @@ export const useVotesStore = defineStore("votes", () => {
     loading.value = true
     try {
       await get<string>(URL, { mockVote: "true" })
+      await getVotes()
     } catch (e) {
       error.value = e as Error
     } finally {

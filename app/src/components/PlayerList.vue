@@ -45,7 +45,7 @@ const selectedPlayer = computed({
           v-if="slotProps.selected"
           class="basis-2/12"
         >
-          <CowIcon />
+          <CowIcon cowType="vote" />
         </div>
         <div
           v-else

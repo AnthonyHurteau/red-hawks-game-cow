@@ -5,9 +5,9 @@ import NavDrawer from "./NavDrawer.vue"
 
 <template>
   <header
-    class="sticky top-0 w-full h-20 z-10 flex flex-wrap items-center justify-between bg-primary mb-3 shadow-lg"
+    class="sticky top-0 w-full h-20 z-10 flex items-center justify-between bg-primary mb-3 shadow-lg"
   >
-    <div class="px-2 mx-auto flex flex-wrap items-center justify-between">
+    <div class="px-2 flex items-center justify-start">
       <AppLogo />
     </div>
     <div class="flex pr-5">
