@@ -1,0 +1,185 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Red Hawks Game Cow Microservices for local development
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 3
+    Runtime: nodejs20.x
+    MemorySize: 4096
+    Architectures:
+      - arm64
+    Environment:
+      Variables:
+        TABLE_NAME:
+  Api:
+    Cors:
+      AllowMethods: "'GET,POST,PUT,DELETE,OPTIONS'"
+      AllowHeaders: "'content-type'"
+      AllowOrigin: "'http://localhost:5173'"
+
+Resources:
+  # Players
+  GetCorePlayers:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: dist/players
+      Handler: getCorePlayers.lambdaHandler
+      Events:
+        Event:
+          Type: Api
+          Properties:
+            Path: /players
+            Method: get
+  # Games
+  GetActiveGame:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: dist/games
+      Handler: getActiveGame.lambdaHandler
+      Events:
+        Event:
+          Type: Api
+          Properties:
+            Path: /games
+            Method: get
+  CreateGame:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: dist/games
+      Handler: create.lambdaHandler
+      Environment:
+        Variables:
+          GET_CORE_PLAYER_ENDPOINT:
+      Events:
+        Event:
+          Type: Api
+          Properties:
+            Path: /games
+            Method: post
+  UpdateGame:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: dist/games
+      Handler: update.lambdaHandler
+      Environment:
+        Variables:
+          GET_VOTES_ENDPOINT:
+      Events:
+        Event:
+          Type: Api
+          Properties:
+            Path: /games
+            Method: put
+  # Votes
+  GetVote:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: dist/votes
+      Handler: get.lambdaHandler
+      Events:
+        Event:
+          Type: Api
+          Properties:
+            Path: /votes/{id}
+            Method: get
+  GetVotes:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: dist/votes
+      Handler: getList.lambdaHandler
+      Events:
+        Event:
+          Type: Api
+          Properties:
+            Path: /votes
+            Method: get
+  CreateVote:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: dist/votes
+      Handler: create.lambdaHandler
+      Events:
+        Event:
+          Type: Api
+          Properties:
+            Path: /votes
+            Method: post
+  UpdateVote:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: dist/votes
+      Handler: update.lambdaHandler
+      Events:
+        Event:
+          Type: Api
+          Properties:
+            Path: /votes
+            Method: put
+  DeleteVote:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: dist/votes
+      Handler: delete.lambdaHandler
+      Events:
+        Event:
+          Type: Api
+          Properties:
+            Path: /votes
+            Method: delete
+  # Users
+  GetUser:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: dist/users
+      Handler: get.lambdaHandler
+      Events:
+        Event:
+          Type: Api
+          Properties:
+            Path: /users/{id}
+            Method: get
+  CreateUser:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: dist/users
+      Handler: create.lambdaHandler
+      Events:
+        Event:
+          Type: Api
+          Properties:
+            Path: /users
+            Method: post
+
+  # Auth
+  Auth:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: dist/auth
+      Handler: auth.lambdaHandler
+      Environment:
+        Variables:
+          ADMIN_PASSWORD:
+          CREATE_USER_ENDPOINT:
+      Events:
+        Event:
+          Type: Api
+          Properties:
+            Path: /auth
+            Method: post
+
+Outputs:
+  # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
+  # Find out more about other implicit resources you can reference within SAM
+  # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
+  HelloWorldApi:
+    Description: "API Gateway endpoint URL for Prod stage for Hello World function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/"
+  ApiFunction:
+    Description: "Hello World Lambda Function ARN"
+    Value: !GetAtt HelloWorldFunction.Arn
+  HelloWorldFunctionIamRole:
+    Description: "Implicit IAM Role created for Hello World function"
+    Value: !GetAtt HelloWorldFunctionRole.Arn

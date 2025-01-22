@@ -1,7 +1,7 @@
 import { ref } from "vue"
 import { defineStore } from "pinia"
 import { get, post, put, remove } from "@/services/api"
-import { VoteInit, type Vote } from "../../../common/models/vote"
+import { Vote } from "../../../common/models/vote"
 import { useUserStore } from "./user"
 
 const API_URL = import.meta.env.VITE_VOTE_API_URL
@@ -9,9 +9,8 @@ const ENDPOINT = "votes"
 const URL = `${API_URL}/${ENDPOINT}`
 
 export const useVotesStore = defineStore("votes", () => {
-  const voteInit = new VoteInit()
   const votes = ref<Vote[]>([])
-  const vote = ref<Vote>(voteInit)
+  const vote = ref<Vote>(new Vote())
   const loading = ref(false)
   const error = ref<Error | null>(null)
 
@@ -48,19 +47,17 @@ export const useVotesStore = defineStore("votes", () => {
       const user = userStore.user
       if (user) {
         if (playerId) {
-          const newVote: Vote = {
-            ...voteInit,
-            userId: user,
-            playerId: playerId
-          }
+          const newVote = new Vote("", user, playerId)
           if (!vote.value) {
-            vote.value = await post<Vote>(URL, newVote)
+            await post<Vote>(URL, newVote)
+            vote.value = await get<Vote>(URL, { userId: user })
           } else if (vote.value.playerId !== playerId) {
             newVote.id = vote.value.id
-            vote.value = await put<Vote>(URL, newVote)
+            await put<Vote>(URL, newVote)
+            vote.value = newVote
           }
         } else {
-          vote.value = voteInit
+          vote.value = new Vote()
           await remove(URL, user)
         }
       }
