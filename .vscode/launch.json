@@ -9,7 +9,8 @@
             "runtimeArgs": [
                 "run",
                 "dev"
-            ]
+            ],
+            "console": "integratedTerminal"
         },
         {
             "name": "startApi",

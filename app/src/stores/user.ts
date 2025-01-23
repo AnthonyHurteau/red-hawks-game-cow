@@ -1,9 +1,9 @@
 import { ref } from "vue"
 import { defineStore } from "pinia"
-import { getItem } from "@/services/localStorage"
+import { getItem, setItem } from "@/services/localStorage"
 import { v4 as uuidv4 } from "uuid"
-import { get, post } from "@/services/api"
-import type { IUser } from "@common/models/user"
+import { get, post, put } from "@/services/api"
+import { User, type IUser } from "@common/models/user"
 import { Auth, type IAuth } from "@common/models/auth"
 
 const USER_KEY = "user"
@@ -16,22 +16,16 @@ const AUTH_URL = `${API_URL}/${AUTH_PATH}`
 export const useUserStore = defineStore("user", () => {
   const user = ref<IUser>()
   const error = ref<Error>()
-  const isAdmin = ref<boolean>(false)
   const loading = ref(false)
 
   async function getUser() {
     loading.value = true
-    try {
-      const result = getItem<string>(USER_KEY)
-      let userId: string
-      if (result) {
-        userId = result
-      } else {
-        userId = uuidv4()
 
-        localStorage.setItem(USER_KEY, userId)
+    try {
+      if (!user.value) {
+        const userId = getUserIdFromStorage()
+        await getOrCreateUserAsync(userId)
       }
-      await setIsUserAdmin(userId)
     } catch (e) {
       error.value = e as Error
     } finally {
@@ -39,20 +33,40 @@ export const useUserStore = defineStore("user", () => {
     }
   }
 
-  const setIsUserAdmin = async (userId: string) => {
-    const url = `${USER_URL}/${userId}`
-    const result = await get<IUser>(url)
-    user.value = result
-    isAdmin.value = result.type === "admin"
+  const getUserIdFromStorage = () => {
+    const result = getItem<string>(USER_KEY)
+    let userId: string
+    if (result) {
+      userId = result
+    } else {
+      userId = uuidv4()
+      setItem(USER_KEY, userId)
+    }
+    return userId
+  }
+
+  const getOrCreateUserAsync = async (userId: string) => {
+    const getUrl = `${USER_URL}/${userId}`
+    const result = await get<IUser>(getUrl)
+    if (result) {
+      result.lastLogin = new Date().toISOString()
+      result.userAgent = navigator.userAgent
+      const modifiedUser = await put<IUser>(USER_URL, result)
+      user.value = modifiedUser
+    } else {
+      const newUser = new User({ id: userId })
+      const result = await post<IUser>(USER_URL, newUser)
+      user.value = result
+    }
   }
 
   async function setAdmin(password: string) {
     loading.value = true
     try {
       if (user.value) {
-        const auth: IAuth = new Auth(user.value.id, password)
-        const result = await post<Auth>(AUTH_URL, auth)
-        isAdmin.value = result.isAdmin
+        const auth: IAuth = new Auth(user.value, password)
+        const result = await post<IAuth>(AUTH_URL, auth)
+        user.value = result
       }
     } catch (e) {
       error.value = e as Error
@@ -61,5 +75,5 @@ export const useUserStore = defineStore("user", () => {
     }
   }
 
-  return { user, isAdmin, loading, getUser, setAdmin, error }
+  return { user, loading, getUser, setAdmin, error }
 })

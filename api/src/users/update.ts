@@ -1,8 +1,6 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { DynamoDbClient } from "/opt/nodejs/core/src/services/dynamoDbClient";
-import { Game, IGame } from "common/models/game";
-import { getAsync } from "/opt/nodejs/core/src/services/httpHelper";
-import { IVote } from "common/models/vote";
+import { IUser, User } from "common/models/user";
 
 /**
  *
@@ -18,31 +16,20 @@ const dynamoDbClient = new DynamoDbClient(process.env.TABLE_NAME as string);
 
 export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     try {
-        const body = JSON.parse(event.body as string) as IGame;
-        const game = new Game(body);
-
-        if (game.isVoteComplete) {
-            const url = process.env.VOTES_ENDPOINT;
-            const votes = await getAsync<IVote[]>(url);
-            if (votes) {
-                game.votes = votes;
-            }
-        } else if (!game.isVoteComplete) {
-            game.votes = [];
-        }
-
-        await dynamoDbClient.updateDocumentAsync<IGame>(game);
+        const body = JSON.parse(event.body as string) as IUser;
+        const user = new User(body);
+        await dynamoDbClient.updateDocumentAsync<IUser>(user);
 
         return {
             statusCode: 200,
-            body: JSON.stringify(game),
+            body: JSON.stringify(user),
         };
     } catch (err) {
         console.error(err);
         return {
-            statusCode: 500,
+            statusCode: 400,
             body: JSON.stringify({
-                message: "Error updating active game",
+                message: "Bad Request",
             }),
         };
     }

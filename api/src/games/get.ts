@@ -26,8 +26,7 @@ export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGat
 
             if (type && isGameType(type)) {
                 const result = await dynamoDbClient.getDocumentsByPrimaryKeyAsync<IGameDbEntity>(type);
-
-                if (result) {
+                if (result && result.length > 0) {
                     const gameDto = new GameDto(result[0]);
                     return {
                         statusCode: 200,

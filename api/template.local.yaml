@@ -52,7 +52,7 @@ Resources:
       Handler: create.lambdaHandler
       Environment:
         Variables:
-          GET_CORE_PLAYER_ENDPOINT:
+          PLAYERS_ENDPOINT:
       Events:
         Event:
           Type: Api
@@ -66,7 +66,7 @@ Resources:
       Handler: update.lambdaHandler
       Environment:
         Variables:
-          GET_VOTES_ENDPOINT:
+          VOTES_ENDPOINT:
       Events:
         Event:
           Type: Api
@@ -152,6 +152,28 @@ Resources:
           Properties:
             Path: /users
             Method: post
+  UpdateUser:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: dist/users
+      Handler: update.lambdaHandler
+      Events:
+        Event:
+          Type: Api
+          Properties:
+            Path: /users
+            Method: put
+  DeleteUser:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: dist/users
+      Handler: delete.lambdaHandler
+      Events:
+        Event:
+          Type: Api
+          Properties:
+            Path: /users/{id}
+            Method: delete
 
   # Auth
   Auth:
@@ -162,7 +184,7 @@ Resources:
       Environment:
         Variables:
           ADMIN_PASSWORD:
-          CREATE_USER_ENDPOINT:
+          USERS_ENDPOINT:
       Events:
         Event:
           Type: Api

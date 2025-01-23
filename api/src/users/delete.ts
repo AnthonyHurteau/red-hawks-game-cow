@@ -1,6 +1,7 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { DynamoDbClient } from "/opt/nodejs/core/src/services/dynamoDbClient";
 import { IUserDbEntity, UserDto } from "/opt/nodejs/core/src/models/user";
+import { IUser } from "common/models/user";
 
 /**
  *
@@ -17,22 +18,21 @@ const dynamoDbClient = new DynamoDbClient(process.env.TABLE_NAME as string);
 export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     if (event.pathParameters && event.pathParameters.id) {
         try {
-            const id = event.pathParameters.id;
-            const result = await dynamoDbClient.getDocumentsByPrimaryKeyAsync<IUserDbEntity>(id);
+            const userId = event.pathParameters.id;
 
-            if (result && result.length > 0) {
-                const userDto = new UserDto(result[0]);
+            const user = await dynamoDbClient.getDocumentsByPrimaryKeyAsync<IUserDbEntity>(userId);
+            if (user && user.length > 0) {
+                const userDto = new UserDto(user[0]);
+                await dynamoDbClient.deleteDocumentAsync<IUser>(userDto);
                 return {
                     statusCode: 200,
-                    body: JSON.stringify(userDto),
-                };
-            } else {
-                return {
-                    statusCode: 204,
-                    body: "No content",
+                    body: JSON.stringify({
+                        message: "Ok",
+                    }),
                 };
             }
-        } catch (error) {
+        } catch (err) {
+            console.error(err);
             return {
                 statusCode: 400,
                 body: JSON.stringify({

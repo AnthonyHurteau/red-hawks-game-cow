@@ -20,7 +20,7 @@ export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGat
             const userId = event.queryStringParameters.userId;
             const result = await dynamoDbClient.getDocumentsByPrimaryKeyAsync<IVoteDbEntity>(userId);
 
-            if (result) {
+            if (result && result.length > 0) {
                 const voteDto = new VoteDto(result[0]);
                 return {
                     statusCode: 200,

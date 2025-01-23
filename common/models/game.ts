@@ -7,7 +7,7 @@ export type GameType = "active" | "completed";
 
 export interface IGame extends IBaseEntity {
   type: GameType;
-  date: Date;
+  date: string;
   isVoteComplete: boolean;
   players: IPlayer[];
   votes: IVote[];
@@ -16,19 +16,19 @@ export interface IGame extends IBaseEntity {
 export class Game implements IGame {
   id: string;
   type: GameType;
-  date: Date;
+  date: string;
   isVoteComplete: boolean;
   players: IPlayer[];
   votes: IVote[];
 
-  constructor(
-    id: string = "",
-    type: GameType = "active",
-    date: Date = new Date(),
-    isVoteComplete: boolean = false,
-    players: IPlayer[] = [],
-    votes: IVote[] = []
-  ) {
+  constructor({
+    id = "",
+    type = "active",
+    date = new Date().toISOString(),
+    isVoteComplete = false,
+    players = [],
+    votes = [],
+  }: Partial<IGame> = {}) {
     this.id = id;
     this.type = type;
     this.date = date;

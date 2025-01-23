@@ -21,7 +21,7 @@ export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGat
             const userId = event.queryStringParameters.userId;
 
             const vote = await dynamoDbClient.getDocumentsByPrimaryKeyAsync<IVoteDbEntity>(userId);
-            if (vote) {
+            if (vote && vote.length > 0) {
                 const voteDto = new VoteDto(vote[0]);
                 await dynamoDbClient.deleteDocumentAsync<IVote>(voteDto);
                 return {

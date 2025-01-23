@@ -8,7 +8,7 @@ import { IVote } from "common/models/vote";
 export interface IGameDbEntity extends IDbEntity, Omit<IGame, OmittedProps | SortKeyProperty> {}
 
 export class GameDbEntity extends DbEntity implements IGameDbEntity {
-    date: Date;
+    date: string;
     isVoteComplete: boolean;
     players: IPlayer[];
     votes: IVote[];
@@ -24,13 +24,10 @@ export class GameDbEntity extends DbEntity implements IGameDbEntity {
 
 export class GameDto extends Game implements IGame {
     constructor(gameDbEntity: IGameDbEntity) {
-        super(
-            gameDbEntity.sk,
-            gameDbEntity.pk as GameType,
-            gameDbEntity.date,
-            gameDbEntity.isVoteComplete,
-            gameDbEntity.players,
-            gameDbEntity.votes,
-        );
+        super({
+            id: gameDbEntity.sk,
+            type: gameDbEntity.pk as GameType,
+            ...gameDbEntity,
+        });
     }
 }

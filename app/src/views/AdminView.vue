@@ -19,11 +19,14 @@ const userStore = useUserStore()
       v-else-if="!userStore.loading"
       class="flex justify-center items-center"
     >
-      <AdminPassword v-if="!userStore.isAdmin" />
+      <AdminPassword v-if="userStore.user?.type !== 'admin'" />
       <div class="flex flex-col">
-        <AdminGameVote v-if="userStore.isAdmin && gameStore.activeGame" />
+        <AdminGameVote v-if="userStore.user?.type === 'admin' && gameStore.activeGame" />
         <div
-          v-if="userStore.isAdmin && (!gameStore.activeGame || gameStore.activeGame.isVoteComplete)"
+          v-if="
+            userStore.user?.type === 'admin' &&
+            (!gameStore.activeGame || gameStore.activeGame.isVoteComplete)
+          "
           class="flex flex-col gap-4"
         >
           <AppButton

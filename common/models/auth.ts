@@ -1,17 +1,14 @@
-export interface IAuth {
-  userId: string;
+import { IUser, User } from "./user";
+
+export interface IAuth extends IUser {
   password: string;
-  isAdmin: boolean;
 }
 
-export class Auth implements IAuth {
-  userId: string;
+export class Auth extends User implements IAuth {
   password: string;
-  isAdmin: boolean;
 
-  constructor(userId: string, password: string, isAdmin = false) {
-    this.userId = userId;
+  constructor(user: IUser, password: string) {
+    super(user);
     this.password = password;
-    this.isAdmin = isAdmin;
   }
 }

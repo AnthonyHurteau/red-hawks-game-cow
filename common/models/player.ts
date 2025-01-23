@@ -18,13 +18,13 @@ export class Player implements IPlayer {
   lastName: string;
   position: Position;
 
-  constructor(
-    id: string = "",
-    type: PlayerType = "sub",
-    firstName: string = "",
-    lastName: string = "",
-    position: Position = "F"
-  ) {
+  constructor({
+    id = "",
+    type = "sub",
+    firstName = "",
+    lastName = "",
+    position = "F",
+  }: Partial<IPlayer> = {}) {
     this.id = id;
     this.type = type;
     this.firstName = firstName;
@@ -33,9 +33,9 @@ export class Player implements IPlayer {
   }
 
   get dbEntityPrimaryKey() {
-    return this.id;
+    return this.type;
   }
   get dbEntitySortKey() {
-    return this.type;
+    return this.id;
   }
 }

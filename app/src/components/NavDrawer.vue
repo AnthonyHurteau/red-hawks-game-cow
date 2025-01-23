@@ -32,7 +32,7 @@ const userStore = useUserStore()
 
 const filteredNavItems: ComputedRef<NavItem[]> = computed(() => {
   return navItems.value.filter((item) => {
-    return !item.adminOnly || userStore.isAdmin
+    return !item.adminOnly || userStore.user?.type === "admin"
   })
 })
 </script>

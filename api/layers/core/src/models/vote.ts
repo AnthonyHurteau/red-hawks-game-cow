@@ -16,6 +16,6 @@ export class VoteDbEntity extends DbEntity implements IVoteDbEntity {
 
 export class VoteDto extends Vote implements IVote {
     constructor(voteDbEntity: IVoteDbEntity) {
-        super(voteDbEntity.sk, voteDbEntity.pk, voteDbEntity.playerId);
+        super({ id: voteDbEntity.sk, userId: voteDbEntity.pk, ...voteDbEntity });
     }
 }

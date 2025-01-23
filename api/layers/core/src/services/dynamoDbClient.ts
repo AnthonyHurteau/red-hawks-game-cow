@@ -1,4 +1,4 @@
-import { DynamoDB } from "aws-sdk";
+import { AWSError, DynamoDB } from "aws-sdk";
 import { IDbEntity } from "../models/dbEntity";
 import { IBaseEntity } from "common/models/baseEntity";
 
@@ -98,7 +98,6 @@ export class DynamoDbClient {
             entity.dbEntityPrimaryKey,
             entity.dbEntitySortKey,
         );
-
         if (dbEntity) {
             dbEntity.modified = new Date().toISOString();
             dbEntity = { ...dbEntity, ...entity };

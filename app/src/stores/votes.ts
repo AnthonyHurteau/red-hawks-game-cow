@@ -47,7 +47,7 @@ export const useVotesStore = defineStore("votes", () => {
       const user = userStore.user
       if (user) {
         if (playerId) {
-          const newVote = new Vote("", user.id, playerId)
+          const newVote = new Vote({ userId: user.id, playerId: playerId })
           if (!vote.value) {
             const result = await post<IVote>(URL, newVote)
             vote.value = result

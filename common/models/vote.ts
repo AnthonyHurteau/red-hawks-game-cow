@@ -12,7 +12,7 @@ export class Vote implements IVote {
   playerId: string;
   userId: string;
 
-  constructor(id: string = "", userId: string = "", playerId: string = "") {
+  constructor({ id = "", userId = "", playerId = "" }: Partial<IVote> = {}) {
     this.id = id;
     this.playerId = playerId;
     this.userId = userId;

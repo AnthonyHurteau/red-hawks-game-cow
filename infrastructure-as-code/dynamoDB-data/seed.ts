@@ -158,8 +158,8 @@ export const dataInit: { PutRequest: { Item: Player } }[] = [
   {
     PutRequest: {
       Item: {
-        pk: { S: "eba1d64c-d0e1-425e-89ea-99b7a31a4a2f" },
-        sk: { S: primaryKey },
+        pk: { S: primaryKey },
+        sk: { S: "eba1d64c-d0e1-425e-89ea-99b7a31a4a2f" },
         firstName: { S: "Alexandre" },
         lastName: { S: "Côté" },
         position: { S: "F" },

@@ -38,6 +38,15 @@ export class RedHawksGameCowStack extends Stack {
       product,
     });
 
+    const gamesId = "games";
+    const gamesTable = new DynamoDb(this, `${gamesId}-table`, {
+      tableType: gamesId,
+      environment,
+      region,
+      appName,
+      product,
+    });
+
     const votesId = "votes";
     const votesTable = new DynamoDb(this, `${votesId}-table`, {
       tableType: votesId,
@@ -47,25 +56,13 @@ export class RedHawksGameCowStack extends Stack {
       product,
     });
 
-    const tableName = `${appName}`;
-    const partitionKey = "pk";
-    const table = new TableV2(this, tableName, {
-      tableName: tableName,
-      partitionKey: { name: partitionKey, type: AttributeType.STRING },
-      billing: Billing.onDemand(),
-      removalPolicy: RemovalPolicy.RETAIN,
-      deletionProtection: true,
-      sortKey: { name: "id", type: AttributeType.STRING },
-      pointInTimeRecovery: true,
-      tableClass: TableClass.STANDARD,
-      timeToLiveAttribute: "timeToLive",
-    });
-
-    const userId = "userId";
-    table.addLocalSecondaryIndex({
-      indexName: `${partitionKey}-${userId}-index`,
-      sortKey: { name: userId, type: AttributeType.STRING },
-      projectionType: ProjectionType.ALL,
+    const usersId = "users";
+    const usersTable = new DynamoDb(this, `${usersId}-table`, {
+      tableType: usersId,
+      environment,
+      region,
+      appName,
+      product,
     });
 
     new custom_resources.AwsCustomResource(this, `${playersId}-seed-data`, {

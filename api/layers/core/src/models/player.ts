@@ -20,12 +20,6 @@ export class PlayerDbEntity extends DbEntity implements IPlayerDbEntity {
 
 export class PlayerDto extends Player implements IPlayer {
     constructor(playerDbEntity: IPlayerDbEntity) {
-        super(
-            playerDbEntity.pk,
-            playerDbEntity.sk as PlayerType,
-            playerDbEntity.firstName,
-            playerDbEntity.lastName,
-            playerDbEntity.position as Position,
-        );
+        super({ id: playerDbEntity.sk, type: playerDbEntity.pk as PlayerType, ...playerDbEntity });
     }
 }

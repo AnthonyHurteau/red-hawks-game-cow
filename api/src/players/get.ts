@@ -27,7 +27,7 @@ export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGat
             if (type && isPlayerType(type)) {
                 const result = await dynamoDbClient.getDocumentsByPrimaryKeyAsync<IPlayerDbEntity>(type);
 
-                if (result) {
+                if (result && result.length > 0) {
                     const playerDtos = result.map((playerDbEntity) => new PlayerDto(playerDbEntity));
                     return {
                         statusCode: 200,

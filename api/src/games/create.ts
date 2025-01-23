@@ -23,7 +23,7 @@ export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGat
     try {
         const previousActiveGames = await dynamoDbClient.getDocumentsByPrimaryKeyAsync<IGameDbEntity>(active);
 
-        if (previousActiveGames) {
+        if (previousActiveGames && previousActiveGames.length > 0) {
             for (const previousActiveGame of previousActiveGames) {
                 if (previousActiveGame.isVoteComplete) {
                     const gameDto = new GameDto(previousActiveGame);
@@ -40,7 +40,8 @@ export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGat
             }
         }
 
-        const corePlayers = await getAsync<IPlayer[]>(process.env.GET_CORE_PLAYER_ENDPOINT);
+        const url = process.env.PLAYERS_ENDPOINT;
+        const corePlayers = await getAsync<IPlayer[]>(url);
 
         if (!corePlayers) {
             return {
