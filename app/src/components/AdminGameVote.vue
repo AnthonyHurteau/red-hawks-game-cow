@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import AppLoading from "@/components/AppLoading.vue"
-import { useActiveGameStore } from "@/stores/activeGame"
 import { useVotesStore } from "@/stores/votes"
 import { computed, onMounted, ref } from "vue"
 import type { Vote } from "../../../common/models/vote"
 import { basis, type BasisKey } from "@/utils/dynamicTailwindClasses"
-import type { GroupedVotes } from "../../../common/models/groupedVotes"
+import { useGamesStore } from "@/stores/game"
+import type { IGroupedVotes } from "@/models/groupedVotes"
 
-const activeGameStore = useActiveGameStore()
+const gameStore = useGamesStore()
 const votesStore = useVotesStore()
 
 onMounted(() => {
@@ -22,7 +22,7 @@ const groupedVotes = computed(() => {
     }
     accumulator[currentValue.playerId].push(currentValue)
     return accumulator
-  }, {} as GroupedVotes)
+  }, {} as IGroupedVotes)
 
   return Object.entries(grouped).sort((a, b) => b[1].length - a[1].length)
 })
@@ -36,7 +36,7 @@ const voteGraphBasis = computed(() => (votes: Vote[]) => {
 })
 
 const getPlayerName = (playerId: string) => {
-  const player = activeGameStore.getPlayerById(playerId)
+  const player = gameStore.getPlayerById(playerId)
   return `${player!.firstName} ${player!.lastName}`
 }
 </script>
@@ -67,7 +67,7 @@ const getPlayerName = (playerId: string) => {
           ]"
         >
           <div class="absolute inset-0 overflow-visible whitespace-nowrap pt-4 pl-2">
-            {{ activeGameStore.activeGame?.isVoteComplete ? getPlayerName(playerId) : "" }}
+            {{ gameStore.activeGame?.isVoteComplete ? getPlayerName(playerId) : "" }}
           </div>
         </div>
       </div>
@@ -81,7 +81,7 @@ const getPlayerName = (playerId: string) => {
     </div>
     <div
       class="flex w-full justify-center"
-      v-if="!votesStore.loading && !activeGameStore.activeGame!.isVoteComplete"
+      v-if="!votesStore.loading && !gameStore.activeGame!.isVoteComplete"
     >
       <AppButton
         type="button"
@@ -96,7 +96,7 @@ const getPlayerName = (playerId: string) => {
 
     <div
       class="flex w-full justify-center"
-      v-if="!votesStore.loading && !activeGameStore.activeGame!.isVoteComplete"
+      v-if="!votesStore.loading && !gameStore.activeGame!.isVoteComplete"
     >
       <AppButton
         type="button"
@@ -105,13 +105,13 @@ const getPlayerName = (playerId: string) => {
         raised
         class="bg-highlight"
         label="Fermer le vote"
-        @click="activeGameStore.manageActiveGameVote(true)"
+        @click="gameStore.manageActiveGameVote(true)"
       />
     </div>
 
     <div
       class="flex w-full justify-center"
-      v-if="!votesStore.loading && activeGameStore.activeGame!.isVoteComplete"
+      v-if="!votesStore.loading && gameStore.activeGame!.isVoteComplete"
     >
       <AppButton
         type="button"
@@ -120,12 +120,12 @@ const getPlayerName = (playerId: string) => {
         raised
         class="bg-highlight"
         label="Réouvrir le vote"
-        @click="activeGameStore.manageActiveGameVote(false)"
+        @click="gameStore.manageActiveGameVote(false)"
       />
     </div>
     <div
       class="flex w-full justify-center"
-      v-if="!votesStore.loading && activeGameStore.activeGame!.isVoteComplete"
+      v-if="!votesStore.loading && gameStore.activeGame!.isVoteComplete"
     >
       <AppButton
         type="button"
@@ -134,7 +134,7 @@ const getPlayerName = (playerId: string) => {
         raised
         class="bg-highlight"
         label="Nouveau vote"
-        @click="activeGameStore.createActiveGame()"
+        @click="gameStore.createActiveGame()"
       />
     </div>
   </div>

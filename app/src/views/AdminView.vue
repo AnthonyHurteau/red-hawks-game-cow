@@ -2,10 +2,10 @@
 import AdminPassword from "@/components/AdminPassword.vue"
 import AppLoading from "@/components/AppLoading.vue"
 import AdminGameVote from "@/components/AdminGameVote.vue"
-import { useActiveGameStore } from "@/stores/activeGame"
 import { useUserStore } from "@/stores/user"
+import { useGamesStore } from "@/stores/game"
 
-const activeGameStore = useActiveGameStore()
+const gameStore = useGamesStore()
 const userStore = useUserStore()
 </script>
 
@@ -21,12 +21,9 @@ const userStore = useUserStore()
     >
       <AdminPassword v-if="!userStore.isAdmin" />
       <div class="flex flex-col">
-        <AdminGameVote v-if="userStore.isAdmin && activeGameStore.activeGame" />
+        <AdminGameVote v-if="userStore.isAdmin && gameStore.activeGame" />
         <div
-          v-if="
-            userStore.isAdmin &&
-            (!activeGameStore.activeGame || activeGameStore.activeGame.isVoteComplete)
-          "
+          v-if="userStore.isAdmin && (!gameStore.activeGame || gameStore.activeGame.isVoteComplete)"
           class="flex flex-col gap-4"
         >
           <AppButton
@@ -36,7 +33,7 @@ const userStore = useUserStore()
             raised
             class="bg-highlight"
             label="Réouvrir le vote"
-            @click="activeGameStore.manageActiveGameVote(false)"
+            @click="gameStore.manageActiveGameVote(false)"
           />
           <AppButton
             type="button"
@@ -45,7 +42,7 @@ const userStore = useUserStore()
             raised
             class="bg-highlight"
             label="Nouveau vote"
-            @click="activeGameStore.createActiveGame()"
+            @click="gameStore.createActiveGame()"
           />
         </div>
       </div>

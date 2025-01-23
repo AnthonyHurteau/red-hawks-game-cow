@@ -15,15 +15,17 @@ import { GameDto, IGameDbEntity } from "/opt/nodejs/core/src/models/game";
 
 const dynamoDbClient = new DynamoDbClient(process.env.TABLE_NAME as string);
 
-const active: GameType = "active";
+const isGameType = (type: string): type is GameType => {
+    return ["active", "completed"].includes(type);
+};
 
 export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     if (event.queryStringParameters) {
         try {
             const type = event.queryStringParameters.type;
 
-            if (type === active) {
-                const result = await dynamoDbClient.getDocumentsByPrimaryKeyAsync<IGameDbEntity>(active);
+            if (type && isGameType(type)) {
+                const result = await dynamoDbClient.getDocumentsByPrimaryKeyAsync<IGameDbEntity>(type);
 
                 if (result) {
                     const gameDto = new GameDto(result[0]);

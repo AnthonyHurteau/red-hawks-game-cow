@@ -12,22 +12,10 @@
             ]
         },
         {
-            "name": "startActiveGameApi",
+            "name": "startApi",
             "type": "node",
             "request": "launch",
-            "preLaunchTask": "runActiveGameApi",
-        },
-        {
-            "name": "startVotesApi",
-            "type": "node",
-            "request": "launch",
-            "preLaunchTask": "runVotesApi",
-        },
-        {
-            "name": "startUsersApi",
-            "type": "node",
-            "request": "launch",
-            "preLaunchTask": "runUsersApi",
+            "preLaunchTask": "runApi",
         },
     ],
     "compounds": [
@@ -35,9 +23,7 @@
             "name": "Full Stack",
             "configurations": [
                 "startApp",
-                "startActiveGameApi",
-                "startVotesApi",
-                "startUsersApi"
+                "startApi",
             ]
         }
     ]

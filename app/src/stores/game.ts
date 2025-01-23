@@ -1,21 +1,22 @@
 import { ref } from "vue"
 import { defineStore } from "pinia"
 import { get, post, put } from "@/services/api"
-import { ActiveGameInit, type ActiveGame } from "../../../common/models/game"
+import { Game, type GameType, type IGame } from "@common/models/game"
 
-const API_URL = import.meta.env.VITE_ACTIVE_GAME_API_URL
-const ENDPOINT = "activeGame"
-const URL = `${API_URL}/${ENDPOINT}`
+const API_URL = import.meta.env.VITE_API_URL
+const PATH = import.meta.env.VITE_GAMES_PATH
+const URL = `${API_URL}/${PATH}`
 
-export const useActiveGameStore = defineStore("activeGame", () => {
-  const activeGame = ref<ActiveGame>()
+export const useGamesStore = defineStore("game", () => {
+  const activeGame = ref<IGame>()
   const loading = ref(false)
-  const error = ref<Error | null>(null)
+  const error = ref<Error>()
 
   async function getActiveGame() {
     loading.value = true
     try {
-      activeGame.value = await get<ActiveGame>(URL)
+      const active: GameType = "active"
+      activeGame.value = await get<IGame>(URL, { type: active })
     } catch (e) {
       error.value = e as Error
     } finally {
@@ -26,8 +27,8 @@ export const useActiveGameStore = defineStore("activeGame", () => {
   async function createActiveGame() {
     try {
       if (!activeGame.value || (activeGame.value && activeGame.value.isVoteComplete)) {
-        const newActiveGame = new ActiveGameInit()
-        const result = await post<ActiveGame>(URL, newActiveGame)
+        const newGame = new Game()
+        const result = await post<Game>(URL, newGame)
         activeGame.value = result
       }
     } catch (e) {
@@ -40,7 +41,7 @@ export const useActiveGameStore = defineStore("activeGame", () => {
       if (activeGame.value) {
         activeGame.value.isVoteComplete = isVoteComplete
         const updatedActiveGame = activeGame.value
-        const result = await put<ActiveGame>(URL, updatedActiveGame)
+        const result = await put<IGame>(URL, updatedActiveGame)
         activeGame.value = result
       }
     } catch (e) {

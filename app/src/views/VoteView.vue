@@ -3,22 +3,22 @@ import AppLoading from "@/components/AppLoading.vue"
 import PlayerList from "../components/PlayerList.vue"
 import VoteTitle from "@/components/VoteTitle.vue"
 import WinningCows from "@/components/WinningCows.vue"
-import { useActiveGameStore } from "@/stores/activeGame"
+import { useGamesStore } from "@/stores/game"
 
-const activeGameStore = useActiveGameStore()
+const gameStore = useGamesStore()
 </script>
 
 <template>
   <main class="min-h-full flex flex-col">
     <VoteTitle />
-    <AppLoading v-if="activeGameStore.loading" />
+    <AppLoading v-if="gameStore.loading" />
     <div
-      v-else-if="!activeGameStore.activeGame"
+      v-else-if="!gameStore.activeGame"
       class="flex justify-center items-center grow"
     >
       <h1 class="text-2xl">Aucun vote n'a été activé!</h1>
     </div>
-    <PlayerList v-else-if="!activeGameStore.activeGame.isVoteComplete" />
-    <WinningCows v-else-if="activeGameStore.activeGame.isVoteComplete" />
+    <PlayerList v-else-if="!gameStore.activeGame.isVoteComplete" />
+    <WinningCows v-else-if="gameStore.activeGame.isVoteComplete" />
   </main>
 </template>

@@ -1,4 +1,4 @@
-import axios from "axios"
+import axios, { type AxiosResponse } from "axios"
 
 export const get = async <T>(
   url: string,
@@ -40,10 +40,13 @@ export const put = async <T>(url: string, data: T): Promise<T> => {
   }
 }
 
-export const remove = async <T>(url: string, id: string): Promise<boolean> => {
+export const remove = async <T>(url: string, id: string): Promise<AxiosResponse> => {
   try {
-    await axios.delete<T>(url, { params: { id } })
-    return true
+    const config = {
+      params: id
+    }
+    const response = await axios.delete<T>(url, config)
+    return response
   } catch (error) {
     console.error("Error deleting data:", error)
     throw error

@@ -25,12 +25,10 @@ export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGat
             const url = process.env.CREATE_USER_ENDPOINT;
             const result = await postAsync<IUser>(url, adminUser);
 
-            if (result.status === 200) {
-                return {
-                    statusCode: 200,
-                    body: "Ok",
-                };
-            }
+            return {
+                statusCode: 200,
+                body: JSON.stringify(result),
+            };
         }
         return {
             statusCode: 403,

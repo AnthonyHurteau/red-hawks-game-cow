@@ -21,8 +21,7 @@ export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGat
         const game = JSON.parse(event.body as string) as IGame;
 
         if (game.isVoteComplete) {
-            const result = await getAsync(process.env.GET_VOTES_ENDPOINT);
-            const votes = (await result.json()) as IVote[];
+            const votes = await getAsync<IVote[]>(process.env.GET_VOTES_ENDPOINT);
             if (votes) {
                 game.votes = votes;
             }
@@ -34,7 +33,7 @@ export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGat
 
         return {
             statusCode: 200,
-            body: "Ok",
+            body: JSON.stringify(game),
         };
     } catch (err) {
         console.error(err);

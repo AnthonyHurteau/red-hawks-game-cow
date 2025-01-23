@@ -1,25 +1,25 @@
 import { ref } from "vue"
 import { defineStore } from "pinia"
 import { get, post, put, remove } from "@/services/api"
-import { Vote } from "../../../common/models/vote"
 import { useUserStore } from "./user"
+import { Vote, type IVote } from "@common/models/vote"
 
-const API_URL = import.meta.env.VITE_VOTE_API_URL
-const ENDPOINT = "votes"
-const URL = `${API_URL}/${ENDPOINT}`
+const API_URL = import.meta.env.VITE_API_URL
+const PATH = import.meta.env.VITE_VOTES_PATH
+const URL = `${API_URL}/${PATH}`
 
 export const useVotesStore = defineStore("votes", () => {
-  const votes = ref<Vote[]>([])
-  const vote = ref<Vote>(new Vote())
+  const votes = ref<IVote[]>([])
+  const vote = ref<IVote>()
   const loading = ref(false)
-  const error = ref<Error | null>(null)
+  const error = ref<Error>()
 
   const userStore = useUserStore()
 
   async function getVotes() {
     loading.value = true
     try {
-      votes.value = await get<Vote[]>(URL)
+      votes.value = await get<IVote[]>(URL)
     } catch (e) {
       error.value = e as Error
     } finally {
@@ -32,7 +32,7 @@ export const useVotesStore = defineStore("votes", () => {
     try {
       const user = userStore.user
       if (user) {
-        vote.value = await get<Vote>(URL, { userId: user })
+        vote.value = await get<IVote>(URL, { userId: user.id })
       }
     } catch (e) {
       error.value = e as Error
@@ -47,18 +47,18 @@ export const useVotesStore = defineStore("votes", () => {
       const user = userStore.user
       if (user) {
         if (playerId) {
-          const newVote = new Vote("", user, playerId)
+          const newVote = new Vote("", user.id, playerId)
           if (!vote.value) {
-            await post<Vote>(URL, newVote)
-            vote.value = await get<Vote>(URL, { userId: user })
+            const result = await post<IVote>(URL, newVote)
+            vote.value = result
           } else if (vote.value.playerId !== playerId) {
             newVote.id = vote.value.id
-            await put<Vote>(URL, newVote)
-            vote.value = newVote
+            const result = await put<Vote>(URL, newVote)
+            vote.value = result
           }
         } else {
           vote.value = new Vote()
-          await remove(URL, user)
+          await remove<IVote>(URL, user.id)
         }
       }
     } catch (e) {

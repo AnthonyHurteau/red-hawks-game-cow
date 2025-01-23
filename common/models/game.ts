@@ -1,4 +1,4 @@
-import { IBaseEntity } from "./baseEntity";
+import type { IBaseEntity } from "./baseEntity";
 import type { IPlayer } from "./player";
 import type { IVote } from "./vote";
 
@@ -25,7 +25,7 @@ export class Game implements IGame {
     id: string = "",
     type: GameType = "active",
     date: Date = new Date(),
-    isVoteComplete: boolean,
+    isVoteComplete: boolean = false,
     players: IPlayer[] = [],
     votes: IVote[] = []
   ) {

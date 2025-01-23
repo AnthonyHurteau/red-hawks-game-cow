@@ -3,11 +3,11 @@ type serviceTypes = "get" | "getList" | "create" | "update" | "delete";
 export const sourceDir = "src";
 
 const playersDir = `${sourceDir}/players`;
-const playersServices: string[] = ["getCorePlayers"];
+const playersServices: serviceTypes[] = ["get"];
 const players = playersServices.map((service) => `${playersDir}/${service}.ts`);
 
 const gamesDir = `${sourceDir}/games`;
-const gamesServices: serviceTypes | string[] = ["create", "update", "getActiveGame"];
+const gamesServices: serviceTypes[] = ["create", "update", "get"];
 const games = gamesServices.map((service) => `${gamesDir}/${service}.ts`);
 
 const usersDir = `${sourceDir}/users`;

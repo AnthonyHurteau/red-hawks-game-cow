@@ -1,6 +1,7 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { DynamoDbClient } from "/opt/nodejs/core/src/services/dynamoDbClient";
 import { IVote } from "common/models/vote";
+import { IVoteDbEntity, VoteDto } from "/opt/nodejs/core/src/models/vote";
 
 /**
  *
@@ -15,22 +16,36 @@ import { IVote } from "common/models/vote";
 const dynamoDbClient = new DynamoDbClient(process.env.TABLE_NAME as string);
 
 export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-    try {
-        const vote = JSON.parse(event.body as string) as IVote;
-        await dynamoDbClient.deleteDocumentAsync<IVote>(vote);
-        return {
-            statusCode: 200,
-            body: JSON.stringify({
-                message: "Ok",
-            }),
-        };
-    } catch (err) {
-        console.error(err);
-        return {
-            statusCode: 400,
-            body: JSON.stringify({
-                message: "Bad Request",
-            }),
-        };
+    if (event.queryStringParameters && event.queryStringParameters.userId) {
+        try {
+            const userId = event.queryStringParameters.userId;
+
+            const vote = await dynamoDbClient.getDocumentsByPrimaryKeyAsync<IVoteDbEntity>(userId);
+            if (vote) {
+                const voteDto = new VoteDto(vote[0]);
+                await dynamoDbClient.deleteDocumentAsync<IVote>(voteDto);
+                return {
+                    statusCode: 200,
+                    body: JSON.stringify({
+                        message: "Ok",
+                    }),
+                };
+            }
+        } catch (err) {
+            console.error(err);
+            return {
+                statusCode: 400,
+                body: JSON.stringify({
+                    message: "Bad Request",
+                }),
+            };
+        }
     }
+
+    return {
+        statusCode: 400,
+        body: JSON.stringify({
+            message: "Bad Request",
+        }),
+    };
 };

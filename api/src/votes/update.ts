@@ -1,6 +1,7 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { DynamoDbClient } from "/opt/nodejs/core/src/services/dynamoDbClient";
 import { IVote } from "common/models/vote";
+import { VoteDto } from "/opt/nodejs/core/src/models/vote";
 
 /**
  *
@@ -18,11 +19,10 @@ export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGat
     try {
         const vote = JSON.parse(event.body as string) as IVote;
         await dynamoDbClient.updateDocumentAsync<IVote>(vote);
+
         return {
             statusCode: 200,
-            body: JSON.stringify({
-                message: "Ok",
-            }),
+            body: JSON.stringify(vote),
         };
     } catch (err) {
         console.error(err);

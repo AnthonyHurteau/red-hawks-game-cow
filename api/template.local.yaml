@@ -22,11 +22,11 @@ Globals:
 
 Resources:
   # Players
-  GetCorePlayers:
+  GetPlayers:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: dist/players
-      Handler: getCorePlayers.lambdaHandler
+      Handler: get.lambdaHandler
       Events:
         Event:
           Type: Api
@@ -34,11 +34,11 @@ Resources:
             Path: /players
             Method: get
   # Games
-  GetActiveGame:
+  GetGame:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: dist/games
-      Handler: getActiveGame.lambdaHandler
+      Handler: get.lambdaHandler
       Events:
         Event:
           Type: Api
@@ -83,7 +83,7 @@ Resources:
         Event:
           Type: Api
           Properties:
-            Path: /votes/{id}
+            Path: /votes
             Method: get
   GetVotes:
     Type: AWS::Serverless::Function

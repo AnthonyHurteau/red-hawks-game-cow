@@ -15,15 +15,17 @@ import { PlayerType } from "common/models/player";
 
 const dynamoDbClient = new DynamoDbClient(process.env.TABLE_NAME as string);
 
-const core: PlayerType = "core";
+const isPlayerType = (type: string): type is PlayerType => {
+    return ["core", "sub"].includes(type);
+};
 
 export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     if (event.queryStringParameters) {
         try {
             const type = event.queryStringParameters.type;
 
-            if (type === core) {
-                const result = await dynamoDbClient.getDocumentsByPrimaryKeyAsync<IPlayerDbEntity>(core);
+            if (type && isPlayerType(type)) {
+                const result = await dynamoDbClient.getDocumentsByPrimaryKeyAsync<IPlayerDbEntity>(type);
 
                 if (result) {
                     const playerDtos = result.map((playerDbEntity) => new PlayerDto(playerDbEntity));

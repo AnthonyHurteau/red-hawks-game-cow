@@ -40,8 +40,7 @@ export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGat
             }
         }
 
-        const result = await getAsync(process.env.GET_CORE_PLAYER_ENDPOINT);
-        const corePlayers = (await result.json()) as IPlayer[];
+        const corePlayers = await getAsync<IPlayer[]>(process.env.GET_CORE_PLAYER_ENDPOINT);
 
         if (!corePlayers) {
             return {
@@ -55,10 +54,11 @@ export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGat
         game.players = corePlayers;
         const gameDbEntity = new GameDbEntity(game);
         await dynamoDbClient.createDocumentAsync<IGameDbEntity>(gameDbEntity);
+        const gameDto = new GameDto(gameDbEntity);
 
         return {
             statusCode: 200,
-            body: "Ok",
+            body: JSON.stringify(gameDto),
         };
     } catch (err) {
         console.error(err);

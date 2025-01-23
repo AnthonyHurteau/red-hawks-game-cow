@@ -1,18 +1,18 @@
 <script setup lang="ts">
 import CowIcon from "./CowIcon.vue"
-import { useActiveGameStore } from "@/stores/activeGame"
 import { useVotesStore } from "@/stores/votes"
 import { computed } from "vue"
 import type { Player } from "../../../common/models/player"
+import { useGamesStore } from "@/stores/game"
 
-const activeGameStore = useActiveGameStore()
+const gameStore = useGamesStore()
 const votesStore = useVotesStore()
 
 const selectedPlayer = computed({
   get() {
-    if (activeGameStore.activeGame && votesStore.vote) {
+    if (gameStore.activeGame && votesStore.vote) {
       const vote = votesStore.vote
-      const players = activeGameStore.activeGame.players
+      const players = gameStore.activeGame.players
       return players.find((player) => player.id === vote.playerId) || null
     }
     return null
@@ -26,7 +26,7 @@ const selectedPlayer = computed({
 <template>
   <AppListbox
     v-model="selectedPlayer"
-    :options="activeGameStore.activeGame?.players"
+    :options="gameStore.activeGame?.players"
     optionLabel="id"
     scrollHeight="calc(95vh - 210px)"
     class="w-full bg-transparent border-0 px-5"

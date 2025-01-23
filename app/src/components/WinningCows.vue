@@ -1,20 +1,20 @@
 <script setup lang="ts">
+import { useGamesStore } from "@/stores/game"
 import CowIcon from "./CowIcon.vue"
-import { useActiveGameStore } from "@/stores/activeGame"
 import { computed } from "vue"
-import type { GroupedVotes } from "../../../common/models/groupedVotes"
+import type { IGroupedVotes } from "@/models/groupedVotes"
 
-const activeGameStore = useActiveGameStore()
+const gameStore = useGamesStore()
 
 const topPlayers = computed(() => {
-  const votes = activeGameStore.activeGame!.votes
+  const votes = gameStore.activeGame!.votes
   const grouped = votes.reduce((accumulator, currentValue) => {
     if (!accumulator[currentValue.playerId]) {
       accumulator[currentValue.playerId] = []
     }
     accumulator[currentValue.playerId].push(currentValue)
     return accumulator
-  }, {} as GroupedVotes)
+  }, {} as IGroupedVotes)
 
   return Object.entries(grouped)
     .sort((a, b) => b[1].length - a[1].length)
@@ -22,7 +22,7 @@ const topPlayers = computed(() => {
 })
 
 const getPlayerName = (playerId: string) => {
-  const player = activeGameStore.getPlayerById(playerId)
+  const player = gameStore.getPlayerById(playerId)
   return `${player!.firstName} ${player!.lastName}`
 }
 </script>

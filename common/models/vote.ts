@@ -1,4 +1,4 @@
-import { IBaseEntity } from "./baseEntity";
+import type { IBaseEntity } from "./baseEntity";
 
 export type SortKeyProperty = "userId";
 

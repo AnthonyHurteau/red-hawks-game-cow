@@ -1,9 +1,10 @@
-export const getAsync = async (url: string): Promise<Response> => {
+export const getAsync = async <T>(url: string): Promise<T> => {
     const response = await fetch(url);
-    return response;
+    const data = (await response.json()) as T;
+    return data;
 };
 
-export const postAsync = async <T>(url: string, body: T): Promise<Response> => {
+export const postAsync = async <T>(url: string, body: T): Promise<T> => {
     const response = await fetch(url, {
         method: "POST",
         body: JSON.stringify(body),
@@ -11,10 +12,11 @@ export const postAsync = async <T>(url: string, body: T): Promise<Response> => {
             "Content-Type": "application/json",
         },
     });
-    return response;
+    const data = (await response.json()) as T;
+    return data;
 };
 
-export const putAsync = async <T>(url: string, body: T): Promise<Response> => {
+export const putAsync = async <T>(url: string, body: T): Promise<T> => {
     const response = await fetch(url, {
         method: "PUT",
         body: JSON.stringify(body),
@@ -22,7 +24,8 @@ export const putAsync = async <T>(url: string, body: T): Promise<Response> => {
             "Content-Type": "application/json",
         },
     });
-    return response;
+    const data = (await response.json()) as T;
+    return data;
 };
 
 export const deleteAsync = async <T>(url: string, body: T): Promise<Response> => {

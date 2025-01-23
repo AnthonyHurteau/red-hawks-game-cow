@@ -1,8 +1,8 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { DynamoDbClient } from "/opt/nodejs/core/src/services/dynamoDbClient";
 import { IUser } from "common/models/user";
-import { IUserDbEntity, UserDbEntity } from "/opt/nodejs/core/src/models/user";
-import { timeToLive } from "src/common/services/timeToLiveHelper";
+import { IUserDbEntity, UserDbEntity, UserDto } from "/opt/nodejs/core/src/models/user";
+import { timeToLive } from "/opt/nodejs/core/src/services/timeToLiveHelper";
 
 /**
  *
@@ -24,12 +24,11 @@ export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGat
         const userDbEntity = new UserDbEntity(user, ttl);
 
         await dynamoDbClient.createDocumentAsync<IUserDbEntity>(userDbEntity);
+        const userDto = new UserDto(userDbEntity);
 
         return {
             statusCode: 200,
-            body: JSON.stringify({
-                message: "Ok",
-            }),
+            body: JSON.stringify(userDto),
         };
     } catch (err) {
         console.error(err);
