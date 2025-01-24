@@ -40,7 +40,7 @@ export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGat
             }
         }
 
-        const url = process.env.PLAYERS_ENDPOINT;
+        const url = `${process.env.PLAYERS_ENDPOINT}?type=core`;
         const corePlayers = await getAsync<IPlayer[]>(url);
 
         if (!corePlayers) {

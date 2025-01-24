@@ -30,17 +30,33 @@ const getPlayerName = (playerId: string) => {
 <template>
   <div class="flex justify-center">
     <div class="flex flex-col items-center font-bold text-center font-mono skew-y-5 py-4 w-fit">
-      <div class="flex-1"><CowIcon cowType="win" /></div>
+      <div class="flex-1"><CowIcon :cowType="topPlayers.length >= 1 ? 'win' : 'vote'" /></div>
 
-      <div class="flex-1 skew-y-3 bg-highlight-emphasis shadow-lg animate-pulse translate-x-2">
+      <div
+        v-if="topPlayers.length === 0"
+        class="flex-1 skew-y-3 bg-highlight-emphasis shadow-lg translate-x-2"
+      >
+        <h1 class="text-2xl tracking-wide">Personne n'a voté!</h1>
+      </div>
+
+      <div
+        v-if="topPlayers.length >= 1"
+        class="flex-1 skew-y-3 bg-highlight-emphasis shadow-lg animate-pulse translate-x-2"
+      >
         <h1 class="text-2xl tracking-wide">&#8902; {{ getPlayerName(topPlayers[0][0]) }}</h1>
       </div>
 
-      <div class="flex-1 skew-y-6 bg-highlight shadow-lg pr-4 mt-14">
+      <div
+        v-if="topPlayers.length >= 2"
+        class="flex-1 skew-y-6 bg-highlight shadow-lg pr-4 mt-14"
+      >
         <h2 class="text-l">&#8902;&#8902; {{ getPlayerName(topPlayers[1][0]) }}</h2>
       </div>
 
-      <div class="flex-1 skew-y-8 bg-emphasis shadow-lg pl-8 mt-4 translate-x-1">
+      <div
+        v-if="topPlayers.length >= 3"
+        class="flex-1 skew-y-8 bg-emphasis shadow-lg pl-8 mt-4 translate-x-1"
+      >
         <h2 class="text-l">&#8902;&#8902;&#8902; {{ getPlayerName(topPlayers[2][0]) }}</h2>
       </div>
     </div>

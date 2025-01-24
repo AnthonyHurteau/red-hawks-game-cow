@@ -3,6 +3,7 @@ import { defineStore } from "pinia"
 import { get, post, put, remove } from "@/services/api"
 import { useUserStore } from "./user"
 import { Vote, type IVote } from "@common/models/vote"
+import type { IPlayer } from "@common/models/player"
 
 const API_URL = import.meta.env.VITE_API_URL
 const PATH = import.meta.env.VITE_VOTES_PATH
@@ -32,7 +33,8 @@ export const useVotesStore = defineStore("votes", () => {
     try {
       const user = userStore.user
       if (user) {
-        vote.value = await get<IVote>(URL, { userId: user.id })
+        const url = `${URL}/${user.id}`
+        vote.value = await get<IVote>(url)
       }
     } catch (e) {
       error.value = e as Error
@@ -68,10 +70,11 @@ export const useVotesStore = defineStore("votes", () => {
     }
   }
 
-  async function mockVotes() {
+  async function mockVotes(players: IPlayer[]) {
     loading.value = true
     try {
-      await get<string>(URL, { mockVote: "true" })
+      const url = `${URL}/mock`
+      await post<IPlayer[]>(url, players)
       await getVotes()
     } catch (e) {
       error.value = e as Error

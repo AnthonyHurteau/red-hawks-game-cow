@@ -8,7 +8,7 @@ const PATH = import.meta.env.VITE_GAMES_PATH
 const URL = `${API_URL}/${PATH}`
 
 export const useGamesStore = defineStore("game", () => {
-  const activeGame = ref<IGame>()
+  const activeGame = ref<IGame | null>(null)
   const loading = ref(false)
   const error = ref<Error>()
 
@@ -25,6 +25,7 @@ export const useGamesStore = defineStore("game", () => {
   }
 
   async function createActiveGame() {
+    loading.value = true
     try {
       if (!activeGame.value || (activeGame.value && activeGame.value.isVoteComplete)) {
         const newGame = new Game()
@@ -33,10 +34,13 @@ export const useGamesStore = defineStore("game", () => {
       }
     } catch (e) {
       error.value = e as Error
+    } finally {
+      loading.value = false
     }
   }
 
   async function manageActiveGameVote(isVoteComplete = false) {
+    loading.value = true
     try {
       if (activeGame.value) {
         activeGame.value.isVoteComplete = isVoteComplete
@@ -46,6 +50,8 @@ export const useGamesStore = defineStore("game", () => {
       }
     } catch (e) {
       error.value = e as Error
+    } finally {
+      loading.value = false
     }
   }
 

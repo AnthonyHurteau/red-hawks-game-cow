@@ -15,9 +15,9 @@ import { IVoteDbEntity, VoteDto } from "/opt/nodejs/core/src/models/vote";
 const dynamoDbClient = new DynamoDbClient(process.env.TABLE_NAME as string);
 
 export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-    if (event.queryStringParameters && event.queryStringParameters.userId) {
+    if (event.pathParameters && event.pathParameters.userId) {
         try {
-            const userId = event.queryStringParameters.userId;
+            const userId = event.pathParameters.userId;
             const result = await dynamoDbClient.getDocumentsByPrimaryKeyAsync<IVoteDbEntity>(userId);
 
             if (result && result.length > 0) {

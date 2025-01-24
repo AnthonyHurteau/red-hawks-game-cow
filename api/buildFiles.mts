@@ -1,4 +1,5 @@
 type serviceTypes = "get" | "getList" | "create" | "update" | "delete";
+type voteServiceTypes = serviceTypes | "mock";
 
 export const sourceDir = "src";
 
@@ -15,7 +16,7 @@ const usersServices: serviceTypes[] = ["get", "create", "update", "delete"];
 const users = usersServices.map((service) => `${usersDir}/${service}.ts`);
 
 const votesDir = `${sourceDir}/votes`;
-const votesServices: serviceTypes[] = ["get", "getList", "create", "update", "delete"];
+const votesServices: voteServiceTypes[] = ["get", "getList", "create", "update", "delete", "mock"];
 const votes = votesServices.map((service) => `${votesDir}/${service}.ts`);
 
 const authDir = `${sourceDir}/auth`;

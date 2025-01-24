@@ -6,6 +6,7 @@ declare global {
             USERS_ENDPOINT: string;
             PLAYERS_ENDPOINT: string;
             VOTES_ENDPOINT: string;
+            NUMBER_OF_VOTES: string;
         }
     }
 }

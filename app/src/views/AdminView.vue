@@ -14,7 +14,7 @@ const userStore = useUserStore()
     <div class="flex justify-center items-center py-10">
       <h1 class="text-4xl text-muted-color">Administration</h1>
     </div>
-    <AppLoading v-if="userStore.loading" />
+    <AppLoading v-if="userStore.loading || gameStore.loading" />
     <div
       v-else-if="!userStore.loading"
       class="flex justify-center items-center"
@@ -29,15 +29,6 @@ const userStore = useUserStore()
           "
           class="flex flex-col gap-4"
         >
-          <AppButton
-            type="button"
-            rounded
-            outlined
-            raised
-            class="bg-highlight"
-            label="Réouvrir le vote"
-            @click="gameStore.manageActiveGameVote(false)"
-          />
           <AppButton
             type="button"
             rounded

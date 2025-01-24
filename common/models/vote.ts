@@ -19,9 +19,9 @@ export class Vote implements IVote {
   }
 
   get dbEntityPrimaryKey() {
-    return this.id;
+    return this.userId;
   }
   get dbEntitySortKey() {
-    return this.userId;
+    return this.id;
   }
 }

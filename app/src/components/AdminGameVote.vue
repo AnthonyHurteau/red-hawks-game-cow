@@ -81,7 +81,7 @@ const getPlayerName = (playerId: string) => {
     </div>
     <div
       class="flex w-full justify-center"
-      v-if="!votesStore.loading && !gameStore.activeGame!.isVoteComplete"
+      v-if="!votesStore.loading && !gameStore.activeGame?.isVoteComplete"
     >
       <AppButton
         type="button"
@@ -90,13 +90,13 @@ const getPlayerName = (playerId: string) => {
         raised
         class="bg-highlight"
         label="Tester le vote"
-        @click="votesStore.mockVotes()"
+        @click="votesStore.mockVotes(gameStore.activeGame?.players!)"
       />
     </div>
 
     <div
       class="flex w-full justify-center"
-      v-if="!votesStore.loading && !gameStore.activeGame!.isVoteComplete"
+      v-if="!votesStore.loading && !gameStore.activeGame?.isVoteComplete"
     >
       <AppButton
         type="button"
@@ -111,7 +111,7 @@ const getPlayerName = (playerId: string) => {
 
     <div
       class="flex w-full justify-center"
-      v-if="!votesStore.loading && gameStore.activeGame!.isVoteComplete"
+      v-if="!votesStore.loading && gameStore.activeGame?.isVoteComplete"
     >
       <AppButton
         type="button"
@@ -125,7 +125,7 @@ const getPlayerName = (playerId: string) => {
     </div>
     <div
       class="flex w-full justify-center"
-      v-if="!votesStore.loading && gameStore.activeGame!.isVoteComplete"
+      v-if="!votesStore.loading && gameStore.activeGame?.isVoteComplete"
     >
       <AppButton
         type="button"

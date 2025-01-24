@@ -38,9 +38,9 @@ export class Game implements IGame {
   }
 
   get dbEntityPrimaryKey() {
-    return this.id;
+    return this.type;
   }
   get dbEntitySortKey() {
-    return this.type;
+    return this.id;
   }
 }
