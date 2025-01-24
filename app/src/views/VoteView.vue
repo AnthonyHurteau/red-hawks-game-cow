@@ -9,7 +9,7 @@ const gameStore = useGamesStore()
 </script>
 
 <template>
-  <main class="min-h-full flex flex-col">
+  <div class="min-h-full flex flex-col">
     <VoteTitle />
     <AppLoading v-if="gameStore.loading" />
     <div
@@ -20,5 +20,5 @@ const gameStore = useGamesStore()
     </div>
     <PlayerList v-else-if="!gameStore.activeGame.isVoteComplete" />
     <WinningCows v-else-if="gameStore.activeGame.isVoteComplete" />
-  </main>
+  </div>
 </template>

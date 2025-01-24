@@ -29,7 +29,7 @@ export const useGamesStore = defineStore("game", () => {
     try {
       if (!activeGame.value || (activeGame.value && activeGame.value.isVoteComplete)) {
         const newGame = new Game()
-        const result = await post<Game>(URL, newGame)
+        const result = await post<IGame>(URL, newGame)
         activeGame.value = result
       }
     } catch (e) {

@@ -27,9 +27,13 @@ gameStore.$subscribe((mutation, state) => {
 </script>
 
 <template>
-  <HeaderBar />
+  <div class="grid grid-rows-10 h-screen">
+    <header class="row-span-1">
+      <HeaderBar />
+    </header>
 
-  <div class="h-[calc(100vh-80px)]">
-    <RouterView />
+    <main class="row-span-9">
+      <RouterView />
+    </main>
   </div>
 </template>

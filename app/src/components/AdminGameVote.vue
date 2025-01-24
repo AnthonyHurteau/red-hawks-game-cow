@@ -50,7 +50,7 @@ const getPlayerName = (playerId: string) => {
   </div>
   <div
     v-else
-    class="flex flex-wrap justify-center items-center gap-10 overflow-auto h-[calc(100vh-200px)] pb-10"
+    class="flex flex-wrap w-full justify-center items-center gap-10 overflow-auto h-full pb-10"
   >
     <TransitionGroup
       v-if="groupedVotes.length > 0"
@@ -85,58 +85,11 @@ const getPlayerName = (playerId: string) => {
       v-else
       class="flex w-full justify-center"
     >
-      <p class="text-lg">Aucun vote</p>
-    </div>
-
-    <div
-      class="flex w-full justify-center"
-      v-if="votesStore.loading"
-    >
-      <AppLoading />
-    </div>
-    <div
-      class="flex w-full justify-around"
-      v-if="!votesStore.loading && !gameStore.activeGame?.isVoteComplete"
-    >
-      <AppButton
-        type="button"
-        rounded
-        raised
-        class="bg-highlight"
-        label="Tester le vote"
-        @click="votesStore.mockVotes(gameStore.activeGame?.players!)"
-      />
-      <AppButton
-        type="button"
-        rounded
-        raised
-        class="bg-highlight"
-        label="Fermer le vote"
-        @click="gameStore.manageActiveGameVote(true)"
-      />
-    </div>
-
-    <div
-      class="flex w-full justify-around"
-      v-if="!votesStore.loading && gameStore.activeGame?.isVoteComplete"
-    >
-      <AppButton
-        type="button"
-        rounded
-        raised
-        class="bg-highlight"
-        label="Réouvrir le vote"
-        @click="gameStore.manageActiveGameVote(false)"
-      />
-
-      <AppButton
-        type="button"
-        rounded
-        raised
-        class="bg-highlight"
-        label="Nouveau vote"
-        @click="gameStore.createActiveGame()"
-      />
+      <h1
+        class="text-2xl font-bold font-mono -skew-x-6 -skew-y-6 bg-highlight-emphasis shadow-lg w-40 -translate-x-2 pl-10"
+      >
+        Aucun Votes!
+      </h1>
     </div>
   </div>
 </template>

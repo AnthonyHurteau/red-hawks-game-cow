@@ -33,13 +33,13 @@ const handlePressEnd = () => {
 </script>
 
 <template>
-  <header
-    class="sticky top-0 w-full h-20 z-10 flex items-center justify-between bg-primary mb-3 shadow-lg"
+  <div
+    class="sticky top-0 h-full w-full z-10 flex items-center justify-between bg-primary shadow-lg"
   >
-    <div class="px-2 flex items-center justify-start">
+    <div class="px-2 h-full flex items-center justify-start">
       <div
         :class="{ 'opacity-50': isPressing }"
-        class="transition-opacity duration-300 ease-in-out"
+        class="transition-opacity duration-300 ease-in-out h-full w-full"
         @mousedown="handlePressStart"
         @mouseup="handlePressEnd"
         @mouseleave="handlePressEnd"
@@ -53,5 +53,5 @@ const handlePressEnd = () => {
     <div class="flex pr-5">
       <NavDrawer />
     </div>
-  </header>
+  </div>
 </template>

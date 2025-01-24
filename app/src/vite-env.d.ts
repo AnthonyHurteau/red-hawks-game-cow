@@ -1,6 +1,7 @@
 /// <reference types="vite/client" />
 
 interface ImportMetaEnv {
+  readonly VITE_ENV: "dev" | "prod"
   readonly VITE_API_URL: string
   readonly VITE_GAMES_PATH: string
   readonly VITE_VOTES_PATH: string
