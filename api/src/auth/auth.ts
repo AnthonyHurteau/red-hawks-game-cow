@@ -27,7 +27,7 @@ export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGat
             // Because dynamoDB doesn't allow the modification of sortkeys, we need to delete the user and create a new one
             const deleteUrl = `${url}/${authUser.id}`;
             const deleteResult = await deleteAsync<IUser>(deleteUrl);
-            if (deleteResult.status === 200) {
+            if ([200, 204].includes(deleteResult.status)) {
                 authUser.type = "admin";
                 const result = await postAsync<IUser>(url, authUser);
 

@@ -16,7 +16,11 @@ const gameStore = useGamesStore()
       v-else-if="!gameStore.activeGame"
       class="flex justify-center items-center grow"
     >
-      <h1 class="text-2xl">Aucun vote n'a été activé!</h1>
+      <h1
+        class="text-2xl font-bold font-mono -skew-x-6 skew-y-6 bg-highlight shadow-lg w-60 -translate-x-2 pl-10"
+      >
+        Aucun vote n'a été activé!
+      </h1>
     </div>
     <PlayerList v-else-if="!gameStore.activeGame.isVoteComplete" />
     <WinningCows v-else-if="gameStore.activeGame.isVoteComplete" />

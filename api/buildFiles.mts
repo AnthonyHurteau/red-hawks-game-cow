@@ -8,7 +8,7 @@ const playersServices: serviceTypes[] = ["get"];
 const players = playersServices.map((service) => `${playersDir}/${service}.ts`);
 
 const gamesDir = `${sourceDir}/games`;
-const gamesServices: serviceTypes[] = ["create", "update", "get"];
+const gamesServices: serviceTypes[] = ["create", "update", "get", "delete"];
 const games = gamesServices.map((service) => `${gamesDir}/${service}.ts`);
 
 const usersDir = `${sourceDir}/users`;

@@ -11,7 +11,7 @@ const votesStore = useVotesStore()
 <template>
   <div class="h-full w-full bg-emphasis">
     <div
-      v-if="!gameStore.activeGame?.isVoteComplete"
+      v-if="gameStore.activeGame && !gameStore.activeGame?.isVoteComplete"
       class="flex h-full gap-2 p-2"
     >
       <AppButton
@@ -33,10 +33,11 @@ const votesStore = useVotesStore()
       />
     </div>
     <div
-      v-if="gameStore.activeGame?.isVoteComplete"
+      v-if="!gameStore.activeGame || gameStore.activeGame?.isVoteComplete"
       class="flex h-full gap-2 p-2"
     >
       <AppButton
+        v-if="gameStore.activeGame"
         type="button"
         raised
         class="bg-highlight flex-1 basis-0"

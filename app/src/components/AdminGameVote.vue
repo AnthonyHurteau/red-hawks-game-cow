@@ -49,7 +49,7 @@ const getPlayerName = (playerId: string) => {
     <AppLoading />
   </div>
   <div
-    v-else
+    v-else-if="gameStore.activeGame"
     class="flex flex-wrap w-full justify-center items-center gap-10 overflow-auto h-full pb-10"
   >
     <TransitionGroup
@@ -88,8 +88,18 @@ const getPlayerName = (playerId: string) => {
       <h1
         class="text-2xl font-bold font-mono -skew-x-6 -skew-y-6 bg-highlight-emphasis shadow-lg w-40 -translate-x-2 pl-10"
       >
-        Aucun Votes!
+        Aucun Vote!
       </h1>
     </div>
+  </div>
+  <div
+    v-else
+    class="flex w-full justify-center"
+  >
+    <h1
+      class="text-2xl font-bold font-mono -skew-x-6 -skew-y-6 bg-highlight-emphasis shadow-lg w-60 -translate-x-2 pl-10"
+    >
+      Aucun vote n'a été créé!
+    </h1>
   </div>
 </template>

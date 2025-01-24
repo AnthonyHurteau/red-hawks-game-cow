@@ -52,6 +52,7 @@ Resources:
       Handler: create.lambdaHandler
       Environment:
         Variables:
+          GAMES_ENDPOINT:
           PLAYERS_ENDPOINT:
           VOTES_ENDPOINT:
       Events:
@@ -74,6 +75,17 @@ Resources:
           Properties:
             Path: /games
             Method: put
+  DeleteGame:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: dist/games
+      Handler: delete.lambdaHandler
+      Events:
+        Event:
+          Type: Api
+          Properties:
+            Path: /games/{id}
+            Method: delete
   # Votes
   GetVote:
     Type: AWS::Serverless::Function

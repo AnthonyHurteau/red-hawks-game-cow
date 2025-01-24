@@ -2,6 +2,7 @@ import { ref } from "vue"
 import { defineStore } from "pinia"
 import { get, post, put } from "@/services/api"
 import { Game, type GameType, type IGame } from "@common/models/game"
+import { useVotesStore } from "./votes"
 
 const API_URL = import.meta.env.VITE_API_URL
 const PATH = import.meta.env.VITE_GAMES_PATH
@@ -11,6 +12,8 @@ export const useGamesStore = defineStore("game", () => {
   const activeGame = ref<IGame | null>(null)
   const loading = ref(false)
   const error = ref<Error>()
+
+  const voteStore = useVotesStore()
 
   async function getActiveGame() {
     loading.value = true
@@ -31,6 +34,7 @@ export const useGamesStore = defineStore("game", () => {
         const newGame = new Game()
         const result = await post<IGame>(URL, newGame)
         activeGame.value = result
+        voteStore.getVotes()
       }
     } catch (e) {
       error.value = e as Error

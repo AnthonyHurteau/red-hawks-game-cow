@@ -4,9 +4,7 @@ import AppLoading from "@/components/AppLoading.vue"
 import AdminGameVote from "@/components/AdminGameVote.vue"
 import AdminControlFooter from "@/components/AdminControlFooter.vue"
 import { useUserStore } from "@/stores/user"
-import { useGamesStore } from "@/stores/game"
 
-const gameStore = useGamesStore()
 const userStore = useUserStore()
 </script>
 
@@ -20,8 +18,9 @@ const userStore = useUserStore()
       </h1>
     </div>
     <div class="row-span-8 flex justify-center items-center">
-      <AdminPassword v-if="userStore.user?.type !== 'admin'" />
-      <AdminGameVote v-if="userStore.user?.type === 'admin'" />
+      <AppLoading v-if="userStore.loading" />
+      <AdminPassword v-if="!userStore.loading && userStore.user?.type !== 'admin'" />
+      <AdminGameVote v-if="!userStore.loading && userStore.user?.type === 'admin'" />
     </div>
     <div class="row-span-1">
       <AdminControlFooter v-if="userStore.user?.type === 'admin'" />

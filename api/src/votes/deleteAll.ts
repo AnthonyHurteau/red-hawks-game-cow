@@ -26,6 +26,13 @@ export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGat
                     message: "Ok",
                 }),
             };
+        } else {
+            return {
+                statusCode: 204,
+                body: JSON.stringify({
+                    message: "No Content",
+                }),
+            };
         }
     } catch (err) {
         console.error(err);
@@ -36,11 +43,4 @@ export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGat
             }),
         };
     }
-
-    return {
-        statusCode: 400,
-        body: JSON.stringify({
-            message: "Bad Request",
-        }),
-    };
 };
