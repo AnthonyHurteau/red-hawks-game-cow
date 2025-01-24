@@ -43,9 +43,17 @@ const getPlayerName = (playerId: string) => {
 
 <template>
   <div
+    class="flex w-full justify-center"
+    v-if="gameStore.loading"
+  >
+    <AppLoading />
+  </div>
+  <div
+    v-else
     class="flex flex-wrap justify-center items-center gap-10 overflow-auto h-[calc(100vh-200px)] pb-10"
   >
     <TransitionGroup
+      v-if="groupedVotes.length > 0"
       tag="div"
       class="flex w-10/12 flex-wrap gap-2"
       move-class="transition duration-500 ease-in-out"
@@ -62,7 +70,7 @@ const getPlayerName = (playerId: string) => {
       >
         <div
           :class="[
-            'flex h-12 items-center justify-around rounded-border border-2 border-primary shadow-xl transition duration-1000 ease-in-out text-xs',
+            'flex h-12 items-center justify-around rounded-border border-2 border-primary bg-highlight shadow-xl transition duration-1000 ease-in-out text-xs',
             voteGraphBasis(votes)
           ]"
         >
@@ -74,34 +82,33 @@ const getPlayerName = (playerId: string) => {
     </TransitionGroup>
 
     <div
+      v-else
+      class="flex w-full justify-center"
+    >
+      <p class="text-lg">Aucun vote</p>
+    </div>
+
+    <div
       class="flex w-full justify-center"
       v-if="votesStore.loading"
     >
       <AppLoading />
     </div>
     <div
-      class="flex w-full justify-center"
+      class="flex w-full justify-around"
       v-if="!votesStore.loading && !gameStore.activeGame?.isVoteComplete"
     >
       <AppButton
         type="button"
         rounded
-        outlined
         raised
         class="bg-highlight"
         label="Tester le vote"
         @click="votesStore.mockVotes(gameStore.activeGame?.players!)"
       />
-    </div>
-
-    <div
-      class="flex w-full justify-center"
-      v-if="!votesStore.loading && !gameStore.activeGame?.isVoteComplete"
-    >
       <AppButton
         type="button"
         rounded
-        outlined
         raised
         class="bg-highlight"
         label="Fermer le vote"
@@ -110,27 +117,21 @@ const getPlayerName = (playerId: string) => {
     </div>
 
     <div
-      class="flex w-full justify-center"
+      class="flex w-full justify-around"
       v-if="!votesStore.loading && gameStore.activeGame?.isVoteComplete"
     >
       <AppButton
         type="button"
         rounded
-        outlined
         raised
         class="bg-highlight"
         label="Réouvrir le vote"
         @click="gameStore.manageActiveGameVote(false)"
       />
-    </div>
-    <div
-      class="flex w-full justify-center"
-      v-if="!votesStore.loading && gameStore.activeGame?.isVoteComplete"
-    >
+
       <AppButton
         type="button"
         rounded
-        outlined
         raised
         class="bg-highlight"
         label="Nouveau vote"

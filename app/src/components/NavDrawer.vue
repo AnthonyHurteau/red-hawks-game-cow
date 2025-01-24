@@ -41,9 +41,6 @@ const filteredNavItems: ComputedRef<NavItem[]> = computed(() => {
   <AppButton
     icon="pi pi-bars"
     rounded
-    outlined
-    raised
-    class="bg-highlight"
     @click="visible = true"
   />
   <div class="card flex justify-center">
@@ -63,9 +60,6 @@ const filteredNavItems: ComputedRef<NavItem[]> = computed(() => {
                 @click="closeCallback"
                 icon="pi pi-times"
                 rounded
-                outlined
-                raised
-                class="bg-highlight"
               />
             </span>
           </div>

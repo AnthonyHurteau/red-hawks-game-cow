@@ -10,7 +10,7 @@
                 "run",
                 "dev"
             ],
-            "console": "integratedTerminal"
+            "console": "integratedTerminal",
         },
         {
             "name": "startApi",

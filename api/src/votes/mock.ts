@@ -3,6 +3,7 @@ import { DynamoDbClient } from "/opt/nodejs/core/src/services/dynamoDbClient";
 import { IVote, Vote } from "common/models/vote";
 import { IVoteDbEntity, VoteDbEntity, VoteDto } from "/opt/nodejs/core/src/models/vote";
 import { IPlayer } from "common/models/player";
+import { deleteAsync } from "/opt/nodejs/core/src/services/httpHelper";
 
 /**
  *
@@ -22,11 +23,9 @@ export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGat
         const numberOfVotes = parseInt(process.env.NUMBER_OF_VOTES);
         const votes = await generateMockVotesAsync(numberOfVotes, players);
 
-        const existingVotes = await dynamoDbClient.getDocumentsAsync<IVoteDbEntity>();
-        if (existingVotes && existingVotes.length > 0) {
-            const existingVoteDtos = existingVotes.map((vote) => new VoteDto(vote));
-            await dynamoDbClient.deleteDocumentsAsync(existingVoteDtos);
-        }
+        const url = `${process.env.VOTES_ENDPOINT}/all`;
+        await deleteAsync(url);
+
         const voteDbEntities = votes.map((vote) => new VoteDbEntity(vote));
         await dynamoDbClient.createDocumentsAsync<IVoteDbEntity>(voteDbEntities);
 

@@ -42,10 +42,8 @@ export const put = async <T>(url: string, data: T): Promise<T> => {
 
 export const remove = async <T>(url: string, id: string): Promise<AxiosResponse> => {
   try {
-    const config = {
-      params: id
-    }
-    const response = await axios.delete<T>(url, config)
+    const uri = `${url}/${id}`
+    const response = await axios.delete<T>(uri)
     return response
   } catch (error) {
     console.error("Error deleting data:", error)

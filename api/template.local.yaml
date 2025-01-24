@@ -53,6 +53,7 @@ Resources:
       Environment:
         Variables:
           PLAYERS_ENDPOINT:
+          VOTES_ENDPOINT:
       Events:
         Event:
           Type: Api
@@ -127,7 +128,18 @@ Resources:
         Event:
           Type: Api
           Properties:
-            Path: /votes
+            Path: /votes/{userId}
+            Method: delete
+  DeleteVotes:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: dist/votes
+      Handler: deleteAll.lambdaHandler
+      Events:
+        Event:
+          Type: Api
+          Properties:
+            Path: /votes/all
             Method: delete
   MockVotes:
     Type: AWS::Serverless::Function
@@ -136,6 +148,7 @@ Resources:
       Handler: mock.lambdaHandler
       Environment:
         Variables:
+          VOTES_ENDPOINT:
           NUMBER_OF_VOTES:
       Events:
         Event:

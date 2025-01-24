@@ -12,5 +12,5 @@ export const basis: Record<BasisKey, string> = {
   9: "basis-9/12",
   10: "basis-10/12",
   11: "basis-11/12",
-  12: "basis-12/12"
+  12: "basis-full"
 }

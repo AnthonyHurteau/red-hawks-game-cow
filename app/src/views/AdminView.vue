@@ -2,6 +2,7 @@
 import AdminPassword from "@/components/AdminPassword.vue"
 import AppLoading from "@/components/AppLoading.vue"
 import AdminGameVote from "@/components/AdminGameVote.vue"
+import AdminControlFooter from "@/components/AdminControlFooter.vue"
 import { useUserStore } from "@/stores/user"
 import { useGamesStore } from "@/stores/game"
 
@@ -10,9 +11,14 @@ const userStore = useUserStore()
 </script>
 
 <template>
-  <main class="min-h-full flex flex-col">
-    <div class="flex justify-center items-center py-10">
-      <h1 class="text-4xl text-muted-color">Administration</h1>
+  <main class="grid rid-flow-col grid-rows-3">
+    <div class="grid grid-cols-3">
+      <h1 class="text-2xl text-muted-color">Administration</h1>
+    </div>
+  </main>
+  <!-- <main class="min-h-full flex flex-col">
+    <div class="flex justify-center items-center py-4">
+      <h1 class="text-2xl text-muted-color">Administration</h1>
     </div>
     <AppLoading v-if="userStore.loading || gameStore.loading" />
     <div
@@ -39,7 +45,8 @@ const userStore = useUserStore()
             @click="gameStore.createActiveGame()"
           />
         </div>
+        <AdminControlFooter />
       </div>
     </div>
-  </main>
+  </main> -->
 </template>

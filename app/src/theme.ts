@@ -57,7 +57,8 @@ export const AppTheme = definePreset(Aura, {
           color: "{primary.900}",
           inverseColor: "#ffffff",
           hoverColor: "{primary.700}",
-          activeColor: "{primary.400}"
+          activeColor: "{primary.400}",
+          hoverBackground: "color-mix(in srgb, {primary.400}, transparent 76%)"
         },
         highlight: {
           background: "color-mix(in srgb, {primary.950}, transparent 75%)",

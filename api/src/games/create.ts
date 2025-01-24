@@ -2,8 +2,9 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { DynamoDbClient } from "/opt/nodejs/core/src/services/dynamoDbClient";
 import { GameType, IGame } from "common/models/game";
 import { GameDbEntity, GameDto, IGameDbEntity } from "/opt/nodejs/core/src/models/game";
-import { getAsync } from "/opt/nodejs/core/src/services/httpHelper";
+import { deleteAsync, getAsync } from "/opt/nodejs/core/src/services/httpHelper";
 import { IPlayer } from "common/models/player";
+import { IVote } from "common/models/vote";
 
 /**
  *
@@ -40,8 +41,8 @@ export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGat
             }
         }
 
-        const url = `${process.env.PLAYERS_ENDPOINT}?type=core`;
-        const corePlayers = await getAsync<IPlayer[]>(url);
+        const playersUrl = `${process.env.PLAYERS_ENDPOINT}?type=core`;
+        const corePlayers = await getAsync<IPlayer[]>(playersUrl);
 
         if (!corePlayers) {
             return {
@@ -51,6 +52,19 @@ export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGat
                 }),
             };
         }
+
+        const votesUrl = `${process.env.VOTES_ENDPOINT}/all`;
+        const deleteAllVotesresult = await deleteAsync<IVote[]>(votesUrl);
+
+        if (deleteAllVotesresult.status !== 200) {
+            return {
+                statusCode: 404,
+                body: JSON.stringify({
+                    message: "Error deleting votes",
+                }),
+            };
+        }
+
         const game = JSON.parse(event.body as string) as IGame;
         game.players = corePlayers;
         const gameDbEntity = new GameDbEntity(game);
