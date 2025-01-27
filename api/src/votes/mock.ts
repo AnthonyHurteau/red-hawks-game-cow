@@ -22,10 +22,6 @@ export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGat
         const players = JSON.parse(event.body as string) as IPlayer[];
         const numberOfVotes = parseInt(process.env.NUMBER_OF_VOTES);
         const votes = await generateMockVotesAsync(numberOfVotes, players);
-
-        const url = `${process.env.VOTES_ENDPOINT}/all`;
-        await deleteAsync(url);
-
         const voteDbEntities = votes.map((vote) => new VoteDbEntity(vote));
         await dynamoDbClient.createDocumentsAsync<IVoteDbEntity>(voteDbEntities);
 

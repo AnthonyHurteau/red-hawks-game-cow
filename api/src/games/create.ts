@@ -22,62 +22,9 @@ const active: GameType = "active";
 
 export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     try {
-        const previousActiveGames = await dynamoDbClient.getDocumentsByPrimaryKeyAsync<IGameDbEntity>(active);
-
-        // Manage the previous active game.. there can only be one active game
-        if (previousActiveGames) {
-            for (const previousActiveGame of previousActiveGames) {
-                // Because the active state is the PK, we need to delete the active and create it again
-                const previousActiveGameDto = new GameDto(previousActiveGame);
-
-                const gamesUrl = `${process.env.GAMES_ENDPOINT}/${previousActiveGameDto.id}?type=${active}`;
-                const deletepreviousActiveGameResult = await deleteAsync<IGame>(gamesUrl);
-
-                if (![200, 204].includes(deletepreviousActiveGameResult.status)) {
-                    return {
-                        statusCode: 404,
-                        body: JSON.stringify({
-                            message: "Error deleting previous active game",
-                        }),
-                    };
-                }
-
-                previousActiveGameDto.type = "completed";
-                const gameDbEntity = new GameDbEntity(previousActiveGameDto);
-                await dynamoDbClient.createDocumentAsync<IGameDbEntity>(gameDbEntity);
-            }
-        }
+        await managePreviousActiveGame();
 
         const game = JSON.parse(event.body as string) as IGame;
-
-        // There are two creation mecanisms, this section if for new active games only
-        if (game.type === active) {
-            const playersUrl = `${process.env.PLAYERS_ENDPOINT}?type=core`;
-            const corePlayers = await getAsync<IPlayer[]>(playersUrl);
-
-            if (!corePlayers) {
-                return {
-                    statusCode: 404,
-                    body: JSON.stringify({
-                        message: "Error fetching core players",
-                    }),
-                };
-            }
-
-            const votesUrl = `${process.env.VOTES_ENDPOINT}/all`;
-            const deleteAllVotesresult = await deleteAsync<IVote[]>(votesUrl);
-
-            if (![200, 204].includes(deleteAllVotesresult.status)) {
-                return {
-                    statusCode: 404,
-                    body: JSON.stringify({
-                        message: "Error deleting votes",
-                    }),
-                };
-            }
-
-            game.players = corePlayers;
-        }
 
         const gameDbEntity = new GameDbEntity(game);
         await dynamoDbClient.createDocumentAsync<IGameDbEntity>(gameDbEntity);
@@ -95,5 +42,21 @@ export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGat
                 message: "Bad Request",
             }),
         };
+    }
+};
+
+const managePreviousActiveGame = async () => {
+    const previousActiveGames = await dynamoDbClient.getDocumentsByPrimaryKeyAsync<IGameDbEntity>(active);
+
+    // Manage the previous active game.. there can only be one active game
+    if (previousActiveGames) {
+        for (const previousActiveGame of previousActiveGames) {
+            // Because the active state is the PK, we need to delete the active and create it again
+            const previousActiveGameDto = new GameDto(previousActiveGame);
+            await dynamoDbClient.deleteDocumentAsync<IGame>(previousActiveGameDto);
+            previousActiveGameDto.type = "completed";
+            const gameDbEntity = new GameDbEntity(previousActiveGameDto);
+            await dynamoDbClient.createDocumentAsync<IGameDbEntity>(gameDbEntity);
+        }
     }
 };

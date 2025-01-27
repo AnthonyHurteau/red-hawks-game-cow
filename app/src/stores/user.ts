@@ -10,8 +10,6 @@ const USER_KEY = "user"
 const API_URL = import.meta.env.VITE_API_URL
 const USER_PATH = import.meta.env.VITE_USERS_PATH
 const USER_URL = `${API_URL}/${USER_PATH}`
-const AUTH_PATH = import.meta.env.VITE_AUTH_PATH
-const AUTH_URL = `${API_URL}/${AUTH_PATH}`
 
 export const useUserStore = defineStore("user", () => {
   const user = ref<IUser>()
@@ -65,7 +63,7 @@ export const useUserStore = defineStore("user", () => {
     try {
       if (user.value) {
         const auth: IAuth = new Auth(user.value, password)
-        const result = await post<IAuth>(AUTH_URL, auth)
+        const result = await post<IAuth>(USER_URL, auth)
         user.value = result
       }
     } catch (e) {

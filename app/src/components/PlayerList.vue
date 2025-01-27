@@ -1,24 +1,24 @@
 <script setup lang="ts">
 import CowIcon from "./CowIcon.vue"
-import { useVotesStore } from "@/stores/votes"
+import { useVoteStore } from "@/stores/vote"
 import { computed } from "vue"
 import type { Player } from "../../../common/models/player"
-import { useGamesStore } from "@/stores/game"
+import { useGameStore } from "@/stores/game"
 
-const gameStore = useGamesStore()
-const votesStore = useVotesStore()
+const gameStore = useGameStore()
+const voteStore = useVoteStore()
 
 const selectedPlayer = computed({
   get() {
-    if (gameStore.activeGame && votesStore.vote) {
-      const vote = votesStore.vote
+    if (gameStore.activeGame && voteStore.vote) {
+      const vote = voteStore.vote
       const players = gameStore.activeGame.players
       return players.find((player) => player.id === vote.playerId) || null
     }
     return null
   },
   set(value: Player | null) {
-    votesStore.setVote(value ? value.id : null)
+    voteStore.setVote(value ? value.id : null)
   }
 })
 </script>

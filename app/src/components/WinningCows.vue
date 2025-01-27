@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { useGamesStore } from "@/stores/game"
+import { useGameStore } from "@/stores/game"
 import CowIcon from "./CowIcon.vue"
 import { computed } from "vue"
 import type { IGroupedVotes } from "@/models/groupedVotes"
 
-const gameStore = useGamesStore()
+const gameStore = useGameStore()
 
 const topPlayers = computed(() => {
   const votes = gameStore.activeGame!.votes

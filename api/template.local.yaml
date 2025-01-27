@@ -50,11 +50,6 @@ Resources:
     Properties:
       CodeUri: dist/games
       Handler: create.lambdaHandler
-      Environment:
-        Variables:
-          GAMES_ENDPOINT:
-          PLAYERS_ENDPOINT:
-          VOTES_ENDPOINT:
       Events:
         Event:
           Type: Api
@@ -66,9 +61,6 @@ Resources:
     Properties:
       CodeUri: dist/games
       Handler: update.lambdaHandler
-      Environment:
-        Variables:
-          VOTES_ENDPOINT:
       Events:
         Event:
           Type: Api
@@ -160,7 +152,6 @@ Resources:
       Handler: mock.lambdaHandler
       Environment:
         Variables:
-          VOTES_ENDPOINT:
           NUMBER_OF_VOTES:
       Events:
         Event:
@@ -185,6 +176,9 @@ Resources:
     Properties:
       CodeUri: dist/users
       Handler: create.lambdaHandler
+      Environment:
+        Variables:
+          ADMIN_PASSWORD:
       Events:
         Event:
           Type: Api
@@ -213,23 +207,6 @@ Resources:
           Properties:
             Path: /users/{id}
             Method: delete
-
-  # Auth
-  Auth:
-    Type: AWS::Serverless::Function
-    Properties:
-      CodeUri: dist/auth
-      Handler: auth.lambdaHandler
-      Environment:
-        Variables:
-          ADMIN_PASSWORD:
-          USERS_ENDPOINT:
-      Events:
-        Event:
-          Type: Api
-          Properties:
-            Path: /auth
-            Method: post
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function

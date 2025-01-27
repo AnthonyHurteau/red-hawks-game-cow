@@ -1,21 +1,21 @@
 <script setup lang="ts">
 import AppLoading from "@/components/AppLoading.vue"
-import { useVotesStore } from "@/stores/votes"
+import { useVoteStore } from "@/stores/vote"
 import { computed, onMounted, ref } from "vue"
 import type { Vote } from "../../../common/models/vote"
 import { basis, type BasisKey } from "@/utils/dynamicTailwindClasses"
-import { useGamesStore } from "@/stores/game"
+import { useGameStore } from "@/stores/game"
 import type { IGroupedVotes } from "@/models/groupedVotes"
 
-const gameStore = useGamesStore()
-const votesStore = useVotesStore()
+const gameStore = useGameStore()
+const voteStore = useVoteStore()
 
 onMounted(() => {
-  votesStore.getVotes()
+  voteStore.getVotes()
 })
 
 const groupedVotes = computed(() => {
-  const votes = votesStore.votes
+  const votes = voteStore.votes
   const grouped = votes.reduce((accumulator, currentValue) => {
     if (!accumulator[currentValue.playerId]) {
       accumulator[currentValue.playerId] = []
@@ -29,7 +29,7 @@ const groupedVotes = computed(() => {
 
 const voteGraphBasis = computed(() => (votes: Vote[]) => {
   const nominator = Math.min(
-    Math.max(Math.round((votes.length / votesStore.votes.length) * 12), 1),
+    Math.max(Math.round((votes.length / voteStore.votes.length) * 12), 1),
     12
   ) as BasisKey
   return basis[nominator]

@@ -9,9 +9,9 @@ const API_URL = import.meta.env.VITE_API_URL
 const PATH = import.meta.env.VITE_VOTES_PATH
 const URL = `${API_URL}/${PATH}`
 
-export const useVotesStore = defineStore("votes", () => {
+export const useVoteStore = defineStore("votes", () => {
   const votes = ref<IVote[]>([])
-  const vote = ref<IVote>()
+  const vote = ref<IVote | null>(null)
   const loading = ref(false)
   const error = ref<Error>()
 
@@ -21,6 +21,7 @@ export const useVotesStore = defineStore("votes", () => {
     loading.value = true
     try {
       votes.value = await get<IVote[]>(URL)
+      return votes.value
     } catch (e) {
       error.value = e as Error
     } finally {
@@ -36,6 +37,7 @@ export const useVotesStore = defineStore("votes", () => {
         const url = `${URL}/${user.id}`
         vote.value = await get<IVote>(url)
       }
+      return vote.value
     } catch (e) {
       error.value = e as Error
     } finally {
@@ -70,11 +72,27 @@ export const useVotesStore = defineStore("votes", () => {
     }
   }
 
+  async function deleteAllVotes() {
+    loading.value = true
+    try {
+      const all = "all"
+      await remove<IVote[]>(URL, all)
+      votes.value = []
+    } catch (e) {
+      error.value = e as Error
+    } finally {
+      loading.value = false
+    }
+  }
+
   async function mockVotes(players: IPlayer[]) {
     loading.value = true
     try {
-      const url = `${URL}/mock`
-      await post<IPlayer[]>(url, players)
+      const all = "all"
+      await remove<IVote[]>(URL, all)
+
+      const mockUri = `${URL}/mock`
+      await post<IPlayer[]>(mockUri, players)
       await getVotes()
     } catch (e) {
       error.value = e as Error
@@ -83,5 +101,5 @@ export const useVotesStore = defineStore("votes", () => {
     }
   }
 
-  return { vote, votes, getVote, getVotes, setVote, mockVotes, loading, error }
+  return { vote, votes, getVote, getVotes, setVote, deleteAllVotes, mockVotes, loading, error }
 })

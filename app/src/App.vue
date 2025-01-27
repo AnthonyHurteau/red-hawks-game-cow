@@ -2,26 +2,26 @@
 import { RouterView } from "vue-router"
 import HeaderBar from "./components/HeaderBar.vue"
 import { onMounted } from "vue"
+import { useGameStore } from "./stores/game"
 import { useUserStore } from "./stores/user"
-import { useVotesStore } from "./stores/votes"
-import { useGamesStore } from "./stores/game"
+import { useVoteStore } from "./stores/vote"
 
-const gameStore = useGamesStore()
+const gameStore = useGameStore()
 const userStore = useUserStore()
-const votesStore = useVotesStore()
+const voteStore = useVoteStore()
 
-onMounted(() => {
-  gameStore.getActiveGame()
-  userStore.getUser()
+onMounted(async () => {
+  await gameStore.getActiveGame()
+  await userStore.getUser()
 
   if (gameStore.activeGame && !gameStore.activeGame.isVoteComplete) {
-    votesStore.getVote()
+    await voteStore.getVote()
   }
 })
 
-gameStore.$subscribe((mutation, state) => {
+gameStore.$subscribe(async (mutation, state) => {
   if (state.activeGame && !state.activeGame.isVoteComplete) {
-    votesStore.getVote()
+    await voteStore.getVote()
   }
 })
 </script>

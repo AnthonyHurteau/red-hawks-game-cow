@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { useGamesStore } from "@/stores/game"
-import { useVotesStore } from "@/stores/votes"
+import { useGameStore } from "@/stores/game"
+import { useVoteStore } from "@/stores/vote"
 
 const ENV = import.meta.env.VITE_ENV
 
-const gameStore = useGamesStore()
-const votesStore = useVotesStore()
+const gameStore = useGameStore()
+const voteStore = useVoteStore()
 </script>
 
 <template>
@@ -20,8 +20,8 @@ const votesStore = useVotesStore()
         raised
         class="bg-highlight flex-1 basis-0"
         label="Tester le vote"
-        :disabled="votesStore.loading || gameStore.loading"
-        @click="votesStore.mockVotes(gameStore.activeGame?.players!)"
+        :disabled="voteStore.loading || gameStore.loading"
+        @click="voteStore.mockVotes(gameStore.activeGame?.players!)"
       />
       <AppButton
         type="button"

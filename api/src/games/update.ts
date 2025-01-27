@@ -21,16 +21,6 @@ export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGat
         const body = JSON.parse(event.body as string) as IGame;
         const game = new Game(body);
 
-        if (game.isVoteComplete) {
-            const url = process.env.VOTES_ENDPOINT;
-            const votes = await getAsync<IVote[]>(url);
-            if (votes) {
-                game.votes = votes;
-            }
-        } else if (!game.isVoteComplete) {
-            game.votes = [];
-        }
-
         await dynamoDbClient.updateDocumentAsync<IGame>(game);
 
         return {

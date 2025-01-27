@@ -1,8 +1,10 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { DynamoDbClient } from "/opt/nodejs/core/src/services/dynamoDbClient";
-import { IUser } from "common/models/user";
+import { IUser, User } from "common/models/user";
 import { IUserDbEntity, UserDbEntity, UserDto } from "/opt/nodejs/core/src/models/user";
 import { timeToLive } from "/opt/nodejs/core/src/services/timeToLiveHelper";
+import { IAuth } from "common/models/auth";
+import { deleteAsync } from "/opt/nodejs/core/src/services/httpHelper";
 
 /**
  *
@@ -18,7 +20,28 @@ const dynamoDbClient = new DynamoDbClient(process.env.TABLE_NAME as string);
 
 export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     try {
-        const user = JSON.parse(event.body as string) as IUser;
+        const user = JSON.parse(event.body as string) as IAuth;
+        // Set user type to user by default
+        user.type = "user";
+
+        if (user.password) {
+            if (user.password === process.env.ADMIN_PASSWORD) {
+                const url = process.env.USERS_ENDPOINT;
+
+                // The user type is the actual sort key of the user in DynamoDB
+                // Because dynamoDB doesn't allow the modification of sortkeys, we need to delete the user and create a new one
+                const deleteUser = new User(user);
+                await dynamoDbClient.deleteDocumentAsync<IUser>(deleteUser);
+                user.type = "admin";
+            } else {
+                return {
+                    statusCode: 403,
+                    body: JSON.stringify({
+                        message: "Unauthorized",
+                    }),
+                };
+            }
+        }
 
         const ttl = timeToLive(6, "months");
         const userDbEntity = new UserDbEntity(user, ttl);

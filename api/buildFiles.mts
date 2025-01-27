@@ -19,8 +19,4 @@ const votesDir = `${sourceDir}/votes`;
 const votesServices: voteServiceTypes[] = ["get", "getList", "create", "update", "delete", "mock", "deleteAll"];
 const votes = votesServices.map((service) => `${votesDir}/${service}.ts`);
 
-const authDir = `${sourceDir}/auth`;
-const authServices: string[] = ["auth"];
-const auth = authServices.map((service) => `${authDir}/${service}.ts`);
-
-export const buildFiles = [players, games, votes, users, auth].flat();
+export const buildFiles = [players, games, votes, users].flat();

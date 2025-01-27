@@ -3,9 +3,9 @@ import AppLoading from "@/components/AppLoading.vue"
 import PlayerList from "../components/PlayerList.vue"
 import VoteTitle from "@/components/VoteTitle.vue"
 import WinningCows from "@/components/WinningCows.vue"
-import { useGamesStore } from "@/stores/game"
+import { useGameStore } from "@/stores/game"
 
-const gameStore = useGamesStore()
+const gameStore = useGameStore()
 </script>
 
 <template>
