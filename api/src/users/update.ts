@@ -1,4 +1,4 @@
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
+import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
 import { DynamoDbClient } from "/opt/nodejs/core/src/services/dynamoDbClient";
 import { IUser, User } from "common/models/user";
 
@@ -14,7 +14,7 @@ import { IUser, User } from "common/models/user";
 
 const dynamoDbClient = new DynamoDbClient(process.env.TABLE_NAME as string);
 
-export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+export const lambdaHandler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {
     try {
         const body = JSON.parse(event.body as string) as IUser;
         const user = new User(body);

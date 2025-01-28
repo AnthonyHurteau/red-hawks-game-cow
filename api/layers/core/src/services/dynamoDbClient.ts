@@ -7,6 +7,10 @@ export class DynamoDbClient {
     private readonly tableName: string;
 
     constructor(tableName: string) {
+        if (!tableName) {
+            throw new Error("Table Name cannot be null or undefined.");
+        }
+
         this.dynamoDbDocumentClient = new DynamoDB.DocumentClient();
         this.tableName = tableName;
     }

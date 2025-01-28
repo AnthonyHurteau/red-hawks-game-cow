@@ -1,10 +1,9 @@
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
+import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
 import { DynamoDbClient } from "/opt/nodejs/core/src/services/dynamoDbClient";
 import { IUser, User } from "common/models/user";
 import { IUserDbEntity, UserDbEntity, UserDto } from "/opt/nodejs/core/src/models/user";
 import { timeToLive } from "/opt/nodejs/core/src/services/timeToLiveHelper";
 import { IAuth } from "common/models/auth";
-import { deleteAsync } from "/opt/nodejs/core/src/services/httpHelper";
 
 /**
  *
@@ -18,7 +17,7 @@ import { deleteAsync } from "/opt/nodejs/core/src/services/httpHelper";
 
 const dynamoDbClient = new DynamoDbClient(process.env.TABLE_NAME as string);
 
-export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+export const lambdaHandler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {
     try {
         const user = JSON.parse(event.body as string) as IAuth;
         // Set user type to user by default

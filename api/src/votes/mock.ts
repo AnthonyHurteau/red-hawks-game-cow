@@ -1,9 +1,8 @@
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
+import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
 import { DynamoDbClient } from "/opt/nodejs/core/src/services/dynamoDbClient";
 import { IVote, Vote } from "common/models/vote";
-import { IVoteDbEntity, VoteDbEntity, VoteDto } from "/opt/nodejs/core/src/models/vote";
+import { IVoteDbEntity, VoteDbEntity } from "/opt/nodejs/core/src/models/vote";
 import { IPlayer } from "common/models/player";
-import { deleteAsync } from "/opt/nodejs/core/src/services/httpHelper";
 
 /**
  *
@@ -17,7 +16,7 @@ import { deleteAsync } from "/opt/nodejs/core/src/services/httpHelper";
 
 const dynamoDbClient = new DynamoDbClient(process.env.TABLE_NAME as string);
 
-export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+export const lambdaHandler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {
     try {
         const players = JSON.parse(event.body as string) as IPlayer[];
         const numberOfVotes = parseInt(process.env.NUMBER_OF_VOTES);

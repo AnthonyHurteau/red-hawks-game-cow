@@ -6,7 +6,7 @@ import { get, post, put } from "@/services/api"
 import { User, type IUser } from "@common/models/user"
 import { Auth, type IAuth } from "@common/models/auth"
 
-const USER_KEY = "user"
+export const USER_KEY = "user"
 const API_URL = import.meta.env.VITE_API_URL
 const USER_PATH = import.meta.env.VITE_USERS_PATH
 const USER_URL = `${API_URL}/${USER_PATH}`

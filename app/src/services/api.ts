@@ -1,28 +1,28 @@
-import axios, { type AxiosResponse } from "axios"
+import axios, { AxiosHeaders, type AxiosRequestHeaders, type AxiosResponse } from "axios"
+import { getItem } from "./localStorage"
+import { USER_KEY } from "@/stores/user"
 
 export const get = async <T>(
   url: string,
   query?: {
     [key: string]: string
-  }
+  },
+  auth = false
 ): Promise<T> => {
   try {
-    if (query) {
-      const response = await axios.get<T>(url, { params: query })
-      return response.data
-    } else {
-      const response = await axios.get<T>(url)
-      return response.data
-    }
+    const headers = auth ? getAuthorizationHeaders() : undefined
+    const response = await axios.get<T>(url, { params: query, headers })
+    return response.data
   } catch (error) {
     console.error("Error fetching data:", error)
     throw error
   }
 }
 
-export const post = async <T>(url: string, data: T): Promise<T> => {
+export const post = async <T>(url: string, data: T, auth = false): Promise<T> => {
   try {
-    const response = await axios.post<T>(url, data)
+    const headers = auth ? getAuthorizationHeaders() : undefined
+    const response = await axios.post<T>(url, data, { headers })
     return response.data
   } catch (error) {
     console.error("Error creating data:", error)
@@ -30,9 +30,10 @@ export const post = async <T>(url: string, data: T): Promise<T> => {
   }
 }
 
-export const put = async <T>(url: string, data: T): Promise<T> => {
+export const put = async <T>(url: string, data: T, auth = false): Promise<T> => {
   try {
-    const response = await axios.put<T>(url, data)
+    const headers = auth ? getAuthorizationHeaders() : undefined
+    const response = await axios.put<T>(url, data, { headers })
     return response.data
   } catch (error) {
     console.error("Error updating data:", error)
@@ -40,13 +41,21 @@ export const put = async <T>(url: string, data: T): Promise<T> => {
   }
 }
 
-export const remove = async <T>(url: string, id: string): Promise<AxiosResponse> => {
+export const remove = async <T>(url: string, id: string, auth = false): Promise<AxiosResponse> => {
   try {
     const uri = `${url}/${id}`
-    const response = await axios.delete<T>(uri)
+    const headers = auth ? getAuthorizationHeaders() : undefined
+    const response = await axios.delete<T>(uri, { headers })
     return response
   } catch (error) {
     console.error("Error deleting data:", error)
     throw error
   }
+}
+
+const getAuthorizationHeaders = (): AxiosRequestHeaders => {
+  const userId = getItem<string>(USER_KEY)
+  const headers = new AxiosHeaders()
+  headers.set("Authorization", userId)
+  return headers
 }

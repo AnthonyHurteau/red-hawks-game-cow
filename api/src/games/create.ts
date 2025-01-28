@@ -1,10 +1,7 @@
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
+import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
 import { DynamoDbClient } from "/opt/nodejs/core/src/services/dynamoDbClient";
 import { GameType, IGame } from "common/models/game";
 import { GameDbEntity, GameDto, IGameDbEntity } from "/opt/nodejs/core/src/models/game";
-import { deleteAsync, getAsync } from "/opt/nodejs/core/src/services/httpHelper";
-import { IPlayer } from "common/models/player";
-import { IVote } from "common/models/vote";
 
 /**
  *
@@ -20,7 +17,7 @@ const dynamoDbClient = new DynamoDbClient(process.env.TABLE_NAME as string);
 
 const active: GameType = "active";
 
-export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+export const lambdaHandler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {
     try {
         await managePreviousActiveGame();
 

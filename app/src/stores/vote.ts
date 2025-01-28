@@ -76,7 +76,7 @@ export const useVoteStore = defineStore("votes", () => {
     loading.value = true
     try {
       const all = "all"
-      await remove<IVote[]>(URL, all)
+      await remove<IVote[]>(URL, all, true)
       votes.value = []
     } catch (e) {
       error.value = e as Error
@@ -89,10 +89,10 @@ export const useVoteStore = defineStore("votes", () => {
     loading.value = true
     try {
       const all = "all"
-      await remove<IVote[]>(URL, all)
+      await remove<IVote[]>(URL, all, true)
 
       const mockUri = `${URL}/mock`
-      await post<IPlayer[]>(mockUri, players)
+      await post<IPlayer[]>(mockUri, players, true)
       await getVotes()
     } catch (e) {
       error.value = e as Error

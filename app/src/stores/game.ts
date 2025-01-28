@@ -43,7 +43,7 @@ export const useGameStore = defineStore("game", () => {
         if (corePlayers) {
           newGame.players = corePlayers
           await voteStore.deleteAllVotes()
-          const result = await post<IGame>(URL, newGame)
+          const result = await post<IGame>(URL, newGame, true)
           activeGame.value = result
         } else {
           throw new Error("Error processing new active game")
@@ -71,7 +71,7 @@ export const useGameStore = defineStore("game", () => {
 
         activeGame.value.isVoteComplete = isVoteComplete
         const updatedActiveGame = activeGame.value
-        const result = await put<IGame>(URL, updatedActiveGame)
+        const result = await put<IGame>(URL, updatedActiveGame, true)
         activeGame.value = result
       }
     } catch (e) {

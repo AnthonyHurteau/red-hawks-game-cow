@@ -1,5 +1,5 @@
 import { DynamoDbClient } from "/opt/nodejs/core/src/services/dynamoDbClient";
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
+import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
 import { GameType } from "common/models/game";
 import { GameDto, IGameDbEntity } from "/opt/nodejs/core/src/models/game";
 
@@ -19,7 +19,7 @@ const isGameType = (type: string): type is GameType => {
     return ["active", "completed"].includes(type);
 };
 
-export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+export const lambdaHandler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {
     if (event.queryStringParameters) {
         try {
             const type = event.queryStringParameters.type;

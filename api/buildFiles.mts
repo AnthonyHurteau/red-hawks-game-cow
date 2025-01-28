@@ -1,22 +1,19 @@
-type serviceTypes = "get" | "getList" | "create" | "update" | "delete";
-type voteServiceTypes = serviceTypes | "mock" | "deleteAll";
+type ServiceTypes = "get" | "getList" | "create" | "update" | "delete" | "mock" | "deleteAll" | "auth";
 
 export const sourceDir = "src";
 
-const playersDir = `${sourceDir}/players`;
-const playersServices: serviceTypes[] = ["get"];
-const players = playersServices.map((service) => `${playersDir}/${service}.ts`);
+const serviceConfigurations: { dir: string; services: ServiceTypes[] }[] = [
+    { dir: "players", services: ["get"] },
+    { dir: "games", services: ["create", "update", "get", "delete"] },
+    { dir: "users", services: ["get", "create", "update", "delete"] },
+    { dir: "votes", services: ["get", "getList", "create", "update", "delete", "mock", "deleteAll"] },
+    { dir: "auth", services: ["auth"] },
+];
 
-const gamesDir = `${sourceDir}/games`;
-const gamesServices: serviceTypes[] = ["create", "update", "get", "delete"];
-const games = gamesServices.map((service) => `${gamesDir}/${service}.ts`);
+const generateServicePaths = (dir: string, services: ServiceTypes[]): string[] => {
+    return services.map((service) => `${sourceDir}/${dir}/${service}.ts`);
+};
 
-const usersDir = `${sourceDir}/users`;
-const usersServices: serviceTypes[] = ["get", "create", "update", "delete"];
-const users = usersServices.map((service) => `${usersDir}/${service}.ts`);
+const buildFiles = serviceConfigurations.map(({ dir, services }) => generateServicePaths(dir, services)).flat();
 
-const votesDir = `${sourceDir}/votes`;
-const votesServices: voteServiceTypes[] = ["get", "getList", "create", "update", "delete", "mock", "deleteAll"];
-const votes = votesServices.map((service) => `${votesDir}/${service}.ts`);
-
-export const buildFiles = [players, games, votes, users].flat();
+export default buildFiles;

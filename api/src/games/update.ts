@@ -1,8 +1,6 @@
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
+import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
 import { DynamoDbClient } from "/opt/nodejs/core/src/services/dynamoDbClient";
 import { Game, IGame } from "common/models/game";
-import { getAsync } from "/opt/nodejs/core/src/services/httpHelper";
-import { IVote } from "common/models/vote";
 
 /**
  *
@@ -16,7 +14,7 @@ import { IVote } from "common/models/vote";
 
 const dynamoDbClient = new DynamoDbClient(process.env.TABLE_NAME as string);
 
-export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+export const lambdaHandler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {
     try {
         const body = JSON.parse(event.body as string) as IGame;
         const game = new Game(body);

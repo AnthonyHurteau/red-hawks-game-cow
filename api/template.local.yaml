@@ -14,13 +14,41 @@ Globals:
     Environment:
       Variables:
         TABLE_NAME:
-  Api:
-    Cors:
-      AllowMethods: "'GET,POST,PUT,DELETE,OPTIONS'"
-      AllowHeaders: "'content-type'"
-      AllowOrigin: "'http://localhost:5173'"
 
 Resources:
+  # HTTP API Api Gateway
+  HttpApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      CorsConfiguration:
+        AllowMethods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+          - OPTIONS
+        AllowHeaders:
+          - content-type
+          - Authorization
+        AllowOrigins:
+          - "http://localhost:5173"
+      Auth:
+        Authorizers:
+          FunctionAuth:
+            FunctionPayloadType: REQUEST
+            AuthorizerPayloadFormatVersion: "2.0"
+            FunctionArn: !GetAtt Auth.Arn
+            Identity:
+              Headers:
+                - Authorization
+
+  # Auth
+  Auth:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: dist/auth
+      Handler: auth.lambdaHandler
+
   # Players
   GetPlayers:
     Type: AWS::Serverless::Function
@@ -29,10 +57,11 @@ Resources:
       Handler: get.lambdaHandler
       Events:
         Event:
-          Type: Api
+          Type: HttpApi
           Properties:
             Path: /players
             Method: get
+            ApiId: !Ref HttpApi
   # Games
   GetGame:
     Type: AWS::Serverless::Function
@@ -41,10 +70,11 @@ Resources:
       Handler: get.lambdaHandler
       Events:
         Event:
-          Type: Api
+          Type: HttpApi
           Properties:
             Path: /games
             Method: get
+            ApiId: !Ref HttpApi
   CreateGame:
     Type: AWS::Serverless::Function
     Properties:
@@ -52,10 +82,13 @@ Resources:
       Handler: create.lambdaHandler
       Events:
         Event:
-          Type: Api
+          Type: HttpApi
           Properties:
+            Auth:
+              Authorizer: FunctionAuth
             Path: /games
             Method: post
+            ApiId: !Ref HttpApi
   UpdateGame:
     Type: AWS::Serverless::Function
     Properties:
@@ -63,10 +96,13 @@ Resources:
       Handler: update.lambdaHandler
       Events:
         Event:
-          Type: Api
+          Type: HttpApi
           Properties:
+            Auth:
+              Authorizer: FunctionAuth
             Path: /games
             Method: put
+            ApiId: !Ref HttpApi
   DeleteGame:
     Type: AWS::Serverless::Function
     Properties:
@@ -74,10 +110,13 @@ Resources:
       Handler: delete.lambdaHandler
       Events:
         Event:
-          Type: Api
+          Type: HttpApi
           Properties:
+            Auth:
+              Authorizer: FunctionAuth
             Path: /games/{id}
             Method: delete
+            ApiId: !Ref HttpApi
   # Votes
   GetVote:
     Type: AWS::Serverless::Function
@@ -86,10 +125,11 @@ Resources:
       Handler: get.lambdaHandler
       Events:
         Event:
-          Type: Api
+          Type: HttpApi
           Properties:
             Path: /votes/{userId}
             Method: get
+            ApiId: !Ref HttpApi
   GetVotes:
     Type: AWS::Serverless::Function
     Properties:
@@ -97,10 +137,11 @@ Resources:
       Handler: getList.lambdaHandler
       Events:
         Event:
-          Type: Api
+          Type: HttpApi
           Properties:
             Path: /votes
             Method: get
+            ApiId: !Ref HttpApi
   CreateVote:
     Type: AWS::Serverless::Function
     Properties:
@@ -108,10 +149,11 @@ Resources:
       Handler: create.lambdaHandler
       Events:
         Event:
-          Type: Api
+          Type: HttpApi
           Properties:
             Path: /votes
             Method: post
+            ApiId: !Ref HttpApi
   UpdateVote:
     Type: AWS::Serverless::Function
     Properties:
@@ -119,10 +161,11 @@ Resources:
       Handler: update.lambdaHandler
       Events:
         Event:
-          Type: Api
+          Type: HttpApi
           Properties:
             Path: /votes
             Method: put
+            ApiId: !Ref HttpApi
   DeleteVote:
     Type: AWS::Serverless::Function
     Properties:
@@ -130,10 +173,11 @@ Resources:
       Handler: delete.lambdaHandler
       Events:
         Event:
-          Type: Api
+          Type: HttpApi
           Properties:
             Path: /votes/{userId}
             Method: delete
+            ApiId: !Ref HttpApi
   DeleteVotes:
     Type: AWS::Serverless::Function
     Properties:
@@ -141,10 +185,13 @@ Resources:
       Handler: deleteAll.lambdaHandler
       Events:
         Event:
-          Type: Api
+          Type: HttpApi
           Properties:
+            Auth:
+              Authorizer: FunctionAuth
             Path: /votes/all
             Method: delete
+            ApiId: !Ref HttpApi
   MockVotes:
     Type: AWS::Serverless::Function
     Properties:
@@ -155,10 +202,13 @@ Resources:
           NUMBER_OF_VOTES:
       Events:
         Event:
-          Type: Api
+          Type: HttpApi
           Properties:
+            Auth:
+              Authorizer: FunctionAuth
             Path: /votes/mock
             Method: post
+            ApiId: !Ref HttpApi
   # Users
   GetUser:
     Type: AWS::Serverless::Function
@@ -167,10 +217,11 @@ Resources:
       Handler: get.lambdaHandler
       Events:
         Event:
-          Type: Api
+          Type: HttpApi
           Properties:
             Path: /users/{id}
             Method: get
+            ApiId: !Ref HttpApi
   CreateUser:
     Type: AWS::Serverless::Function
     Properties:
@@ -181,10 +232,11 @@ Resources:
           ADMIN_PASSWORD:
       Events:
         Event:
-          Type: Api
+          Type: HttpApi
           Properties:
             Path: /users
             Method: post
+            ApiId: !Ref HttpApi
   UpdateUser:
     Type: AWS::Serverless::Function
     Properties:
@@ -192,10 +244,11 @@ Resources:
       Handler: update.lambdaHandler
       Events:
         Event:
-          Type: Api
+          Type: HttpApi
           Properties:
             Path: /users
             Method: put
+            ApiId: !Ref HttpApi
   DeleteUser:
     Type: AWS::Serverless::Function
     Properties:
@@ -203,10 +256,11 @@ Resources:
       Handler: delete.lambdaHandler
       Events:
         Event:
-          Type: Api
+          Type: HttpApi
           Properties:
             Path: /users/{id}
             Method: delete
+            ApiId: !Ref HttpApi
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function

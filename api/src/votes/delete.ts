@@ -1,4 +1,4 @@
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
+import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
 import { DynamoDbClient } from "/opt/nodejs/core/src/services/dynamoDbClient";
 import { IVote } from "common/models/vote";
 import { IVoteDbEntity, VoteDto } from "/opt/nodejs/core/src/models/vote";
@@ -15,7 +15,7 @@ import { IVoteDbEntity, VoteDto } from "/opt/nodejs/core/src/models/vote";
 
 const dynamoDbClient = new DynamoDbClient(process.env.TABLE_NAME as string);
 
-export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+export const lambdaHandler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {
     if (event.pathParameters && event.pathParameters.userId) {
         try {
             const userId = event.pathParameters.userId;

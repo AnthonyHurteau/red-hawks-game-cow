@@ -1,7 +1,7 @@
 import esbuild, { BuildOptions } from "esbuild";
 import path from "path";
 import fs from "fs";
-import { buildFiles, sourceDir } from "../buildFiles.mjs";
+import buildFiles, { sourceDir } from "../buildFiles.mjs";
 
 const entryPoints = buildFiles;
 

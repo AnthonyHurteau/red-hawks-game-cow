@@ -1,6 +1,6 @@
 import { DynamoDbClient } from "/opt/nodejs/core/src/services/dynamoDbClient";
 import { IPlayerDbEntity, PlayerDto } from "/opt/nodejs/core/src/models/player";
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
+import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
 import { PlayerType } from "common/models/player";
 
 /**
@@ -19,7 +19,7 @@ const isPlayerType = (type: string): type is PlayerType => {
     return ["core", "sub"].includes(type);
 };
 
-export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+export const lambdaHandler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {
     if (event.queryStringParameters) {
         try {
             const type = event.queryStringParameters.type;
