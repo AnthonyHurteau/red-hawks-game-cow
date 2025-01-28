@@ -1,9 +1,6 @@
 import esbuild, { BuildOptions } from "esbuild";
 import path from "path";
 import fs from "fs";
-import buildFiles, { sourceDir } from "../buildFiles.mjs";
-
-const entryPoints = buildFiles;
 
 const buildOptions: BuildOptions = {
     bundle: true,
@@ -13,8 +10,13 @@ const buildOptions: BuildOptions = {
     minify: true,
 };
 
-const build = async (watch: boolean) => {
+const build = async (watch: boolean, sourceDir: string, entryPointImport: string) => {
     try {
+        const entryPointPath = path.resolve(process.cwd(), entryPointImport);
+        console.log(`Importing entry points from: ${entryPointPath}`);
+        const entryPointsModule = await import(entryPointPath);
+        const entryPoints = entryPointsModule.default;
+        console.log(`Entry points: ${JSON.stringify(entryPoints)}`);
         const contexts: any[] = [];
         for (const entryPoint of entryPoints) {
             const relativePath = path.relative(sourceDir, entryPoint);
@@ -58,4 +60,16 @@ const build = async (watch: boolean) => {
 };
 
 const watch = process.argv.includes("--watch");
-build(watch);
+const args = process.argv.slice(2);
+const entryPointImportIndex = args.indexOf("--entryPointImport");
+const sourceDirIndex = args.indexOf("--sourceDir");
+
+if (entryPointImportIndex === -1 || sourceDirIndex === -1) {
+    console.error("Missing required arguments: --entryPointImport and --sourceDir");
+    process.exit(1);
+}
+
+const entryPointimport = args[entryPointImportIndex + 1];
+const sourceDir = args[sourceDirIndex + 1];
+
+build(watch, sourceDir, entryPointimport);

@@ -10,20 +10,10 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "baseUrl": ".",
-    "paths": {
-      "/opt/nodejs/*": [
-        "../common/layers/*",
-      ],
-      "common/*": [
-        "../common/*",
-      ],
-    },
   },
   "include": [
-    "buildFiles.mts",
-    "src/**/*.ts",
-    "types/**/*.d.ts"
+    "src/**/*.mts",
+    "../../**/*.mts",
   ],
   "exclude": [
     "node_modules",

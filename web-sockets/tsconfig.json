@@ -23,6 +23,7 @@
   "include": [
     "buildFiles.mts",
     "src/**/*.ts",
+    "scripts/**/*.mts",
     "types/**/*.d.ts"
   ],
   "exclude": [

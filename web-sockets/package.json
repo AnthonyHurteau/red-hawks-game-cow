@@ -1,19 +1,14 @@
 {
-  "name": "red-hawks-game-cow-players-api",
+  "name": "red-hawks-game-cow-players-web-socket-api",
   "version": "1.0.0",
   "main": "app.js",
   "author": "Anthony Hurteau",
   "license": "MIT",
   "scripts": {
     "lint": "eslint '*.ts' --quiet --fix",
-    "dev": "npm-run-all -p clean esbuild-dev delay-sam-dev",
     "build": "npm-run-all clean esbuild",
-    "delay": "ts-node --esm ../common/scripts/delay.mts 6500",
-    "clean": "rimraf ./dist && rimraf ./.aws-sam",
-    "esbuild-dev": "ts-node --esm ../common/scripts/src/build.mts --sourceDir src --entryPointImport buildFiles.mts --watch",
-    "esbuild": "ts-node --esm ../common/scripts/src/build.mts --sourceDir src --entryPointImport buildFiles.mts",
-    "delay-sam-dev": "npm-run-all -s delay sam-dev",
-    "sam-dev": "AWS_PROFILE=red-hawks-game-cow sam local start-api --template ./template.local.yaml --env-vars ./env.json --warm-containers EAGER -p 8080"
+    "clean": "rimraf ./dist",
+    "esbuild": "ts-node --esm scripts/build.mts"
   },
   "dependencies": {},
   "devDependencies": {
