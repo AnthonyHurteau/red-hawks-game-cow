@@ -12,6 +12,7 @@ interface DynamoDbProps extends BaseProps {
   tableType: string;
   partitionKeyName?: string;
   sortKeyName?: string;
+  hasSortKey?: boolean;
 }
 
 export class DynamoDb extends Construct {
@@ -26,6 +27,7 @@ export class DynamoDb extends Construct {
       environment,
       region,
       product,
+      hasSortKey = true,
     } = props;
     const tableName = `${product}-${tableType}-${region}-${environment}`;
 
@@ -35,7 +37,9 @@ export class DynamoDb extends Construct {
       billing: Billing.onDemand(),
       removalPolicy: RemovalPolicy.RETAIN,
       deletionProtection: true,
-      sortKey: { name: sortKeyName, type: AttributeType.STRING },
+      sortKey: hasSortKey
+        ? { name: sortKeyName, type: AttributeType.STRING }
+        : undefined,
       pointInTimeRecovery: true,
       tableClass: TableClass.STANDARD,
       timeToLiveAttribute: "timeToLive",

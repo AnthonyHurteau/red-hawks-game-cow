@@ -12,8 +12,8 @@ import {
   TableV2,
 } from "aws-cdk-lib/aws-dynamodb";
 import { Construct } from "constructs";
-import { dataInit } from "../dynamoDB-data/seed";
-import { DynamoDb } from "../modules/dynamoDb";
+import { dataInit } from "../dynamo-db-seed-data/seed";
+import { DynamoDb } from "../modules/dynamo-db";
 import { Environment } from "../types/environments";
 import { Region } from "../types/regions";
 
