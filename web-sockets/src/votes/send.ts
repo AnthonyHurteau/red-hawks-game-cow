@@ -3,7 +3,6 @@ import { DynamoDbClient } from "common/core/src/services/dynamoDbClient";
 import { ApiGatewayClient } from "common/core/src/services/apiGatewayClient";
 import { APIGatewayProxyEvent, APIGatewayProxyResultV2 } from "aws-lambda";
 import { IVote } from "common/models/vote";
-import { AWSError } from "../../../common/core/node_modules/aws-sdk";
 
 /**
  *
@@ -30,14 +29,13 @@ export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGat
                     apiGatewayClient.postToConnectionAsync(connection.pk, vote);
 
                     await Promise.all(postCalls);
-                } catch (err) {
-                    const error = err as AWSError;
-                    if (error.statusCode === 410) {
+                } catch (err: any) {
+                    if (err.statusCode === 410) {
                         console.log(`Found stale connection, deleting ${connection.pk}`);
                         const item: IItem = { pk: connection.pk };
                         await dynamoDbClient.deleteItemDocumentAsync<IItem>(item);
                     } else {
-                        console.error(error);
+                        console.error(err);
                         return {
                             statusCode: 400,
                             body: JSON.stringify({

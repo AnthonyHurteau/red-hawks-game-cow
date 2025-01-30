@@ -1,10 +1,25 @@
-import { DynamoDB } from "aws-sdk";
 import { IDbEntity } from "../models/dbEntity";
 import { IBaseEntity } from "common/models/baseEntity";
 import { IItem } from "../models/item";
+import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
+import {
+    QueryCommand,
+    QueryCommandInput,
+    ScanCommand,
+    BatchWriteCommand,
+    BatchWriteCommandInput,
+    DeleteCommand,
+    DeleteCommandInput,
+    DynamoDBDocumentClient,
+    GetCommand,
+    GetCommandInput,
+    PutCommand,
+    PutCommandInput,
+    ScanCommandInput,
+} from "@aws-sdk/lib-dynamodb";
 
 export class DynamoDbClient {
-    private readonly dynamoDbDocumentClient: DynamoDB.DocumentClient;
+    private readonly dynamoDBDocumentClient: DynamoDBDocumentClient;
     private readonly tableName: string;
 
     constructor(tableName: string) {
@@ -12,22 +27,25 @@ export class DynamoDbClient {
             throw new Error("Table Name cannot be null or undefined.");
         }
 
-        this.dynamoDbDocumentClient = new DynamoDB.DocumentClient();
+        const dynamoDbClient = new DynamoDBClient({});
+        this.dynamoDBDocumentClient = DynamoDBDocumentClient.from(dynamoDbClient);
         this.tableName = tableName;
     }
 
     async getDocumentsByPrimaryKeyAsync<T extends IDbEntity>(pk: string): Promise<T[] | undefined> {
-        const params = {
+        const input: QueryCommandInput = {
             TableName: this.tableName,
             KeyConditionExpression: "pk = :pk",
             ExpressionAttributeValues: {
                 ":pk": pk,
             },
         };
+        const command = new QueryCommand(input);
         try {
-            const result = await this.dynamoDbDocumentClient.query(params).promise();
+            const result = await this.dynamoDBDocumentClient.send(command);
+
             if (result.Items) {
-                return result.Items as T[];
+                return result.Items as unknown as T[];
             }
         } catch (error) {
             console.error(error);
@@ -37,13 +55,13 @@ export class DynamoDbClient {
     }
 
     async getDocumentBySortKeyAsync<T extends IDbEntity>(pk: string, sk: string): Promise<T | undefined> {
-        const params = {
+        const input: GetCommandInput = {
             TableName: this.tableName,
             Key: { pk, sk },
         };
-
+        const command = new GetCommand(input);
         try {
-            const result = await this.dynamoDbDocumentClient.get(params).promise();
+            const result = await this.dynamoDBDocumentClient.send(command);
             return result.Item as T;
         } catch (error) {
             console.error(error);
@@ -53,14 +71,14 @@ export class DynamoDbClient {
     }
 
     async getDocumentsAsync<T extends IDbEntity>(): Promise<T[] | undefined> {
-        const params = {
+        const input: ScanCommandInput = {
             TableName: this.tableName,
         };
-
+        const command = new ScanCommand(input);
         try {
-            const result = await this.dynamoDbDocumentClient.scan(params).promise();
+            const result = await this.dynamoDBDocumentClient.send(command);
 
-            return result.Items as T[];
+            return result.Items as unknown as T[];
         } catch (error) {
             console.error(error);
         }
@@ -69,14 +87,14 @@ export class DynamoDbClient {
     }
 
     async getItemDocumentsAsync<T extends IItem>(): Promise<T[] | undefined> {
-        const params = {
+        const input: ScanCommandInput = {
             TableName: this.tableName,
         };
-
+        const command = new ScanCommand(input);
         try {
-            const result = await this.dynamoDbDocumentClient.scan(params).promise();
+            const result = await this.dynamoDBDocumentClient.send(command);
 
-            return result.Items as T[];
+            return result.Items as unknown as T[];
         } catch (error) {
             console.error(error);
         }
@@ -85,19 +103,20 @@ export class DynamoDbClient {
     }
 
     async createDocumentAsync<T extends IDbEntity>(entity: T) {
-        const params = {
+        const input: PutCommandInput = {
             TableName: this.tableName,
             Item: entity,
         };
+        const command = new PutCommand(input);
         try {
-            await this.dynamoDbDocumentClient.put(params).promise();
+            await this.dynamoDBDocumentClient.send(command);
         } catch (error) {
             console.error(error);
         }
     }
 
     async createDocumentsAsync<T extends IDbEntity>(entities: T[]) {
-        const params = {
+        const input: BatchWriteCommandInput = {
             RequestItems: {
                 [this.tableName]: entities.map((entity) => ({
                     PutRequest: {
@@ -106,9 +125,9 @@ export class DynamoDbClient {
                 })),
             },
         };
-
+        const command = new BatchWriteCommand(input);
         try {
-            await this.dynamoDbDocumentClient.batchWrite(params).promise();
+            await this.dynamoDBDocumentClient.send(command);
         } catch (error) {
             console.error(error);
         }
@@ -123,13 +142,13 @@ export class DynamoDbClient {
             dbEntity.modified = new Date().toISOString();
             dbEntity = { ...dbEntity, ...entity };
 
-            const params = {
+            const input: PutCommandInput = {
                 TableName: this.tableName,
                 Item: dbEntity,
             };
-
+            const command = new PutCommand(input);
             try {
-                await this.dynamoDbDocumentClient.put(params).promise();
+                await this.dynamoDBDocumentClient.send(command);
             } catch (error) {
                 console.error(error);
             }
@@ -137,37 +156,39 @@ export class DynamoDbClient {
     }
 
     async updateItemDocumentAsync<T extends IItem>(item: T) {
-        const params = {
+        const input: PutCommandInput = {
             TableName: this.tableName,
             Item: item,
         };
-
+        const command = new PutCommand(input);
         try {
-            await this.dynamoDbDocumentClient.put(params).promise();
+            await this.dynamoDBDocumentClient.send(command);
         } catch (error) {
             console.error(error);
         }
     }
 
     async deleteDocumentAsync<T extends IBaseEntity>(entity: T) {
-        const params = {
+        const input: DeleteCommandInput = {
             TableName: this.tableName,
             Key: { pk: entity.dbEntityPrimaryKey, sk: entity.dbEntitySortKey },
         };
+        const command = new DeleteCommand(input);
         try {
-            await this.dynamoDbDocumentClient.delete(params).promise();
+            await this.dynamoDBDocumentClient.send(command);
         } catch (error) {
             console.error(error);
         }
     }
 
     async deleteItemDocumentAsync<T extends IItem>(item: T) {
-        const params = {
+        const input: DeleteCommandInput = {
             TableName: this.tableName,
             Key: { pk: item.pk },
         };
+        const command = new DeleteCommand(input);
         try {
-            await this.dynamoDbDocumentClient.delete(params).promise();
+            await this.dynamoDBDocumentClient.send(command);
         } catch (error) {
             console.error(error);
         }
@@ -180,14 +201,14 @@ export class DynamoDbClient {
             },
         }));
 
-        const params = {
+        const input: BatchWriteCommandInput = {
             RequestItems: {
                 [this.tableName]: deleteRequests,
             },
         };
-
+        const command = new BatchWriteCommand(input);
         try {
-            await this.dynamoDbDocumentClient.batchWrite(params).promise();
+            await this.dynamoDBDocumentClient.send(command);
         } catch (error) {
             console.error(error);
         }

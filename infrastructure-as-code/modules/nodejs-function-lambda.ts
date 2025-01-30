@@ -45,6 +45,11 @@ export class NodeJsFunctionLambda extends Construct {
       handler: LAMBDA_HANDLER,
       entry: entryPath,
       environment: environmentVariables,
+      bundling: {
+        externalModules: ["aws-sdk"],
+        sourceMap: true,
+        minify: false,
+      },
     });
 
     this.nodejsFunction = nodeJsFunction;

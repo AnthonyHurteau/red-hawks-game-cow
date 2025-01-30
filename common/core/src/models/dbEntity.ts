@@ -1,5 +1,3 @@
-import { IndexType } from "aws-sdk/clients/resourceexplorer2";
-
 export interface IDbEntity {
     pk: string;
     sk: string;

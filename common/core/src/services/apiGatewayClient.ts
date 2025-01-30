@@ -1,5 +1,9 @@
+import {
+    ApiGatewayManagementApi,
+    PostToConnectionCommand,
+    PostToConnectionCommandInput,
+} from "@aws-sdk/client-apigatewaymanagementapi";
 import { APIGatewayProxyEvent } from "aws-lambda";
-import { ApiGatewayManagementApi } from "aws-sdk";
 import { IBaseEntity } from "common/models/baseEntity";
 
 export class ApiGatewayClient {
@@ -17,13 +21,14 @@ export class ApiGatewayClient {
     }
 
     async postToConnectionAsync<T extends IBaseEntity>(connectionId: string, data: T): Promise<void> {
-        const params = {
+        const params: PostToConnectionCommandInput = {
             ConnectionId: connectionId,
-            Data: data,
+            Data: Buffer.from(JSON.stringify(data)),
         };
+        const command = new PostToConnectionCommand(params);
 
         try {
-            await this.apiGatewayClient.postToConnection(params).promise();
+            await this.apiGatewayClient.send(command);
         } catch (error) {
             console.error(error);
         }
