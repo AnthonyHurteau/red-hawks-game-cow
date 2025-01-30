@@ -21,5 +21,3 @@ export class DbEntity implements IDbEntity {
         this.timeToLive = timeToLive;
     }
 }
-
-export const indexKey = (indexType: IndexType): string => `pk-${indexType}-index`;

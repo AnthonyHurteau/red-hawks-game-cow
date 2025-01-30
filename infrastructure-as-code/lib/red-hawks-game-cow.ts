@@ -1,16 +1,4 @@
-import {
-  custom_resources,
-  RemovalPolicy,
-  Stack,
-  StackProps,
-} from "aws-cdk-lib";
-import {
-  AttributeType,
-  Billing,
-  ProjectionType,
-  TableClass,
-  TableV2,
-} from "aws-cdk-lib/aws-dynamodb";
+import { custom_resources, Stack, StackProps } from "aws-cdk-lib";
 import { Construct } from "constructs";
 import { dataInit } from "../dynamo-db-seed-data/seed";
 import { DynamoDb } from "../modules/dynamo-db";
@@ -18,7 +6,6 @@ import { Environment } from "../types/environments";
 import { Region } from "../types/regions";
 
 interface Props extends StackProps {
-  appName: string;
   environment: Environment;
   region: Region;
   product: string;
@@ -27,42 +14,30 @@ interface Props extends StackProps {
 export class RedHawksGameCowStack extends Stack {
   constructor(scope: Construct, id: string, props: Props) {
     super(scope, id, props);
-    const { appName, environment, region, product } = props;
+    const baseProps = { ...props };
 
     const playersId = "players";
     const playersTable = new DynamoDb(this, `${playersId}-table`, {
       tableType: playersId,
-      environment,
-      region,
-      appName,
-      product,
+      ...props,
     });
 
     const gamesId = "games";
     const gamesTable = new DynamoDb(this, `${gamesId}-table`, {
       tableType: gamesId,
-      environment,
-      region,
-      appName,
-      product,
+      ...baseProps,
     });
 
     const votesId = "votes";
     const votesTable = new DynamoDb(this, `${votesId}-table`, {
       tableType: votesId,
-      environment,
-      region,
-      appName,
-      product,
+      ...baseProps,
     });
 
     const usersId = "users";
     const usersTable = new DynamoDb(this, `${usersId}-table`, {
       tableType: usersId,
-      environment,
-      region,
-      appName,
-      product,
+      ...baseProps,
     });
 
     new custom_resources.AwsCustomResource(this, `${playersId}-seed-data`, {

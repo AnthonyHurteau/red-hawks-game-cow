@@ -1,6 +1,6 @@
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
-import { DynamoDbClient } from "/opt/nodejs/core/src/services/dynamoDbClient";
-import { GameDto, IGameDbEntity } from "/opt/nodejs/core/src/models/game";
+import { DynamoDbClient } from "common/core/src/services/dynamoDbClient";
+import { GameDto, IGameDbEntity } from "common/core/src/models/game";
 import { GameType, IGame } from "common/models/game";
 
 /**

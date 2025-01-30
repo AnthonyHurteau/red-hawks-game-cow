@@ -5,8 +5,8 @@ import {
     Context,
     StatementEffect,
 } from "aws-lambda";
-import { DynamoDbClient } from "/opt/nodejs/core/src/services/dynamoDbClient";
-import { IUserDbEntity, UserDto } from "/opt/nodejs/core/src/models/user";
+import { DynamoDbClient } from "common/core/src/services/dynamoDbClient";
+import { IUserDbEntity, UserDto } from "common/core/src/models/user";
 /**
  *
  * Event doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html#api-gateway-simple-proxy-for-lambda-input-format

@@ -1,1 +1,1 @@
-export type Region = "use1";
+export type Region = "usea1";

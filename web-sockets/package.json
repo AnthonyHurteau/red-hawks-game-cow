@@ -7,8 +7,8 @@
   "scripts": {
     "lint": "eslint '*.ts' --quiet --fix",
     "build": "npm-run-all clean esbuild",
-    "clean": "rimraf ./dist",
-    "esbuild": "ts-node --esm scripts/build.mts"
+    "clean": "rimraf ./dist && rimraf ./.aws-sam",
+    "esbuild": "ts-node --esm ../common/scripts/src/build.mts --sourceDir src --entryPointImport buildFiles.mts"
   },
   "dependencies": {},
   "devDependencies": {

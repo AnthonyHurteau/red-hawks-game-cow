@@ -12,9 +12,6 @@
     "forceConsistentCasingInFileNames": true,
     "baseUrl": ".",
     "paths": {
-      "/opt/nodejs/*": [
-        "../common/layers/*",
-      ],
       "common/*": [
         "../common/*",
       ],

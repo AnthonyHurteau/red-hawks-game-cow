@@ -1,5 +1,5 @@
-import { DynamoDbClient } from "/opt/nodejs/core/src/services/dynamoDbClient";
-import { IPlayerDbEntity, PlayerDto } from "/opt/nodejs/core/src/models/player";
+import { DynamoDbClient } from "common/core/src/services/dynamoDbClient";
+import { IPlayerDbEntity, PlayerDto } from "common/core/src/models/player";
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
 import { PlayerType } from "common/models/player";
 

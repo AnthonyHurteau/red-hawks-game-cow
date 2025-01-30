@@ -1,6 +1,6 @@
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
-import { DynamoDbClient } from "/opt/nodejs/core/src/services/dynamoDbClient";
-import { IUserDbEntity, UserDto } from "/opt/nodejs/core/src/models/user";
+import { DynamoDbClient } from "common/core/src/services/dynamoDbClient";
+import { IUserDbEntity, UserDto } from "common/core/src/models/user";
 
 /**
  *

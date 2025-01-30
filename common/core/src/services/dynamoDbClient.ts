@@ -1,6 +1,7 @@
-import { AWSError, DynamoDB } from "aws-sdk";
+import { DynamoDB } from "aws-sdk";
 import { IDbEntity } from "../models/dbEntity";
 import { IBaseEntity } from "common/models/baseEntity";
+import { IItem } from "../models/item";
 
 export class DynamoDbClient {
     private readonly dynamoDbDocumentClient: DynamoDB.DocumentClient;
@@ -67,6 +68,22 @@ export class DynamoDbClient {
         return undefined;
     }
 
+    async getItemDocumentsAsync<T extends IItem>(): Promise<T[] | undefined> {
+        const params = {
+            TableName: this.tableName,
+        };
+
+        try {
+            const result = await this.dynamoDbDocumentClient.scan(params).promise();
+
+            return result.Items as T[];
+        } catch (error) {
+            console.error(error);
+        }
+
+        return undefined;
+    }
+
     async createDocumentAsync<T extends IDbEntity>(entity: T) {
         const params = {
             TableName: this.tableName,
@@ -109,7 +126,6 @@ export class DynamoDbClient {
             const params = {
                 TableName: this.tableName,
                 Item: dbEntity,
-                Key: { pk: dbEntity.pk, sk: dbEntity.sk },
             };
 
             try {
@@ -120,10 +136,35 @@ export class DynamoDbClient {
         }
     }
 
+    async updateItemDocumentAsync<T extends IItem>(item: T) {
+        const params = {
+            TableName: this.tableName,
+            Item: item,
+        };
+
+        try {
+            await this.dynamoDbDocumentClient.put(params).promise();
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
     async deleteDocumentAsync<T extends IBaseEntity>(entity: T) {
         const params = {
             TableName: this.tableName,
             Key: { pk: entity.dbEntityPrimaryKey, sk: entity.dbEntitySortKey },
+        };
+        try {
+            await this.dynamoDbDocumentClient.delete(params).promise();
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    async deleteItemDocumentAsync<T extends IItem>(item: T) {
+        const params = {
+            TableName: this.tableName,
+            Key: { pk: item.pk },
         };
         try {
             await this.dynamoDbDocumentClient.delete(params).promise();

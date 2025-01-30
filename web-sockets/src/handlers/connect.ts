@@ -1,6 +1,8 @@
-import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
+import { Connection } from "types/connection";
+import { IItem } from "../../../common/core/src/models/item";
 import { DynamoDbClient } from "common/core/src/services/dynamoDbClient";
-import { IVoteDbEntity, VoteDto } from "common/core/src/models/vote";
+import { APIGatewayProxyEvent, APIGatewayProxyResultV2 } from "aws-lambda";
+import { timeToLive } from "../../../common/core/src/services/timeToLiveHelper";
 
 /**
  *
@@ -14,23 +16,17 @@ import { IVoteDbEntity, VoteDto } from "common/core/src/models/vote";
 
 const dynamoDbClient = new DynamoDbClient(process.env.TABLE_NAME as string);
 
-export const lambdaHandler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {
+export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResultV2> => {
     try {
-        const existingVotes = await dynamoDbClient.getDocumentsAsync<IVoteDbEntity>();
-        if (existingVotes && existingVotes.length > 0) {
-            const existingVoteDtos = existingVotes.map((vote) => new VoteDto(vote));
-            await dynamoDbClient.deleteDocumentsAsync(existingVoteDtos);
+        const connectionId = event.requestContext.connectionId;
+        if (connectionId) {
+            const ttl = timeToLive(2, "days");
+            const connection = new Connection(connectionId, ttl);
+            await dynamoDbClient.updateItemDocumentAsync<IItem>(connection);
             return {
                 statusCode: 200,
                 body: JSON.stringify({
-                    message: "Ok",
-                }),
-            };
-        } else {
-            return {
-                statusCode: 204,
-                body: JSON.stringify({
-                    message: "No Content",
+                    message: "Connected",
                 }),
             };
         }
@@ -43,4 +39,11 @@ export const lambdaHandler = async (event: APIGatewayProxyEventV2): Promise<APIG
             }),
         };
     }
+
+    return {
+        statusCode: 400,
+        body: JSON.stringify({
+            message: "Bad Request",
+        }),
+    };
 };

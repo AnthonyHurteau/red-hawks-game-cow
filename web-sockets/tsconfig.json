@@ -12,9 +12,6 @@
     "forceConsistentCasingInFileNames": true,
     "baseUrl": ".",
     "paths": {
-      "/opt/nodejs/*": [
-        "../common/layers/*",
-      ],
       "common/*": [
         "../common/*",
       ],
@@ -23,8 +20,8 @@
   "include": [
     "buildFiles.mts",
     "src/**/*.ts",
-    "scripts/**/*.mts",
-    "types/**/*.d.ts"
+    "types/**/*.d.ts",
+    "types/**/*.ts"
   ],
   "exclude": [
     "node_modules",

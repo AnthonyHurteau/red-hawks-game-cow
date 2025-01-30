@@ -1,8 +1,8 @@
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
-import { DynamoDbClient } from "/opt/nodejs/core/src/services/dynamoDbClient";
+import { DynamoDbClient } from "common/core/src/services/dynamoDbClient";
 import { IUser, User } from "common/models/user";
-import { IUserDbEntity, UserDbEntity, UserDto } from "/opt/nodejs/core/src/models/user";
-import { timeToLive } from "/opt/nodejs/core/src/services/timeToLiveHelper";
+import { IUserDbEntity, UserDbEntity, UserDto } from "common/core/src/models/user";
+import { timeToLive } from "common/core/src/services/timeToLiveHelper";
 import { IAuth } from "common/models/auth";
 
 /**

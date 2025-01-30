@@ -13,8 +13,8 @@
     "baseUrl": ".",
     "paths": {
       "common/*": [
-        "../../../common/*",
+        "../../common/*",
       ],
     },
-  }
+  },
 }
