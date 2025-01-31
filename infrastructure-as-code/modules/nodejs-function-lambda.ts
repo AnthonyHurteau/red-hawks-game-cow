@@ -4,6 +4,7 @@ import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import { Architecture, ILayerVersion, Runtime } from "aws-cdk-lib/aws-lambda";
 import { Duration } from "aws-cdk-lib";
 import { resourceName } from "./common";
+import { RetentionDays } from "aws-cdk-lib/aws-logs";
 
 type FunctionMemorySize = 128 | 256 | 512 | 1024 | 2048 | 4096 | 8192;
 
@@ -25,7 +26,7 @@ export class NodeJsFunctionLambda extends Construct {
     super(scope, id);
     const {
       name,
-      memorySize = 4096,
+      memorySize = 2048,
       entryPath,
       environmentVariables,
       timeout = 10,
@@ -44,12 +45,8 @@ export class NodeJsFunctionLambda extends Construct {
       layers: layers,
       handler: LAMBDA_HANDLER,
       entry: entryPath,
+      logRetention: RetentionDays.ONE_WEEK,
       environment: environmentVariables,
-      bundling: {
-        externalModules: ["aws-sdk"],
-        sourceMap: true,
-        minify: false,
-      },
     });
 
     this.nodejsFunction = nodeJsFunction;

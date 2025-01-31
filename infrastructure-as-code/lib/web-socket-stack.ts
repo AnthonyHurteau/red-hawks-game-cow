@@ -72,7 +72,7 @@ export class WebSocketStack extends Stack {
       this,
       `${wsSendFunctionName}-${awsResourceNames().function}`,
       {
-        name: wsConnectFunctionName,
+        name: wsSendFunctionName,
         entryPath: path.join(
           __dirname,
           `../../web-sockets/src/${sendFunctionFile}`
