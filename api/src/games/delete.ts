@@ -1,6 +1,6 @@
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
-import { DynamoDbClient } from "common/core/src/services/dynamoDbClient";
 import { GameDto, IGameDbEntity } from "common/core/src/models/game";
+import { deleteDocumentAsync, getDocumentBySortKeyAsync } from "common/core/src/services/dynamoDbClient";
 import { GameType, IGame } from "common/models/game";
 
 /**
@@ -13,7 +13,7 @@ import { GameType, IGame } from "common/models/game";
  *
  */
 
-const dynamoDbClient = new DynamoDbClient(process.env.TABLE_NAME as string);
+const TABLE_NAME = process.env.TABLE_NAME;
 
 const isGameType = (type: string): type is GameType => {
     return ["active", "completed"].includes(type);
@@ -31,10 +31,10 @@ export const lambdaHandler = async (event: APIGatewayProxyEventV2): Promise<APIG
             const id = event.pathParameters.id;
 
             if (isGameType(type)) {
-                const game = await dynamoDbClient.getDocumentBySortKeyAsync<IGameDbEntity>(type, id);
+                const game = await getDocumentBySortKeyAsync<IGameDbEntity>(type, id, TABLE_NAME);
                 if (game) {
                     const gameDto = new GameDto(game);
-                    await dynamoDbClient.deleteDocumentAsync<IGame>(gameDto);
+                    await deleteDocumentAsync<IGame>(gameDto, TABLE_NAME);
                     return {
                         statusCode: 200,
                         body: JSON.stringify({

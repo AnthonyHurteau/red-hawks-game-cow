@@ -1,7 +1,7 @@
-import { DynamoDbClient } from "common/core/src/services/dynamoDbClient";
 import { IPlayerDbEntity, PlayerDto } from "common/core/src/models/player";
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
 import { PlayerType } from "common/models/player";
+import { getDocumentsByPrimaryKeyAsync } from "common/core/src/services/dynamoDbClient";
 
 /**
  *
@@ -13,7 +13,7 @@ import { PlayerType } from "common/models/player";
  *
  */
 
-const dynamoDbClient = new DynamoDbClient(process.env.TABLE_NAME as string);
+const TABLE_NAME = process.env.TABLE_NAME;
 
 const isPlayerType = (type: string): type is PlayerType => {
     return ["core", "sub"].includes(type);
@@ -25,7 +25,7 @@ export const lambdaHandler = async (event: APIGatewayProxyEventV2): Promise<APIG
             const type = event.queryStringParameters.type;
 
             if (type && isPlayerType(type)) {
-                const result = await dynamoDbClient.getDocumentsByPrimaryKeyAsync<IPlayerDbEntity>(type);
+                const result = await getDocumentsByPrimaryKeyAsync<IPlayerDbEntity>(type, TABLE_NAME);
 
                 if (result && result.length > 0) {
                     const playerDtos = result.map((playerDbEntity) => new PlayerDto(playerDbEntity));

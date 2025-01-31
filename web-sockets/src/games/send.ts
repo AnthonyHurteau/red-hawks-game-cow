@@ -1,9 +1,8 @@
 import { IItem } from "../../../common/core/src/models/item";
-import { DynamoDbClient } from "common/core/src/services/dynamoDbClient";
-import { ApiGatewayClient } from "common/core/src/services/apiGatewayClient";
 import { APIGatewayProxyEvent, APIGatewayProxyResultV2 } from "aws-lambda";
+import { postToConnectionAsync } from "common/core/src/services/apiGatewayClient";
+import { deleteItemDocumentAsync, getItemDocumentsAsync } from "common/core/src/services/dynamoDbClient";
 import { IGame } from "common/models/game";
-import { AWSError } from "../../../common/core/node_modules/aws-sdk";
 
 /**
  *
@@ -15,31 +14,28 @@ import { AWSError } from "../../../common/core/node_modules/aws-sdk";
  *
  */
 
-const dynamoDbClient = new DynamoDbClient(process.env.TABLE_NAME as string);
+const TABLE_NAME = process.env.TABLE_NAME;
 
 export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResultV2> => {
     try {
         const game = JSON.parse(event.body as string) as IGame;
 
         if (game.type === "active") {
-            const apiGatewayClient = new ApiGatewayClient(event);
-
-            const connections = await dynamoDbClient.getItemDocumentsAsync<IItem>();
+            const connections = await getItemDocumentsAsync<IItem>(TABLE_NAME);
 
             if (connections && connections.length > 0) {
                 const postCalls = connections.map(async (connection) => {
                     try {
-                        apiGatewayClient.postToConnectionAsync(connection.pk, game);
+                        postToConnectionAsync(connection.pk, game, event);
 
                         await Promise.all(postCalls);
-                    } catch (err) {
-                        const error = err as AWSError;
-                        if (error.statusCode === 410) {
+                    } catch (err: any) {
+                        if (err.statusCode === 410) {
                             console.log(`Found stale connection, deleting ${connection.pk}`);
                             const item: IItem = { pk: connection.pk };
-                            await dynamoDbClient.deleteItemDocumentAsync<IItem>(item);
+                            await deleteItemDocumentAsync<IItem>(item, TABLE_NAME);
                         } else {
-                            console.error(error);
+                            console.error(err);
                             return {
                                 statusCode: 400,
                                 body: JSON.stringify({

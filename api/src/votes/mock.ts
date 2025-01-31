@@ -1,8 +1,8 @@
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
-import { DynamoDbClient } from "common/core/src/services/dynamoDbClient";
 import { IVote, Vote } from "common/models/vote";
 import { IVoteDbEntity, VoteDbEntity } from "common/core/src/models/vote";
 import { IPlayer } from "common/models/player";
+import { createDocumentsAsync } from "common/core/src/services/dynamoDbClient";
 
 /**
  *
@@ -14,7 +14,7 @@ import { IPlayer } from "common/models/player";
  *
  */
 
-const dynamoDbClient = new DynamoDbClient(process.env.TABLE_NAME as string);
+const TABLE_NAME = process.env.TABLE_NAME;
 
 export const lambdaHandler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {
     try {
@@ -22,7 +22,7 @@ export const lambdaHandler = async (event: APIGatewayProxyEventV2): Promise<APIG
         const numberOfVotes = parseInt(process.env.NUMBER_OF_VOTES);
         const votes = await generateMockVotesAsync(numberOfVotes, players);
         const voteDbEntities = votes.map((vote) => new VoteDbEntity(vote));
-        await dynamoDbClient.createDocumentsAsync<IVoteDbEntity>(voteDbEntities);
+        await createDocumentsAsync<IVoteDbEntity>(voteDbEntities, TABLE_NAME);
 
         return {
             statusCode: 200,

@@ -1,8 +1,8 @@
 import { Connection } from "types/connection";
 import { IItem } from "../../../common/core/src/models/item";
-import { DynamoDbClient } from "common/core/src/services/dynamoDbClient";
 import { APIGatewayProxyEvent, APIGatewayProxyResultV2 } from "aws-lambda";
 import { timeToLive } from "../../../common/core/src/services/timeToLiveHelper";
+import { updateItemDocumentAsync } from "common/core/src/services/dynamoDbClient";
 
 /**
  *
@@ -14,7 +14,7 @@ import { timeToLive } from "../../../common/core/src/services/timeToLiveHelper";
  *
  */
 
-const dynamoDbClient = new DynamoDbClient(process.env.TABLE_NAME as string);
+const TABLE_NAME = process.env.TABLE_NAME;
 
 export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResultV2> => {
     try {
@@ -22,7 +22,7 @@ export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGat
         if (connectionId) {
             const ttl = timeToLive(2, "days");
             const connection = new Connection(connectionId, ttl);
-            await dynamoDbClient.updateItemDocumentAsync<IItem>(connection);
+            await updateItemDocumentAsync<IItem>(connection, TABLE_NAME);
             return {
                 statusCode: 200,
                 body: JSON.stringify({

@@ -1,7 +1,7 @@
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
-import { DynamoDbClient } from "common/core/src/services/dynamoDbClient";
 import { IVote } from "common/models/vote";
 import { IVoteDbEntity, VoteDto } from "common/core/src/models/vote";
+import { deleteDocumentAsync, getDocumentsByPrimaryKeyAsync } from "common/core/src/services/dynamoDbClient";
 
 /**
  *
@@ -13,17 +13,17 @@ import { IVoteDbEntity, VoteDto } from "common/core/src/models/vote";
  *
  */
 
-const dynamoDbClient = new DynamoDbClient(process.env.TABLE_NAME as string);
+const TABLE_NAME = process.env.TABLE_NAME;
 
 export const lambdaHandler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {
     if (event.pathParameters && event.pathParameters.userId) {
         try {
             const userId = event.pathParameters.userId;
 
-            const vote = await dynamoDbClient.getDocumentsByPrimaryKeyAsync<IVoteDbEntity>(userId);
+            const vote = await getDocumentsByPrimaryKeyAsync<IVoteDbEntity>(userId, TABLE_NAME);
             if (vote && vote.length > 0) {
                 const voteDto = new VoteDto(vote[0]);
-                await dynamoDbClient.deleteDocumentAsync<IVote>(voteDto);
+                await deleteDocumentAsync<IVote>(voteDto, TABLE_NAME);
                 return {
                     statusCode: 200,
                     body: JSON.stringify({

@@ -1,9 +1,9 @@
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
-import { DynamoDbClient } from "common/core/src/services/dynamoDbClient";
 import { IUser, User } from "common/models/user";
 import { IUserDbEntity, UserDbEntity, UserDto } from "common/core/src/models/user";
 import { timeToLive } from "common/core/src/services/timeToLiveHelper";
 import { IAuth } from "common/models/auth";
+import { createDocumentAsync, deleteDocumentAsync } from "common/core/src/services/dynamoDbClient";
 
 /**
  *
@@ -15,7 +15,7 @@ import { IAuth } from "common/models/auth";
  *
  */
 
-const dynamoDbClient = new DynamoDbClient(process.env.TABLE_NAME as string);
+const TABLE_NAME = process.env.TABLE_NAME;
 
 export const lambdaHandler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {
     try {
@@ -30,7 +30,7 @@ export const lambdaHandler = async (event: APIGatewayProxyEventV2): Promise<APIG
                 // The user type is the actual sort key of the user in DynamoDB
                 // Because dynamoDB doesn't allow the modification of sortkeys, we need to delete the user and create a new one
                 const deleteUser = new User(user);
-                await dynamoDbClient.deleteDocumentAsync<IUser>(deleteUser);
+                await deleteDocumentAsync<IUser>(deleteUser, TABLE_NAME);
                 user.type = "admin";
             } else {
                 return {
@@ -45,7 +45,7 @@ export const lambdaHandler = async (event: APIGatewayProxyEventV2): Promise<APIG
         const ttl = timeToLive(6, "months");
         const userDbEntity = new UserDbEntity(user, ttl);
 
-        await dynamoDbClient.createDocumentAsync<IUserDbEntity>(userDbEntity);
+        await createDocumentAsync<IUserDbEntity>(userDbEntity, TABLE_NAME);
         const userDto = new UserDto(userDbEntity);
 
         return {

@@ -6,31 +6,25 @@ import {
 import { APIGatewayProxyEvent } from "aws-lambda";
 import { IBaseEntity } from "common/models/baseEntity";
 
-export class ApiGatewayClient {
-    private readonly apiGatewayClient: ApiGatewayManagementApi;
+export const postToConnectionAsync = async <T extends IBaseEntity>(
+    connectionId: string,
+    data: T,
+    event: APIGatewayProxyEvent,
+): Promise<void> => {
+    const apiGatewayClient = new ApiGatewayManagementApi({
+        apiVersion: "2018-11-29",
+        endpoint: `${event.requestContext.domainName}/${event.requestContext.stage}`,
+    });
 
-    constructor(event: APIGatewayProxyEvent) {
-        if (!event) {
-            throw new Error("Event cannot be null or undefined.");
-        }
+    const params: PostToConnectionCommandInput = {
+        ConnectionId: connectionId,
+        Data: Buffer.from(JSON.stringify(data)),
+    };
+    const command = new PostToConnectionCommand(params);
 
-        this.apiGatewayClient = new ApiGatewayManagementApi({
-            apiVersion: "2018-11-29",
-            endpoint: `${event.requestContext.domainName}/${event.requestContext.stage}`,
-        });
+    try {
+        await apiGatewayClient.send(command);
+    } catch (error) {
+        console.error(error);
     }
-
-    async postToConnectionAsync<T extends IBaseEntity>(connectionId: string, data: T): Promise<void> {
-        const params: PostToConnectionCommandInput = {
-            ConnectionId: connectionId,
-            Data: Buffer.from(JSON.stringify(data)),
-        };
-        const command = new PostToConnectionCommand(params);
-
-        try {
-            await this.apiGatewayClient.send(command);
-        } catch (error) {
-            console.error(error);
-        }
-    }
-}
+};

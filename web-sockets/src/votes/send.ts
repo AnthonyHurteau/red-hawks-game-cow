@@ -1,7 +1,7 @@
 import { IItem } from "../../../common/core/src/models/item";
-import { DynamoDbClient } from "common/core/src/services/dynamoDbClient";
-import { ApiGatewayClient } from "common/core/src/services/apiGatewayClient";
 import { APIGatewayProxyEvent, APIGatewayProxyResultV2 } from "aws-lambda";
+import { postToConnectionAsync } from "common/core/src/services/apiGatewayClient";
+import { deleteItemDocumentAsync, getItemDocumentsAsync } from "common/core/src/services/dynamoDbClient";
 import { IVote } from "common/models/vote";
 
 /**
@@ -14,26 +14,25 @@ import { IVote } from "common/models/vote";
  *
  */
 
-const dynamoDbClient = new DynamoDbClient(process.env.TABLE_NAME as string);
+const TABLE_NAME = process.env.TABLE_NAME;
 
 export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResultV2> => {
     try {
         const vote = JSON.parse(event.body as string) as IVote;
-        const apiGatewayClient = new ApiGatewayClient(event);
 
-        const connections = await dynamoDbClient.getItemDocumentsAsync<IItem>();
+        const connections = await getItemDocumentsAsync<IItem>(TABLE_NAME);
 
         if (connections && connections.length > 0) {
             const postCalls = connections.map(async (connection) => {
                 try {
-                    apiGatewayClient.postToConnectionAsync(connection.pk, vote);
+                    postToConnectionAsync(connection.pk, vote, event);
 
                     await Promise.all(postCalls);
                 } catch (err: any) {
                     if (err.statusCode === 410) {
                         console.log(`Found stale connection, deleting ${connection.pk}`);
                         const item: IItem = { pk: connection.pk };
-                        await dynamoDbClient.deleteItemDocumentAsync<IItem>(item);
+                        await deleteItemDocumentAsync<IItem>(item, TABLE_NAME);
                     } else {
                         console.error(err);
                         return {

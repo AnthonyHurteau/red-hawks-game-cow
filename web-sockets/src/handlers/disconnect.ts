@@ -1,5 +1,5 @@
+import { deleteItemDocumentAsync } from "common/core/src/services/dynamoDbClient";
 import { IItem } from "../../../common/core/src/models/item";
-import { DynamoDbClient } from "common/core/src/services/dynamoDbClient";
 import { APIGatewayProxyEvent, APIGatewayProxyResultV2 } from "aws-lambda";
 
 /**
@@ -12,14 +12,14 @@ import { APIGatewayProxyEvent, APIGatewayProxyResultV2 } from "aws-lambda";
  *
  */
 
-const dynamoDbClient = new DynamoDbClient(process.env.TABLE_NAME as string);
+const TABLE_NAME = process.env.TABLE_NAME;
 
 export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResultV2> => {
     try {
         const connectionId = event.requestContext.connectionId;
         if (connectionId) {
             const item: IItem = { pk: connectionId };
-            await dynamoDbClient.deleteItemDocumentAsync<IItem>(item);
+            await deleteItemDocumentAsync<IItem>(item, TABLE_NAME);
             return {
                 statusCode: 200,
                 body: JSON.stringify({

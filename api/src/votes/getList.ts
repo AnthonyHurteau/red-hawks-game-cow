@@ -1,6 +1,6 @@
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
-import { DynamoDbClient } from "common/core/src/services/dynamoDbClient";
 import { IVoteDbEntity, VoteDto } from "common/core/src/models/vote";
+import { getDocumentsAsync } from "common/core/src/services/dynamoDbClient";
 
 /**
  *
@@ -12,11 +12,11 @@ import { IVoteDbEntity, VoteDto } from "common/core/src/models/vote";
  *
  */
 
-const dynamoDbClient = new DynamoDbClient(process.env.TABLE_NAME as string);
+const TABLE_NAME = process.env.TABLE_NAME;
 
 export const lambdaHandler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {
     try {
-        const result = await dynamoDbClient.getDocumentsAsync<IVoteDbEntity>();
+        const result = await getDocumentsAsync<IVoteDbEntity>(TABLE_NAME);
         const voteDtos = result ? result.map((vote) => new VoteDto(vote)) : [];
         return {
             statusCode: 200,

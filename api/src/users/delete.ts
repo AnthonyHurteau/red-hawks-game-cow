@@ -1,6 +1,6 @@
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
-import { DynamoDbClient } from "common/core/src/services/dynamoDbClient";
 import { IUserDbEntity, UserDto } from "common/core/src/models/user";
+import { deleteDocumentAsync, getDocumentsByPrimaryKeyAsync } from "common/core/src/services/dynamoDbClient";
 import { IUser } from "common/models/user";
 
 /**
@@ -13,17 +13,17 @@ import { IUser } from "common/models/user";
  *
  */
 
-const dynamoDbClient = new DynamoDbClient(process.env.TABLE_NAME as string);
+const TABLE_NAME = process.env.TABLE_NAME;
 
 export const lambdaHandler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {
     if (event.pathParameters && event.pathParameters.id) {
         try {
             const userId = event.pathParameters.id;
 
-            const user = await dynamoDbClient.getDocumentsByPrimaryKeyAsync<IUserDbEntity>(userId);
+            const user = await getDocumentsByPrimaryKeyAsync<IUserDbEntity>(userId, TABLE_NAME);
             if (user && user.length > 0) {
                 const userDto = new UserDto(user[0]);
-                await dynamoDbClient.deleteDocumentAsync<IUser>(userDto);
+                await deleteDocumentAsync<IUser>(userDto, TABLE_NAME);
                 return {
                     statusCode: 200,
                     body: JSON.stringify({

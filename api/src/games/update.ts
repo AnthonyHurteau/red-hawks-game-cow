@@ -1,5 +1,5 @@
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
-import { DynamoDbClient } from "common/core/src/services/dynamoDbClient";
+import { updateDocumentAsync } from "common/core/src/services/dynamoDbClient";
 import { Game, IGame } from "common/models/game";
 
 /**
@@ -12,14 +12,14 @@ import { Game, IGame } from "common/models/game";
  *
  */
 
-const dynamoDbClient = new DynamoDbClient(process.env.TABLE_NAME as string);
+const TABLE_NAME = process.env.TABLE_NAME;
 
 export const lambdaHandler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {
     try {
         const body = JSON.parse(event.body as string) as IGame;
         const game = new Game(body);
 
-        await dynamoDbClient.updateDocumentAsync<IGame>(game);
+        await updateDocumentAsync<IGame>(game, TABLE_NAME);
 
         return {
             statusCode: 200,

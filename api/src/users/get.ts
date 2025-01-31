@@ -1,6 +1,6 @@
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
-import { DynamoDbClient } from "common/core/src/services/dynamoDbClient";
 import { IUserDbEntity, UserDto } from "common/core/src/models/user";
+import { getDocumentsByPrimaryKeyAsync } from "common/core/src/services/dynamoDbClient";
 
 /**
  *
@@ -12,13 +12,13 @@ import { IUserDbEntity, UserDto } from "common/core/src/models/user";
  *
  */
 
-const dynamoDbClient = new DynamoDbClient(process.env.TABLE_NAME as string);
+const TABLE_NAME = process.env.TABLE_NAME;
 
 export const lambdaHandler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {
     if (event.pathParameters && event.pathParameters.id) {
         try {
             const id = event.pathParameters.id;
-            const result = await dynamoDbClient.getDocumentsByPrimaryKeyAsync<IUserDbEntity>(id);
+            const result = await getDocumentsByPrimaryKeyAsync<IUserDbEntity>(id, TABLE_NAME);
 
             if (result && result.length > 0) {
                 const userDto = new UserDto(result[0]);
