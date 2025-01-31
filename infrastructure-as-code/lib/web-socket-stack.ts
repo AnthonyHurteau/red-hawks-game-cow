@@ -87,18 +87,12 @@ export class WebSocketStack extends Stack {
       `${domainName}-${awsResourceNames().apigw}`,
       {
         name: domainName,
+        defaultHandler: wsSendFunction.nodejsFunction,
         connectHandler: wsConnectFunction.nodejsFunction,
         disconnectHandler: wsDisconnectFunction.nodejsFunction,
         ...baseProps,
       }
     );
-
-    wsApiGateway.webSocketAPi.addRoute("send", {
-      integration: new WebSocketLambdaIntegration(
-        "SendIntegration",
-        wsSendFunction.nodejsFunction
-      ),
-    });
 
     this.table = table.table;
     this.wsDisconnectFunction = wsDisconnectFunction.nodejsFunction;

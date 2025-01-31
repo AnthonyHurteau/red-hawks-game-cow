@@ -7,6 +7,7 @@ import { resourceName } from "./common";
 
 interface WebSocketAPiProps extends BaseProps {
   name: string;
+  defaultHandler: NodejsFunction;
   connectHandler: NodejsFunction;
   disconnectHandler: NodejsFunction;
 }
@@ -16,7 +17,13 @@ export class WebSocketApiGateway extends Construct {
 
   constructor(scope: Construct, id: string, props: WebSocketAPiProps) {
     super(scope, id);
-    const { name, connectHandler, disconnectHandler, ...baseProps } = props;
+    const {
+      name,
+      defaultHandler,
+      connectHandler,
+      disconnectHandler,
+      ...baseProps
+    } = props;
 
     const webSocketApiName = resourceName(baseProps, name);
 
@@ -33,6 +40,12 @@ export class WebSocketApiGateway extends Construct {
         integration: new WebSocketLambdaIntegration(
           "DisconnectIntegration",
           disconnectHandler
+        ),
+      },
+      defaultRouteOptions: {
+        integration: new WebSocketLambdaIntegration(
+          "DefaultIntegration",
+          defaultHandler
         ),
       },
     });
