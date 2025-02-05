@@ -1,64 +1,43 @@
 import { IItem } from "../../../common/core/src/models/item";
-import { APIGatewayProxyEvent, APIGatewayProxyResultV2 } from "aws-lambda";
+import { DynamoDBStreamEvent } from "aws-lambda";
 import { postToConnectionAsync } from "common/core/src/services/apiGatewayClient";
 import { deleteItemDocumentAsync, getItemDocumentsAsync } from "common/core/src/services/dynamoDbClient";
+import { IWsEntity, WsEntity } from "common/core/src/models/wsEntity";
 import { IVote } from "common/models/vote";
 
-/**
- *
- * Event doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html#api-gateway-simple-proxy-for-lambda-input-format
- * @param {Object} event - API Gateway Lambda Proxy Input Format
- *
- * Return doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html
- * @returns {Object} object - API Gateway Lambda Proxy Output Format
- *
- */
-
 const TABLE_NAME = process.env.TABLE_NAME;
+const WS_ENDPOINT = process.env.ENDPOINT;
 
-export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResultV2> => {
+export const lambdaHandler = async (event: DynamoDBStreamEvent) => {
     try {
-        const vote = JSON.parse(event.body as string) as IVote;
+        for (const record of event.Records) {
+            const event = record.eventName;
+            const image = record.dynamodb?.NewImage;
 
-        const connections = await getItemDocumentsAsync<IItem>(TABLE_NAME);
+            if (event && image) {
+                const vote = image as unknown as IVote;
+                const wsVote: IWsEntity = new WsEntity(event, vote);
 
-        if (connections && connections.length > 0) {
-            const postCalls = connections.map(async (connection) => {
-                try {
-                    postToConnectionAsync(connection.pk, vote, event);
-
+                const connections = await getItemDocumentsAsync<IItem>(TABLE_NAME);
+                if (connections && connections.length > 0) {
+                    const postCalls = connections.map(async (connection) => {
+                        try {
+                            await postToConnectionAsync(connection.pk, wsVote, WS_ENDPOINT);
+                        } catch (err: any) {
+                            if (err.statusCode === 410) {
+                                console.log(`Found stale connection, deleting ${connection.pk}`);
+                                const item: IItem = { pk: connection.pk };
+                                await deleteItemDocumentAsync<IItem>(item, TABLE_NAME);
+                            } else {
+                                console.error(err);
+                            }
+                        }
+                    });
                     await Promise.all(postCalls);
-                } catch (err: any) {
-                    if (err.statusCode === 410) {
-                        console.log(`Found stale connection, deleting ${connection.pk}`);
-                        const item: IItem = { pk: connection.pk };
-                        await deleteItemDocumentAsync<IItem>(item, TABLE_NAME);
-                    } else {
-                        console.error(err);
-                        return {
-                            statusCode: 400,
-                            body: JSON.stringify({
-                                message: "Bad Request",
-                            }),
-                        };
-                    }
                 }
-            });
+            }
         }
     } catch (err) {
         console.error(err);
-        return {
-            statusCode: 400,
-            body: JSON.stringify({
-                message: "Bad Request",
-            }),
-        };
     }
-
-    return {
-        statusCode: 400,
-        body: JSON.stringify({
-            message: "Bad Request",
-        }),
-    };
 };

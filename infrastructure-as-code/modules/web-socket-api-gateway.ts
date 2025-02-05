@@ -7,29 +7,22 @@ import { resourceName } from "./common";
 
 interface WebSocketAPiProps extends BaseProps {
   name: string;
-  defaultHandler: NodejsFunction;
   connectHandler: NodejsFunction;
   disconnectHandler: NodejsFunction;
 }
 
 export class WebSocketApiGateway extends Construct {
-  readonly webSocketAPi: WebSocketApi;
+  readonly webSocketApi: WebSocketApi;
 
   constructor(scope: Construct, id: string, props: WebSocketAPiProps) {
     super(scope, id);
-    const {
-      name,
-      defaultHandler,
-      connectHandler,
-      disconnectHandler,
-      ...baseProps
-    } = props;
+    const { name, connectHandler, disconnectHandler, ...baseProps } = props;
 
     const webSocketApiName = resourceName(baseProps, name);
 
     const webSocketApi = new WebSocketApi(this, webSocketApiName, {
       apiName: webSocketApiName,
-      description: `${baseProps.environment} ${baseProps.product} ${name} WebSocket API Gateway`,
+      description: `${baseProps.appName} - ${baseProps.environment} - ${name} WebSocket API Gateway`,
       connectRouteOptions: {
         integration: new WebSocketLambdaIntegration(
           "ConnectIntegration",
@@ -42,12 +35,6 @@ export class WebSocketApiGateway extends Construct {
           disconnectHandler
         ),
       },
-      defaultRouteOptions: {
-        integration: new WebSocketLambdaIntegration(
-          "DefaultIntegration",
-          defaultHandler
-        ),
-      },
     });
 
     const webSocketApiStageName = resourceName(baseProps, `${name}-stage`);
@@ -58,6 +45,6 @@ export class WebSocketApiGateway extends Construct {
       autoDeploy: true,
     });
 
-    this.webSocketAPi = webSocketApi;
+    this.webSocketApi = webSocketApi;
   }
 }

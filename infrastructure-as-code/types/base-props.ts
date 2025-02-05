@@ -5,4 +5,5 @@ export interface BaseProps {
   region: Region;
   environment: Environment;
   product: string;
+  appName: string;
 }

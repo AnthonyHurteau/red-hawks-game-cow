@@ -38,6 +38,7 @@ export class NodeJsFunctionLambda extends Construct {
 
     const nodeJsFunction = new NodejsFunction(this, functionName, {
       functionName: functionName,
+      description: `${baseProps.appName} - ${baseProps.environment} - ${name} Node.js Lambda Function`,
       runtime: Runtime.NODEJS_20_X,
       memorySize: memorySize,
       timeout: Duration.seconds(timeout),

@@ -8,6 +8,7 @@ declare global {
       ENVIRONMENT: Environment;
       REGION: Region;
       PRODUCT: string;
+      ALLOWED_ORIGIN: string;
     }
   }
 }

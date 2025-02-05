@@ -4,11 +4,13 @@ import { dataInit } from "../dynamo-db-seed-data/seed";
 import { DynamoDb } from "../modules/dynamo-db";
 import { Environment } from "../types/environments";
 import { Region } from "../types/regions";
+import * as path from "path";
 
 interface Props extends StackProps {
   environment: Environment;
   region: Region;
   product: string;
+  appName: string;
 }
 
 export class RedHawksGameCowStack extends Stack {
@@ -22,17 +24,31 @@ export class RedHawksGameCowStack extends Stack {
       ...props,
     });
 
-    const gamesId = "games";
-    const gamesTable = new DynamoDb(this, `${gamesId}-table`, {
-      tableType: gamesId,
-      ...baseProps,
-    });
+    // const gamesId = "games";
+    // const gamesTable = new DynamoDb(this, `${gamesId}-table`, {
+    //   tableType: gamesId,
+    //   ...baseProps,
+    // });
 
-    const votesId = "votes";
-    const votesTable = new DynamoDb(this, `${votesId}-table`, {
-      tableType: votesId,
-      ...baseProps,
-    });
+    // const votesId = "votes";
+    // const votesTable = new DynamoDbTable(this, `${votesId}-table`, {
+    //   name: votesId,
+    //   hasStream: true,
+    //   ...baseProps,
+    //  });
+
+    // const name = "votes-ws";
+    // const wsSendFunctionName = `${name}-send`;
+    // const wsSendFunction = new NodeJsFunctionLambda(
+    //   this,
+    //   `${wsSendFunctionName}-${awsResourceNames().function}`,
+    //   {
+    //     name: wsSendFunctionName,
+    //     entryPath: path.join(__dirname, `../../web-sockets/src/votes/send.ts`),
+    //     environmentVariables: { TABLE_NAME: table.table.tableName },
+    //     ...baseProps,
+    //   }
+    // );
 
     const usersId = "users";
     const usersTable = new DynamoDb(this, `${usersId}-table`, {

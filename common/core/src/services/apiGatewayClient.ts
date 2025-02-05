@@ -4,16 +4,21 @@ import {
     PostToConnectionCommandInput,
 } from "@aws-sdk/client-apigatewaymanagementapi";
 import { APIGatewayProxyEvent } from "aws-lambda";
-import { IBaseEntity } from "common/models/baseEntity";
+import { IWsEntity } from "src/models/wsEntity";
 
-export const postToConnectionAsync = async <T extends IBaseEntity>(
+export const postToConnectionAsync = async (
     connectionId: string,
-    data: T,
-    event: APIGatewayProxyEvent,
+    data: IWsEntity,
+    wsEndpoint?: string,
+    event?: APIGatewayProxyEvent,
 ): Promise<void> => {
+    if (!event && !wsEndpoint) {
+        throw new Error("Event or endpoint is required");
+    }
+    const endpoint = wsEndpoint ? wsEndpoint : `${event?.requestContext.domainName}/${event?.requestContext.stage}`;
     const apiGatewayClient = new ApiGatewayManagementApi({
         apiVersion: "2018-11-29",
-        endpoint: `${event.requestContext.domainName}/${event.requestContext.stage}`,
+        endpoint,
     });
 
     const params: PostToConnectionCommandInput = {
