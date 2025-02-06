@@ -1,22 +1,34 @@
 import { IItem } from "../../../common/core/src/models/item";
 import { DynamoDBStreamEvent } from "aws-lambda";
 import { postToConnectionAsync } from "common/core/src/services/apiGatewayClient";
-import { deleteItemDocumentAsync, getItemDocumentsAsync } from "common/core/src/services/dynamoDbClient";
+import {
+    deleteItemDocumentAsync,
+    getItemDocumentsAsync,
+    unmarshallItem,
+} from "common/core/src/services/dynamoDbClient";
 import { IWsEntity, WsEntity } from "common/core/src/models/wsEntity";
+import { IVoteDbEntity, VoteDto } from "common/core/src/models/vote";
+import { IDynamoDbItem } from "common/core/src/models/dynamoDbItem";
 import { IVote } from "common/models/vote";
 
 const TABLE_NAME = process.env.TABLE_NAME;
-const WS_ENDPOINT = process.env.ENDPOINT;
+const WS_ENDPOINT = process.env.WS_ENDPOINT;
 
 export const lambdaHandler = async (event: DynamoDBStreamEvent) => {
     try {
         for (const record of event.Records) {
             const event = record.eventName;
-            const image = record.dynamodb?.NewImage;
+            let image: IDynamoDbItem | undefined;
+            if (event === "REMOVE") {
+                image = record.dynamodb?.OldImage as IDynamoDbItem;
+            } else {
+                image = record.dynamodb?.NewImage as IDynamoDbItem;
+            }
 
             if (event && image) {
-                const vote = image as unknown as IVote;
-                const wsVote: IWsEntity = new WsEntity(event, vote);
+                const voteEntity = unmarshallItem<IVoteDbEntity>(image);
+                const vote = new VoteDto(voteEntity);
+                const wsVote: IWsEntity<IVote> = new WsEntity<IVote>(event, vote);
 
                 const connections = await getItemDocumentsAsync<IItem>(TABLE_NAME);
                 if (connections && connections.length > 0) {

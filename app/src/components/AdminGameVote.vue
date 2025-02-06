@@ -10,9 +10,7 @@ import type { IGroupedVotes } from "@/models/groupedVotes"
 const gameStore = useGameStore()
 const voteStore = useVoteStore()
 
-onMounted(() => {
-  voteStore.getVotes()
-})
+voteStore.getVotes()
 
 const groupedVotes = computed(() => {
   const votes = voteStore.votes

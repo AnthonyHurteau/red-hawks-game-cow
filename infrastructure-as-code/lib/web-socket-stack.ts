@@ -15,18 +15,18 @@ import { StartingPosition } from "aws-cdk-lib/aws-lambda";
 interface WebSocketStackProps extends StackProps {
   name: string;
   sendFunctionFile: string;
-  streamTable: TableV2;
 }
 
 export class WebSocketStack extends Stack {
   readonly table: TableV2;
   readonly wsDisconnectFunction: NodejsFunction;
   readonly wsConnectFunction: NodejsFunction;
+  readonly wsSendFunction: NodejsFunction;
   readonly wsApiGateway: WebSocketApi;
 
   constructor(scope: Construct, id: string, props: WebSocketStackProps) {
     super(scope, id, props);
-    const { name, sendFunctionFile, streamTable, ...baseProps } = props;
+    const { name, sendFunctionFile, ...baseProps } = props;
 
     const dynamoDbTable = new DynamoDbTable(
       this,
@@ -91,27 +91,26 @@ export class WebSocketStack extends Stack {
         ),
         environmentVariables: {
           TABLE_NAME: dynamoDbTable.tableV2.tableName,
-          WS_ENDPOINT: wsApiGateway.webSocketApi.apiEndpoint,
+          WS_ENDPOINT: wsApiGateway.webSocketApiStage.callbackUrl,
         },
         ...baseProps,
       }
     );
 
-    wsSendFunction.nodejsFunction.addEventSource(
-      new DynamoEventSource(streamTable, {
-        startingPosition: StartingPosition.LATEST,
-      })
-    );
-
-    const functions = [wsConnectFunction, wsDisconnectFunction];
+    const functions = [wsConnectFunction, wsDisconnectFunction, wsSendFunction];
 
     functions.forEach((fn) => {
       dynamoDbTable.tableV2.grantReadWriteData(fn.nodejsFunction);
     });
 
+    wsApiGateway.webSocketApi.grantManageConnections(
+      wsSendFunction.nodejsFunction
+    );
+
     this.table = dynamoDbTable.tableV2;
     this.wsDisconnectFunction = wsDisconnectFunction.nodejsFunction;
     this.wsConnectFunction = wsConnectFunction.nodejsFunction;
+    this.wsSendFunction = wsSendFunction.nodejsFunction;
     this.wsApiGateway = wsApiGateway.webSocketApi;
   }
 }

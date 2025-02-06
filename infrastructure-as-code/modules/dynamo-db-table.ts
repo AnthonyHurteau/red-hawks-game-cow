@@ -49,7 +49,9 @@ export class DynamoDbTable extends Construct {
       pointInTimeRecovery: false,
       tableClass: TableClass.STANDARD,
       timeToLiveAttribute: "timeToLive",
-      dynamoStream: streamEnabled ? StreamViewType.NEW_IMAGE : undefined,
+      dynamoStream: streamEnabled
+        ? StreamViewType.NEW_AND_OLD_IMAGES
+        : undefined,
     });
 
     this.tableV2 = table;

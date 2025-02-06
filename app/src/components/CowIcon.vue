@@ -30,9 +30,7 @@ const startRandomInterval = () => {
   )
 }
 
-onMounted(() => {
-  startRandomInterval()
-})
+startRandomInterval()
 
 onUnmounted(() => {
   if (intervalId) {

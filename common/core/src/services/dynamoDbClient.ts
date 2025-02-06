@@ -1,7 +1,7 @@
 import { IDbEntity } from "../models/dbEntity";
 import { IBaseEntity } from "common/models/baseEntity";
 import { IItem } from "../models/item";
-import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
+import { AttributeValue, DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import {
     QueryCommand,
     QueryCommandInput,
@@ -17,6 +17,8 @@ import {
     PutCommandInput,
     ScanCommandInput,
 } from "@aws-sdk/lib-dynamodb";
+import { unmarshall } from "@aws-sdk/util-dynamodb";
+import { IDynamoDbItem } from "src/models/dynamoDbItem";
 
 const dynamoDbClient = new DynamoDBClient({});
 const dynamoDBDocumentClient = DynamoDBDocumentClient.from(dynamoDbClient);
@@ -201,4 +203,9 @@ export const deleteDocumentsAsync = async <T extends IBaseEntity>(entities: T[],
     } catch (error) {
         console.error(error);
     }
+};
+
+export const unmarshallItem = <T extends IDbEntity>(item: IDynamoDbItem): T => {
+    const unmarshalledEntity = unmarshall(item) as T;
+    return unmarshalledEntity;
 };

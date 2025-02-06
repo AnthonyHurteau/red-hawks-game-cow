@@ -8,6 +8,8 @@ import { awsResourceNames, resourceName } from "../modules/common";
 import { BaseProps } from "../types/base-props";
 import { VotesStack } from "../lib/votes-stack";
 import { GamesStack } from "../lib/games-stack";
+import { DynamoEventSource } from "aws-cdk-lib/aws-lambda-event-sources";
+import { StartingPosition } from "aws-cdk-lib/aws-lambda";
 
 require("dotenv").config();
 
@@ -75,9 +77,14 @@ const gamesWebSocketStack = new WebSocketStack(
     description: `The ${appName} ${process.env.ENVIRONMENT} ${gamesWsStackName} IaC stack.`,
     name: gamesWsName,
     sendFunctionFile: "votes/send.ts",
-    streamTable: gamesStack.dynamoDbTable,
     ...baseProps,
   }
+);
+
+gamesWebSocketStack.wsSendFunction.addEventSource(
+  new DynamoEventSource(gamesStack.dynamoDbTable, {
+    startingPosition: StartingPosition.LATEST,
+  })
 );
 
 const votesWsName = "votes-ws";
@@ -91,7 +98,12 @@ const votesWebScoketStack = new WebSocketStack(
     description: `The ${appName} ${process.env.ENVIRONMENT} ${votesWsStackName} IaC stack.`,
     name: votesWsName,
     sendFunctionFile: "votes/send.ts",
-    streamTable: votesStack.dynamoDbTable,
     ...baseProps,
   }
+);
+
+votesWebScoketStack.wsSendFunction.addEventSource(
+  new DynamoEventSource(votesStack.dynamoDbTable, {
+    startingPosition: StartingPosition.LATEST,
+  })
 );

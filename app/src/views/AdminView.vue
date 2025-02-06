@@ -4,8 +4,23 @@ import AppLoading from "@/components/AppLoading.vue"
 import AdminGameVote from "@/components/AdminGameVote.vue"
 import AdminControlFooter from "@/components/AdminControlFooter.vue"
 import { useUserStore } from "@/stores/user"
+import { useVoteStore } from "@/stores/vote"
+import { onUnmounted } from "vue"
 
 const userStore = useUserStore()
+const voteStore = useVoteStore()
+voteStore.wsConnect()
+userStore.$subscribe(async (mutation, state) => {
+  if (state.user?.type === "admin") {
+    voteStore.wsConnect()
+  }
+})
+
+onUnmounted(() => {
+  if (userStore.user?.type === "admin") {
+    voteStore.wsDisconnect()
+  }
+})
 </script>
 
 <template>

@@ -13,6 +13,7 @@ interface WebSocketAPiProps extends BaseProps {
 
 export class WebSocketApiGateway extends Construct {
   readonly webSocketApi: WebSocketApi;
+  readonly webSocketApiStage: WebSocketStage;
 
   constructor(scope: Construct, id: string, props: WebSocketAPiProps) {
     super(scope, id);
@@ -38,13 +39,14 @@ export class WebSocketApiGateway extends Construct {
     });
 
     const webSocketApiStageName = resourceName(baseProps, `${name}-stage`);
-    new WebSocketStage(this, `${name}-stage`, {
+    const webSocketStage = new WebSocketStage(this, `${name}-stage`, {
       webSocketApi,
       stageName: baseProps.environment,
       description: `${baseProps.environment} ${name} stage`,
       autoDeploy: true,
     });
 
+    this.webSocketApiStage = webSocketStage;
     this.webSocketApi = webSocketApi;
   }
 }

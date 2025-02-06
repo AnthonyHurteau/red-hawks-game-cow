@@ -4,14 +4,18 @@ import { get, post, put, remove } from "@/services/api"
 import { useUserStore } from "./user"
 import { Vote, type IVote } from "@common/models/vote"
 import type { IPlayer } from "@common/models/player"
+import { close, onClose, onError, onOpen } from "@/services/webSocket"
+import type { IWsEntity } from "@common/core/src/models/wsEntity"
 
 const API_URL = import.meta.env.VITE_API_URL
 const PATH = import.meta.env.VITE_VOTES_PATH
 const URL = `${API_URL}/${PATH}`
+const WS_ENDPOINT = import.meta.env.VITE_VOTES_WS_ENDPOINT
 
 export const useVoteStore = defineStore("votes", () => {
   const votes = ref<IVote[]>([])
   const vote = ref<IVote | null>(null)
+  const ws = ref<WebSocket | null>(null)
   const loading = ref(false)
   const error = ref<Error>()
 
@@ -61,7 +65,7 @@ export const useVoteStore = defineStore("votes", () => {
             vote.value = result
           }
         } else {
-          vote.value = new Vote()
+          vote.value = null
           await remove<IVote>(URL, user.id)
         }
       }
@@ -93,7 +97,7 @@ export const useVoteStore = defineStore("votes", () => {
 
       const mockUri = `${URL}/mock`
       await post<IPlayer[]>(mockUri, players, true)
-      await getVotes()
+      // await getVotes()
     } catch (e) {
       error.value = e as Error
     } finally {
@@ -101,5 +105,55 @@ export const useVoteStore = defineStore("votes", () => {
     }
   }
 
-  return { vote, votes, getVote, getVotes, setVote, deleteAllVotes, mockVotes, loading, error }
+  function wsConnect() {
+    if (userStore.user?.type === "admin") {
+      if (!ws.value) {
+        ws.value = new WebSocket(WS_ENDPOINT)
+        onOpen(ws.value)
+        onClose(ws.value, wsConnect)
+        onError(ws.value)
+
+        ws.value.onmessage = (event) => {
+          const result = JSON.parse(event.data) as IWsEntity<IVote>
+          console.log(result)
+          if (result.event === "INSERT") {
+            votes.value.push(result.data)
+          } else if (result.event === "MODIFY") {
+            const index = votes.value.findIndex((vote) => vote.id === result.data.id)
+            if (index !== -1) {
+              votes.value[index] = result.data
+            } else {
+              votes.value.push(result.data)
+            }
+          } else if (result.event === "REMOVE") {
+            const index = votes.value.findIndex((vote) => vote.id === result.data.id)
+            if (index !== -1) {
+              votes.value.splice(index, 1)
+            }
+          }
+        }
+      }
+    }
+  }
+
+  function wsDisconnect() {
+    if (ws.value) {
+      close(ws.value)
+      ws.value = null
+    }
+  }
+
+  return {
+    vote,
+    votes,
+    getVote,
+    getVotes,
+    setVote,
+    deleteAllVotes,
+    mockVotes,
+    wsConnect,
+    wsDisconnect,
+    loading,
+    error
+  }
 })

@@ -4,7 +4,8 @@
     "env.d.ts",
     "src/**/*",
     "src/**/*.vue",
-    "../common/models"
+    "../common/models",
+    "../common/core/src/models"
   ],
   "exclude": [
     "src/**/__tests__/*"
