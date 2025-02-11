@@ -21,7 +21,7 @@ import {
   FUNCTION_ACTION,
 } from "../constants/functions";
 
-export class GamesStack extends Stack {
+export class UsersStack extends Stack {
   readonly dynamoDbTable: TableV2;
   readonly httpApiGateway: HttpApi;
 
@@ -35,17 +35,16 @@ export class GamesStack extends Stack {
       `${name}-${awsResourceNames().table}`,
       {
         name,
-        streamEnabled: true,
         ...baseProps,
       }
     );
 
-    const getGameFunctionName = `${name}-${FUNCTION_ACTION.get}`;
-    const getGameFunction = new NodeJsFunctionLambda(
+    const getUserFunctionName = `${name}-${FUNCTION_ACTION.get}`;
+    const getUserFunction = new NodeJsFunctionLambda(
       this,
-      `${getGameFunctionName}-${awsResourceNames().function}`,
+      `${getUserFunctionName}-${awsResourceNames().function}`,
       {
-        name: getGameFunctionName,
+        name: getUserFunctionName,
         entryPath: path.join(
           __dirname,
           `${functionPath}/${FUNCTION_ACTION.get}.${FILE_EXTENSION}`
@@ -55,12 +54,12 @@ export class GamesStack extends Stack {
       }
     );
 
-    const createGameFunctionName = `${name}-${FUNCTION_ACTION.create}`;
-    const createGameFunction = new NodeJsFunctionLambda(
+    const createUserFunctionName = `${name}-${FUNCTION_ACTION.create}`;
+    const createUserFunction = new NodeJsFunctionLambda(
       this,
-      `${createGameFunctionName}-${awsResourceNames().function}`,
+      `${createUserFunctionName}-${awsResourceNames().function}`,
       {
-        name: createGameFunctionName,
+        name: createUserFunctionName,
         entryPath: path.join(
           __dirname,
           `${functionPath}/${FUNCTION_ACTION.create}.${FILE_EXTENSION}`
@@ -70,12 +69,12 @@ export class GamesStack extends Stack {
       }
     );
 
-    const updateGameFunctionName = `${name}-${FUNCTION_ACTION.update}`;
-    const updateGameFunction = new NodeJsFunctionLambda(
+    const updateUserFunctionName = `${name}-${FUNCTION_ACTION.update}`;
+    const updateUserFunction = new NodeJsFunctionLambda(
       this,
-      `${updateGameFunctionName}-${awsResourceNames().function}`,
+      `${updateUserFunctionName}-${awsResourceNames().function}`,
       {
-        name: updateGameFunctionName,
+        name: updateUserFunctionName,
         entryPath: path.join(
           __dirname,
           `${functionPath}/${FUNCTION_ACTION.update}.${FILE_EXTENSION}`
@@ -85,12 +84,12 @@ export class GamesStack extends Stack {
       }
     );
 
-    const deleteGameFunctionName = `${name}-${FUNCTION_ACTION.delete}`;
-    const deleteGameFunction = new NodeJsFunctionLambda(
+    const deleteUserFunctionName = `${name}-${FUNCTION_ACTION.delete}`;
+    const deleteUserFunction = new NodeJsFunctionLambda(
       this,
-      `${deleteGameFunctionName}-${awsResourceNames().function}`,
+      `${deleteUserFunctionName}-${awsResourceNames().function}`,
       {
-        name: deleteGameFunctionName,
+        name: deleteUserFunctionName,
         entryPath: path.join(
           __dirname,
           `${functionPath}/${FUNCTION_ACTION.delete}.${FILE_EXTENSION}`
@@ -100,34 +99,34 @@ export class GamesStack extends Stack {
       }
     );
 
-    const gamesBasePath = "/games";
+    const usersBasePath = "/users";
     const httpApiGatewayRoutes: HttpApiGatewayRoute[] = [
       {
-        integrationName: getGameFunctionName,
-        path: gamesBasePath,
+        integrationName: getUserFunctionName,
+        path: usersBasePath,
         httpMethod: HttpMethod.GET,
-        nodeJsFunction: getGameFunction.nodejsFunction,
+        nodeJsFunction: getUserFunction.nodejsFunction,
         tableAccess: "read",
       },
       {
-        integrationName: createGameFunctionName,
-        path: gamesBasePath,
+        integrationName: createUserFunctionName,
+        path: usersBasePath,
         httpMethod: HttpMethod.POST,
-        nodeJsFunction: createGameFunction.nodejsFunction,
+        nodeJsFunction: createUserFunction.nodejsFunction,
         tableAccess: "write",
       },
       {
-        integrationName: updateGameFunctionName,
-        path: gamesBasePath,
+        integrationName: updateUserFunctionName,
+        path: usersBasePath,
         httpMethod: HttpMethod.PUT,
-        nodeJsFunction: updateGameFunction.nodejsFunction,
+        nodeJsFunction: updateUserFunction.nodejsFunction,
         tableAccess: "readWrite",
       },
       {
-        integrationName: deleteGameFunctionName,
-        path: gamesBasePath,
+        integrationName: deleteUserFunctionName,
+        path: usersBasePath,
         httpMethod: HttpMethod.DELETE,
-        nodeJsFunction: deleteGameFunction.nodejsFunction,
+        nodeJsFunction: deleteUserFunction.nodejsFunction,
         tableAccess: "readWrite",
       },
     ];

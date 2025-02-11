@@ -4,13 +4,18 @@ import { get, post, put } from "@/services/api"
 import { Game, type GameType, type IGame } from "@common/models/game"
 import { useVoteStore } from "./vote"
 import { usePlayerStore } from "./player"
+import { createWebSocketAsync, onClose, onError, onOpen, close } from "@/services/webSocket"
+import type { IWsEntity } from "@common/core/src/models/wsEntity"
 
 const API_URL = import.meta.env.VITE_API_URL
 const PATH = import.meta.env.VITE_GAMES_PATH
 const URL = `${API_URL}/${PATH}`
+const WS_ENDPOINT = import.meta.env.VITE_GAMES_WS_ENDPOINT
+const WS_NAME = "Active Game"
 
 export const useGameStore = defineStore("game", () => {
   const activeGame = ref<IGame | null>(null)
+  const ws = ref<WebSocket | null>(null)
   const loading = ref(false)
   const error = ref<Error>()
 
@@ -90,12 +95,44 @@ export const useGameStore = defineStore("game", () => {
     }
   }
 
+  async function wsConnect() {
+    if (!ws.value) {
+      ws.value = await createWebSocketAsync(WS_ENDPOINT)
+      onOpen(ws.value, WS_NAME)
+      onClose(ws.value, WS_NAME, wsConnect)
+      onError(ws.value, WS_NAME)
+
+      ws.value.onmessage = (event) => {
+        const result = JSON.parse(event.data) as IWsEntity<IGame>
+
+        if (result.event === "INSERT") {
+          if (result.data.type === "active") {
+            activeGame.value = result.data
+          }
+        } else if (result.event === "MODIFY") {
+          if (result.data.type === "active") {
+            activeGame.value = result.data
+          }
+        }
+      }
+    }
+  }
+
+  function wsDisconnect() {
+    if (ws.value) {
+      close(ws.value, WS_NAME)
+      ws.value = null
+    }
+  }
+
   return {
     activeGame,
     getActiveGame,
     createActiveGame,
     manageActiveGameVote,
     getPlayerById,
+    wsConnect,
+    wsDisconnect,
     loading,
     error
   }

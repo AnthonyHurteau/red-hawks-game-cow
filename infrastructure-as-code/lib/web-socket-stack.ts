@@ -9,12 +9,13 @@ import { WebSocketApi } from "aws-cdk-lib/aws-apigatewayv2";
 import { awsResourceNames } from "../modules/common";
 import { DynamoDbTable } from "../modules/dynamo-db-table";
 import { TableV2 } from "aws-cdk-lib/aws-dynamodb";
-import { DynamoEventSource } from "aws-cdk-lib/aws-lambda-event-sources";
-import { StartingPosition } from "aws-cdk-lib/aws-lambda";
+import { FUNCTION_ACTION, WS_BASE_PATH } from "../constants/functions";
 
 interface WebSocketStackProps extends StackProps {
   name: string;
   sendFunctionFile: string;
+  authAction: "admin" | "user";
+  userTableName: string;
 }
 
 export class WebSocketStack extends Stack {
@@ -22,11 +23,13 @@ export class WebSocketStack extends Stack {
   readonly wsDisconnectFunction: NodejsFunction;
   readonly wsConnectFunction: NodejsFunction;
   readonly wsSendFunction: NodejsFunction;
+  readonly wsAuthFunction: NodejsFunction;
   readonly wsApiGateway: WebSocketApi;
 
   constructor(scope: Construct, id: string, props: WebSocketStackProps) {
     super(scope, id, props);
-    const { name, sendFunctionFile, ...baseProps } = props;
+    const { name, sendFunctionFile, authAction, userTableName, ...baseProps } =
+      props;
 
     const dynamoDbTable = new DynamoDbTable(
       this,
@@ -38,7 +41,7 @@ export class WebSocketStack extends Stack {
       }
     );
 
-    const wsDisconnectFunctionName = `${name}-disconnect`;
+    const wsDisconnectFunctionName = `${name}-${FUNCTION_ACTION.disconnect}`;
     const wsDisconnectFunction = new NodeJsFunctionLambda(
       this,
       `${wsDisconnectFunctionName}-${awsResourceNames().function}`,
@@ -46,14 +49,14 @@ export class WebSocketStack extends Stack {
         name: wsDisconnectFunctionName,
         entryPath: path.join(
           __dirname,
-          "../../web-sockets/src/handlers/disconnect.ts"
+          `${WS_BASE_PATH}/handlers/${FUNCTION_ACTION.connect}.ts`
         ),
         environmentVariables: { TABLE_NAME: dynamoDbTable.tableV2.tableName },
         ...baseProps,
       }
     );
 
-    const wsConnectFunctionName = `${name}-connect`;
+    const wsConnectFunctionName = `${name}-${FUNCTION_ACTION.connect}`;
     const wsConnectFunction = new NodeJsFunctionLambda(
       this,
       `${wsConnectFunctionName}-${awsResourceNames().function}`,
@@ -61,9 +64,24 @@ export class WebSocketStack extends Stack {
         name: wsConnectFunctionName,
         entryPath: path.join(
           __dirname,
-          "../../web-sockets/src/handlers/connect.ts"
+          `${WS_BASE_PATH}/handlers/${FUNCTION_ACTION.connect}.ts`
         ),
         environmentVariables: { TABLE_NAME: dynamoDbTable.tableV2.tableName },
+        ...baseProps,
+      }
+    );
+
+    const wsAuthFunctionName = `${name}-${authAction}`;
+    const wsAuthFunction = new NodeJsFunctionLambda(
+      this,
+      `${wsAuthFunctionName}-${awsResourceNames().function}`,
+      {
+        name: wsAuthFunctionName,
+        entryPath: path.join(
+          __dirname,
+          `${WS_BASE_PATH}/auth/${authAction}.ts`
+        ),
+        environmentVariables: { TABLE_NAME: userTableName },
         ...baseProps,
       }
     );
@@ -73,22 +91,20 @@ export class WebSocketStack extends Stack {
       `${name}-${awsResourceNames().apigw}`,
       {
         name,
+        authFunction: wsAuthFunction.nodejsFunction,
         connectHandler: wsConnectFunction.nodejsFunction,
         disconnectHandler: wsDisconnectFunction.nodejsFunction,
         ...baseProps,
       }
     );
 
-    const wsSendFunctionName = `${name}-send`;
+    const wsSendFunctionName = `${name}-${FUNCTION_ACTION.send}`;
     const wsSendFunction = new NodeJsFunctionLambda(
       this,
       `${wsSendFunctionName}-${awsResourceNames().function}`,
       {
         name: wsSendFunctionName,
-        entryPath: path.join(
-          __dirname,
-          `../../web-sockets/src/${sendFunctionFile}`
-        ),
+        entryPath: path.join(__dirname, `${WS_BASE_PATH}/${sendFunctionFile}`),
         environmentVariables: {
           TABLE_NAME: dynamoDbTable.tableV2.tableName,
           WS_ENDPOINT: wsApiGateway.webSocketApiStage.callbackUrl,
@@ -111,6 +127,7 @@ export class WebSocketStack extends Stack {
     this.wsDisconnectFunction = wsDisconnectFunction.nodejsFunction;
     this.wsConnectFunction = wsConnectFunction.nodejsFunction;
     this.wsSendFunction = wsSendFunction.nodejsFunction;
+    this.wsAuthFunction = wsAuthFunction.nodejsFunction;
     this.wsApiGateway = wsApiGateway.webSocketApi;
   }
 }

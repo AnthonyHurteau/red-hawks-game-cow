@@ -10,6 +10,8 @@ import { VotesStack } from "../lib/votes-stack";
 import { GamesStack } from "../lib/games-stack";
 import { DynamoEventSource } from "aws-cdk-lib/aws-lambda-event-sources";
 import { StartingPosition } from "aws-cdk-lib/aws-lambda";
+import { FILE_EXTENSION, FUNCTION_ACTION } from "../constants/functions";
+import { UsersStack } from "../lib/users-stack";
 
 require("dotenv").config();
 
@@ -23,13 +25,17 @@ const baseProps: BaseProps = {
   product: process.env.PRODUCT as string,
   appName,
 };
+const env = {
+  account: process.env.AWS_ACCOUNT,
+  region: process.env.AWS_REGION,
+};
 
 const stackName1 = `${process.env.PRODUCT}-${process.env.REGION}-${process.env.ENVIRONMENT}`;
 new RedHawksGameCowStack(
   app,
   `${process.env.PRODUCT}-${awsResourceNames().stack}`,
   {
-    env: { account: process.env.AWS_ACCOUNT, region: process.env.AWS_REGION },
+    env,
     stackName: stackName1,
     description: `The ${appName} ${process.env.ENVIRONMENT} IaC stack.`,
     ...baseProps,
@@ -42,10 +48,11 @@ const gamesStack = new GamesStack(
   app,
   `${gamesName}-${awsResourceNames().stack}`,
   {
-    env: { account: process.env.AWS_ACCOUNT, region: process.env.AWS_REGION },
+    env,
     stackName: gamesStackName,
     description: `The ${appName} ${process.env.ENVIRONMENT} ${gamesStackName} IaC stack.`,
     name: gamesName,
+    functionDir: gamesName,
     allowedOrigins: [process.env.ALLOWED_ORIGIN as string],
     ...baseProps,
   }
@@ -57,10 +64,27 @@ const votesStack = new VotesStack(
   app,
   `${votesName}-${awsResourceNames().stack}`,
   {
-    env: { account: process.env.AWS_ACCOUNT, region: process.env.AWS_REGION },
+    env,
     stackName: votesStackName,
     description: `The ${appName} ${process.env.ENVIRONMENT} ${votesStackName} IaC stack.`,
     name: votesName,
+    functionDir: votesName,
+    allowedOrigins: [process.env.ALLOWED_ORIGIN as string],
+    ...baseProps,
+  }
+);
+
+const usersName = "users";
+const usersStackName = resourceName(baseProps, usersName);
+const usersStack = new UsersStack(
+  app,
+  `${usersName}-${awsResourceNames().stack}`,
+  {
+    env,
+    stackName: usersStackName,
+    description: `The ${appName} ${process.env.ENVIRONMENT} ${usersStackName} IaC stack.`,
+    name: usersName,
+    functionDir: usersName,
     allowedOrigins: [process.env.ALLOWED_ORIGIN as string],
     ...baseProps,
   }
@@ -72,11 +96,13 @@ const gamesWebSocketStack = new WebSocketStack(
   app,
   `${gamesWsName}-${awsResourceNames().stack}`,
   {
-    env: { account: process.env.AWS_ACCOUNT, region: process.env.AWS_REGION },
+    env,
     stackName: gamesWsStackName,
     description: `The ${appName} ${process.env.ENVIRONMENT} ${gamesWsStackName} IaC stack.`,
     name: gamesWsName,
-    sendFunctionFile: "votes/send.ts",
+    sendFunctionFile: `games/${FUNCTION_ACTION.send}.${FILE_EXTENSION}`,
+    authAction: "user",
+    userTableName: usersStack.dynamoDbTable.tableName,
     ...baseProps,
   }
 );
@@ -87,17 +113,21 @@ gamesWebSocketStack.wsSendFunction.addEventSource(
   })
 );
 
+usersStack.dynamoDbTable.grantReadData(gamesWebSocketStack.wsAuthFunction);
+
 const votesWsName = "votes-ws";
 const votesWsStackName = resourceName(baseProps, votesWsName);
 const votesWebScoketStack = new WebSocketStack(
   app,
   `${votesWsName}-${awsResourceNames().stack}`,
   {
-    env: { account: process.env.AWS_ACCOUNT, region: process.env.AWS_REGION },
+    env,
     stackName: votesWsStackName,
     description: `The ${appName} ${process.env.ENVIRONMENT} ${votesWsStackName} IaC stack.`,
     name: votesWsName,
-    sendFunctionFile: "votes/send.ts",
+    sendFunctionFile: `votes/${FUNCTION_ACTION.send}.${FILE_EXTENSION}`,
+    authAction: "admin",
+    userTableName: usersStack.dynamoDbTable.tableName,
     ...baseProps,
   }
 );
@@ -107,3 +137,5 @@ votesWebScoketStack.wsSendFunction.addEventSource(
     startingPosition: StartingPosition.LATEST,
   })
 );
+
+usersStack.dynamoDbTable.grantReadData(votesWebScoketStack.wsAuthFunction);

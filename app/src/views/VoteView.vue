@@ -4,8 +4,14 @@ import PlayerList from "../components/PlayerList.vue"
 import VoteTitle from "@/components/VoteTitle.vue"
 import WinningCows from "@/components/WinningCows.vue"
 import { useGameStore } from "@/stores/game"
+import { onUnmounted } from "vue"
 
 const gameStore = useGameStore()
+gameStore.wsConnect()
+
+onUnmounted(() => {
+  gameStore.wsDisconnect()
+})
 </script>
 
 <template>

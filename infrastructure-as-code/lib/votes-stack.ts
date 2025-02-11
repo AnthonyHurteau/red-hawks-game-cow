@@ -15,6 +15,11 @@ import {
   HttpApiGatewayRoute,
 } from "../modules/http-api-gateway";
 import { ServiceStackProps } from "../types/service-stack-props";
+import {
+  API_BASE_PATH,
+  FILE_EXTENSION,
+  FUNCTION_ACTION,
+} from "../constants/functions";
 
 export class VotesStack extends Stack {
   readonly dynamoDbTable: TableV2;
@@ -22,7 +27,8 @@ export class VotesStack extends Stack {
 
   constructor(scope: Construct, id: string, props: ServiceStackProps) {
     super(scope, id, props);
-    const { name, allowedOrigins, ...baseProps } = props;
+    const { name, allowedOrigins, functionDir, ...baseProps } = props;
+    const functionPath = `${API_BASE_PATH}/${functionDir}`;
 
     const dynamoDbTable = new DynamoDbTable(
       this,
@@ -34,85 +40,106 @@ export class VotesStack extends Stack {
       }
     );
 
-    const getVoteFunctionName = `getVote`;
+    const getVoteFunctionName = `${name}-${FUNCTION_ACTION.get}`;
     const getVoteFunction = new NodeJsFunctionLambda(
       this,
       `${getVoteFunctionName}-${awsResourceNames().function}`,
       {
         name: getVoteFunctionName,
-        entryPath: path.join(__dirname, "../../api/src/votes/get.ts"),
+        entryPath: path.join(
+          __dirname,
+          `${functionPath}/${FUNCTION_ACTION.get}.${FILE_EXTENSION}`
+        ),
         environmentVariables: { TABLE_NAME: dynamoDbTable.tableV2.tableName },
         ...baseProps,
       }
     );
 
-    const getVotesFunctionName = `getVotes`;
+    const getVotesFunctionName = `${name}-${FUNCTION_ACTION.getList}`;
     const getVotesFunction = new NodeJsFunctionLambda(
       this,
       `${getVotesFunctionName}-${awsResourceNames().function}`,
       {
         name: getVotesFunctionName,
-        entryPath: path.join(__dirname, "../../api/src/votes/getList.ts"),
+        entryPath: path.join(
+          __dirname,
+          `${functionPath}/${FUNCTION_ACTION.getList}.${FILE_EXTENSION}`
+        ),
         environmentVariables: { TABLE_NAME: dynamoDbTable.tableV2.tableName },
         ...baseProps,
       }
     );
 
-    const createVoteFunctionName = `createVote`;
+    const createVoteFunctionName = `${name}-${FUNCTION_ACTION.create}`;
     const createVoteFunction = new NodeJsFunctionLambda(
       this,
       `${createVoteFunctionName}-${awsResourceNames().function}`,
       {
         name: createVoteFunctionName,
-        entryPath: path.join(__dirname, "../../api/src/votes/create.ts"),
+        entryPath: path.join(
+          __dirname,
+          `${functionPath}/${FUNCTION_ACTION.create}.${FILE_EXTENSION}`
+        ),
         environmentVariables: { TABLE_NAME: dynamoDbTable.tableV2.tableName },
         ...baseProps,
       }
     );
 
-    const updateVoteFunctionName = `updateVote`;
+    const updateVoteFunctionName = `${name}-${FUNCTION_ACTION.update}`;
     const updateVoteFunction = new NodeJsFunctionLambda(
       this,
       `${updateVoteFunctionName}-${awsResourceNames().function}`,
       {
         name: updateVoteFunctionName,
-        entryPath: path.join(__dirname, "../../api/src/votes/update.ts"),
+        entryPath: path.join(
+          __dirname,
+          `${functionPath}/${FUNCTION_ACTION.update}.${FILE_EXTENSION}`
+        ),
         environmentVariables: { TABLE_NAME: dynamoDbTable.tableV2.tableName },
         ...baseProps,
       }
     );
 
-    const deleteVoteFunctionName = `deleteVote`;
+    const deleteVoteFunctionName = `${name}-${FUNCTION_ACTION.delete}`;
     const deleteVoteFunction = new NodeJsFunctionLambda(
       this,
       `${deleteVoteFunctionName}-${awsResourceNames().function}`,
       {
         name: deleteVoteFunctionName,
-        entryPath: path.join(__dirname, "../../api/src/votes/delete.ts"),
+        entryPath: path.join(
+          __dirname,
+          `${functionPath}/${FUNCTION_ACTION.delete}.${FILE_EXTENSION}`
+        ),
         environmentVariables: { TABLE_NAME: dynamoDbTable.tableV2.tableName },
         ...baseProps,
       }
     );
 
-    const deleteAllVotesFunctionName = `deleteAllVotes`;
+    const deleteAllVotesFunctionName = `${name}-${FUNCTION_ACTION.deleteAll}`;
     const deleteAllVotesFunction = new NodeJsFunctionLambda(
       this,
       `${deleteAllVotesFunctionName}-${awsResourceNames().function}`,
       {
         name: deleteAllVotesFunctionName,
-        entryPath: path.join(__dirname, "../../api/src/votes/deleteAll.ts"),
+        entryPath: path.join(
+          __dirname,
+          `${functionPath}/${FUNCTION_ACTION.deleteAll}.${FILE_EXTENSION}`
+        ),
         environmentVariables: { TABLE_NAME: dynamoDbTable.tableV2.tableName },
         ...baseProps,
       }
     );
 
-    const mockVotesFunctionName = `mockVotes`;
+    const mockVotesFunctionName = `${name}-${FUNCTION_ACTION.mock}`;
     const mockVotesFunction = new NodeJsFunctionLambda(
       this,
       `${mockVotesFunctionName}-${awsResourceNames().function}`,
       {
         name: mockVotesFunctionName,
-        entryPath: path.join(__dirname, "../../api/src/votes/mock.ts"),
+        entryPath: path.join(
+          __dirname,
+          `${functionPath}/${FUNCTION_ACTION.mock}.${FILE_EXTENSION}`
+        ),
         environmentVariables: { TABLE_NAME: dynamoDbTable.tableV2.tableName },
         ...baseProps,
       }
@@ -161,6 +188,13 @@ export class VotesStack extends Stack {
         httpMethod: HttpMethod.DELETE,
         nodeJsFunction: deleteAllVotesFunction.nodejsFunction,
         tableAccess: "readWrite",
+      },
+      {
+        integrationName: mockVotesFunctionName,
+        path: `${votesBasePath}/mock`,
+        httpMethod: HttpMethod.POST,
+        nodeJsFunction: mockVotesFunction.nodejsFunction,
+        tableAccess: "read",
       },
     ];
 

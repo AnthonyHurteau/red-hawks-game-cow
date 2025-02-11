@@ -1,6 +1,6 @@
 import { deleteItemDocumentAsync } from "common/core/src/services/dynamoDbClient";
 import { IItem } from "../../../common/core/src/models/item";
-import { APIGatewayProxyEvent, APIGatewayProxyResultV2 } from "aws-lambda";
+import { APIGatewayEvent, APIGatewayProxyResult } from "aws-lambda";
 
 /**
  *
@@ -14,7 +14,7 @@ import { APIGatewayProxyEvent, APIGatewayProxyResultV2 } from "aws-lambda";
 
 const TABLE_NAME = process.env.TABLE_NAME;
 
-export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResultV2> => {
+export const lambdaHandler = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult> => {
     try {
         const connectionId = event.requestContext.connectionId;
         if (connectionId) {

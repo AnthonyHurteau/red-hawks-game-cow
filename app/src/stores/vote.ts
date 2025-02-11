@@ -4,13 +4,14 @@ import { get, post, put, remove } from "@/services/api"
 import { useUserStore } from "./user"
 import { Vote, type IVote } from "@common/models/vote"
 import type { IPlayer } from "@common/models/player"
-import { close, onClose, onError, onOpen } from "@/services/webSocket"
+import { createWebSocketAsync, close, onClose, onError, onOpen } from "@/services/webSocket"
 import type { IWsEntity } from "@common/core/src/models/wsEntity"
 
 const API_URL = import.meta.env.VITE_API_URL
 const PATH = import.meta.env.VITE_VOTES_PATH
 const URL = `${API_URL}/${PATH}`
 const WS_ENDPOINT = import.meta.env.VITE_VOTES_WS_ENDPOINT
+const WS_NAME = "Votes"
 
 export const useVoteStore = defineStore("votes", () => {
   const votes = ref<IVote[]>([])
@@ -105,17 +106,17 @@ export const useVoteStore = defineStore("votes", () => {
     }
   }
 
-  function wsConnect() {
+  async function wsConnect() {
     if (userStore.user?.type === "admin") {
       if (!ws.value) {
-        ws.value = new WebSocket(WS_ENDPOINT)
-        onOpen(ws.value)
-        onClose(ws.value, wsConnect)
-        onError(ws.value)
+        ws.value = await createWebSocketAsync(WS_ENDPOINT)
+        onOpen(ws.value, WS_NAME)
+        onClose(ws.value, WS_NAME, wsConnect)
+        onError(ws.value, WS_NAME)
 
         ws.value.onmessage = (event) => {
           const result = JSON.parse(event.data) as IWsEntity<IVote>
-          console.log(result)
+
           if (result.event === "INSERT") {
             votes.value.push(result.data)
           } else if (result.event === "MODIFY") {
@@ -138,7 +139,7 @@ export const useVoteStore = defineStore("votes", () => {
 
   function wsDisconnect() {
     if (ws.value) {
-      close(ws.value)
+      close(ws.value, WS_NAME)
       ws.value = null
     }
   }

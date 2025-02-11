@@ -50,11 +50,11 @@ export class RedHawksGameCowStack extends Stack {
     //   }
     // );
 
-    const usersId = "users";
-    const usersTable = new DynamoDb(this, `${usersId}-table`, {
-      tableType: usersId,
-      ...baseProps,
-    });
+    // const usersId = "users";
+    // const usersTable = new DynamoDb(this, `${usersId}-table`, {
+    //   tableType: usersId,
+    //   ...baseProps,
+    // });
 
     new custom_resources.AwsCustomResource(this, `${playersId}-seed-data`, {
       onCreate: {
