@@ -33,21 +33,34 @@ Resources:
         AllowOrigins:
           - "http://localhost:5173"
       Auth:
+        DefaultAuthorizer: AuthUser
         Authorizers:
-          FunctionAuth:
+          AuthUser:
             FunctionPayloadType: REQUEST
             AuthorizerPayloadFormatVersion: "2.0"
-            FunctionArn: !GetAtt Auth.Arn
+            FunctionArn: !GetAtt AuthUser.Arn
+            Identity:
+              Headers:
+                - Authorization
+          AuthAdmin:
+            FunctionPayloadType: REQUEST
+            AuthorizerPayloadFormatVersion: "2.0"
+            FunctionArn: !GetAtt AuthAdmin.Arn
             Identity:
               Headers:
                 - Authorization
 
   # Auth
-  Auth:
+  AuthUser:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: dist/auth
-      Handler: auth.lambdaHandler
+      Handler: user.lambdaHandler
+  AuthAdmin:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: dist/auth
+      Handler: admin.lambdaHandler
 
   # Players
   GetPlayers:
@@ -85,7 +98,7 @@ Resources:
           Type: HttpApi
           Properties:
             Auth:
-              Authorizer: FunctionAuth
+              Authorizer: AuthAdmin
             Path: /games
             Method: post
             ApiId: !Ref HttpApi
@@ -99,7 +112,7 @@ Resources:
           Type: HttpApi
           Properties:
             Auth:
-              Authorizer: FunctionAuth
+              Authorizer: AuthAdmin
             Path: /games
             Method: put
             ApiId: !Ref HttpApi
@@ -113,7 +126,7 @@ Resources:
           Type: HttpApi
           Properties:
             Auth:
-              Authorizer: FunctionAuth
+              Authorizer: AuthAdmin
             Path: /games/{id}
             Method: delete
             ApiId: !Ref HttpApi
@@ -188,7 +201,7 @@ Resources:
           Type: HttpApi
           Properties:
             Auth:
-              Authorizer: FunctionAuth
+              Authorizer: AuthAdmin
             Path: /votes/all
             Method: delete
             ApiId: !Ref HttpApi
@@ -205,7 +218,7 @@ Resources:
           Type: HttpApi
           Properties:
             Auth:
-              Authorizer: FunctionAuth
+              Authorizer: AuthAdmin
             Path: /votes/mock
             Method: post
             ApiId: !Ref HttpApi
@@ -219,6 +232,8 @@ Resources:
         Event:
           Type: HttpApi
           Properties:
+            Auth:
+              Authorizer: NONE
             Path: /users/{id}
             Method: get
             ApiId: !Ref HttpApi
@@ -234,6 +249,8 @@ Resources:
         Event:
           Type: HttpApi
           Properties:
+            Auth:
+              Authorizer: NONE
             Path: /users
             Method: post
             ApiId: !Ref HttpApi

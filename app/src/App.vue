@@ -11,11 +11,12 @@ const userStore = useUserStore()
 const voteStore = useVoteStore()
 
 onMounted(async () => {
-  await gameStore.getActiveGame()
   await userStore.getUser()
+})
 
-  if (gameStore.activeGame && !gameStore.activeGame.isVoteComplete) {
-    await voteStore.getVote()
+userStore.$subscribe(async (mutation, state) => {
+  if (state.user) {
+    await gameStore.getActiveGame()
   }
 })
 

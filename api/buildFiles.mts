@@ -1,4 +1,4 @@
-type ServiceTypes = "get" | "getList" | "create" | "update" | "delete" | "mock" | "deleteAll" | "auth";
+type ServiceTypes = "get" | "getList" | "create" | "update" | "delete" | "mock" | "deleteAll" | "admin" | "user";
 
 export const sourceDir = "src";
 
@@ -7,7 +7,7 @@ const serviceConfigurations: { dir: string; services: ServiceTypes[] }[] = [
     { dir: "games", services: ["create", "update", "get", "delete"] },
     { dir: "users", services: ["get", "create", "update", "delete"] },
     { dir: "votes", services: ["get", "getList", "create", "update", "delete", "mock", "deleteAll"] },
-    { dir: "auth", services: ["auth"] },
+    { dir: "auth", services: ["admin", "user"] },
 ];
 
 const generateServicePaths = (dir: string, services: ServiceTypes[]): string[] => {

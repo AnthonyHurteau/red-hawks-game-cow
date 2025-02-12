@@ -7,7 +7,7 @@ export const get = async <T>(
   query?: {
     [key: string]: string
   },
-  auth = false
+  auth = true
 ): Promise<T> => {
   try {
     const headers = auth ? getAuthorizationHeaders() : undefined
@@ -19,7 +19,7 @@ export const get = async <T>(
   }
 }
 
-export const post = async <T>(url: string, data: T, auth = false): Promise<T> => {
+export const post = async <T>(url: string, data: T, auth = true): Promise<T> => {
   try {
     const headers = auth ? getAuthorizationHeaders() : undefined
     const response = await axios.post<T>(url, data, { headers })
@@ -30,7 +30,7 @@ export const post = async <T>(url: string, data: T, auth = false): Promise<T> =>
   }
 }
 
-export const put = async <T>(url: string, data: T, auth = false): Promise<T> => {
+export const put = async <T>(url: string, data: T, auth = true): Promise<T> => {
   try {
     const headers = auth ? getAuthorizationHeaders() : undefined
     const response = await axios.put<T>(url, data, { headers })
@@ -41,7 +41,7 @@ export const put = async <T>(url: string, data: T, auth = false): Promise<T> => 
   }
 }
 
-export const remove = async <T>(url: string, id: string, auth = false): Promise<AxiosResponse> => {
+export const remove = async <T>(url: string, id: string, auth = true): Promise<AxiosResponse> => {
   try {
     const uri = `${url}/${id}`
     const headers = auth ? getAuthorizationHeaders() : undefined

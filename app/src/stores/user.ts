@@ -45,7 +45,7 @@ export const useUserStore = defineStore("user", () => {
 
   const getOrCreateUserAsync = async (userId: string) => {
     const getUrl = `${USER_URL}/${userId}`
-    const result = await get<IUser>(getUrl)
+    const result = await get<IUser>(getUrl, undefined, false)
     if (result) {
       result.lastLogin = new Date().toISOString()
       result.userAgent = navigator.userAgent
@@ -53,7 +53,7 @@ export const useUserStore = defineStore("user", () => {
       user.value = modifiedUser
     } else {
       const newUser = new User({ id: userId })
-      const result = await post<IUser>(USER_URL, newUser)
+      const result = await post<IUser>(USER_URL, newUser, false)
       user.value = result
     }
   }
