@@ -3,30 +3,27 @@ import { BaseProps } from "../types/base-props";
 import {
   CorsHttpMethod,
   HttpApi,
-  HttpMethod,
+  HttpStage,
 } from "aws-cdk-lib/aws-apigatewayv2";
 import { resourceName } from "./common";
-import { HttpLambdaIntegration } from "aws-cdk-lib/aws-apigatewayv2-integrations";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
-import { TableAccess } from "./dynamo-db-table";
-
-export interface HttpApiGatewayRoute {
-  integrationName: string;
-  path: string;
-  httpMethod: HttpMethod;
-  nodeJsFunction: NodejsFunction;
-  tableAccess: TableAccess;
-}
+import {
+  HttpLambdaAuthorizer,
+  HttpLambdaResponseType,
+} from "aws-cdk-lib/aws-apigatewayv2-authorizers";
+import { Duration } from "aws-cdk-lib";
 
 interface HttpApiGatewayProps extends BaseProps {
   name: string;
   allowedOrigins: string[];
   allowedMethods: CorsHttpMethod[];
-  httpApiGatewayRoutes: HttpApiGatewayRoute[];
+  adminAuthFunction: NodejsFunction;
+  userAuthFunction: NodejsFunction;
 }
 
 export class HttpApiGateway extends Construct {
   readonly httpApiGateway: HttpApi;
+  readonly adminHttpAuthorizer: HttpLambdaAuthorizer;
 
   constructor(scope: Construct, id: string, props: HttpApiGatewayProps) {
     super(scope, id);
@@ -34,15 +31,41 @@ export class HttpApiGateway extends Construct {
       name,
       allowedMethods,
       allowedOrigins,
-      httpApiGatewayRoutes,
+      adminAuthFunction,
+      userAuthFunction,
       ...baseProps
     } = props;
 
-    const httpApiGatewayName = resourceName(baseProps, name);
+    const userHttpAuthorizerName = resourceName(baseProps, `${name}-user-auth`);
+    const userHttpAuthorizer = new HttpLambdaAuthorizer(
+      userHttpAuthorizerName,
+      userAuthFunction,
+      {
+        responseTypes: [HttpLambdaResponseType.IAM],
+        identitySource: ["$request.header.Authorization"],
+        resultsCacheTtl: Duration.minutes(15),
+      }
+    );
 
+    const adminHttpAuthorizerName = resourceName(
+      baseProps,
+      `${name}-admin-auth`
+    );
+    const adminHttpAuthorizer = new HttpLambdaAuthorizer(
+      adminHttpAuthorizerName,
+      adminAuthFunction,
+      {
+        responseTypes: [HttpLambdaResponseType.IAM],
+        identitySource: ["$request.header.Authorization"],
+        resultsCacheTtl: Duration.minutes(15),
+      }
+    );
+
+    const httpApiGatewayName = resourceName(baseProps, name);
     const httpApiGateway = new HttpApi(this, httpApiGatewayName, {
       apiName: httpApiGatewayName,
       description: `${baseProps.appName} - ${baseProps.environment} - ${name} HTTP API Gateway`,
+      defaultAuthorizer: userHttpAuthorizer,
       corsPreflight: {
         allowCredentials: false,
         allowHeaders: ["content-type", "Authorization"],
@@ -51,18 +74,7 @@ export class HttpApiGateway extends Construct {
       },
     });
 
-    httpApiGatewayRoutes.forEach((route) => {
-      const httpLambdaIntegration = new HttpLambdaIntegration(
-        `${route.integrationName}Integration`,
-        route.nodeJsFunction
-      );
-      httpApiGateway.addRoutes({
-        path: route.path,
-        methods: [route.httpMethod],
-        integration: httpLambdaIntegration,
-      });
-    });
-
     this.httpApiGateway = httpApiGateway;
+    this.adminHttpAuthorizer = adminHttpAuthorizer;
   }
 }

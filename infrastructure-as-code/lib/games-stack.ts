@@ -2,28 +2,21 @@ import { Stack } from "aws-cdk-lib";
 import { Construct } from "constructs";
 import * as path from "path";
 import { NodeJsFunctionLambda } from "../modules/nodejs-function-lambda";
-import {
-  CorsHttpMethod,
-  HttpApi,
-  HttpMethod,
-} from "aws-cdk-lib/aws-apigatewayv2";
+import { HttpMethod } from "aws-cdk-lib/aws-apigatewayv2";
 import { awsResourceNames } from "../modules/common";
 import { DynamoDbTable } from "../modules/dynamo-db-table";
 import { TableV2 } from "aws-cdk-lib/aws-dynamodb";
-import {
-  HttpApiGateway,
-  HttpApiGatewayRoute,
-} from "../modules/http-api-gateway";
 import { ServiceStackProps } from "../types/service-stack-props";
 import {
   API_BASE_PATH,
   FILE_EXTENSION,
   FUNCTION_ACTION,
 } from "../constants/functions";
+import { HttpApiGatewayRoute } from "../types/http-api-gateway-route";
 
 export class GamesStack extends Stack {
   readonly dynamoDbTable: TableV2;
-  readonly httpApiGateway: HttpApi;
+  readonly httpApiGatewayRoutes: HttpApiGatewayRoute[];
 
   constructor(scope: Construct, id: string, props: ServiceStackProps) {
     super(scope, id, props);
@@ -108,6 +101,7 @@ export class GamesStack extends Stack {
         httpMethod: HttpMethod.GET,
         nodeJsFunction: getGameFunction.nodejsFunction,
         tableAccess: "read",
+        authorizer: "user",
       },
       {
         integrationName: createGameFunctionName,
@@ -115,6 +109,7 @@ export class GamesStack extends Stack {
         httpMethod: HttpMethod.POST,
         nodeJsFunction: createGameFunction.nodejsFunction,
         tableAccess: "write",
+        authorizer: "admin",
       },
       {
         integrationName: updateGameFunctionName,
@@ -122,6 +117,7 @@ export class GamesStack extends Stack {
         httpMethod: HttpMethod.PUT,
         nodeJsFunction: updateGameFunction.nodejsFunction,
         tableAccess: "readWrite",
+        authorizer: "admin",
       },
       {
         integrationName: deleteGameFunctionName,
@@ -129,30 +125,13 @@ export class GamesStack extends Stack {
         httpMethod: HttpMethod.DELETE,
         nodeJsFunction: deleteGameFunction.nodejsFunction,
         tableAccess: "readWrite",
+        authorizer: "admin",
       },
     ];
-
-    const httpApiGateway = new HttpApiGateway(
-      this,
-      `${name}-${awsResourceNames().apigw}`,
-      {
-        name,
-        allowedOrigins,
-        allowedMethods: [
-          CorsHttpMethod.GET,
-          CorsHttpMethod.POST,
-          CorsHttpMethod.PUT,
-          CorsHttpMethod.DELETE,
-          CorsHttpMethod.OPTIONS,
-        ],
-        httpApiGatewayRoutes,
-        ...baseProps,
-      }
-    );
 
     dynamoDbTable.grantAccessesToTable(httpApiGatewayRoutes);
 
     this.dynamoDbTable = dynamoDbTable.tableV2;
-    this.httpApiGateway = httpApiGateway.httpApiGateway;
+    this.httpApiGatewayRoutes = httpApiGatewayRoutes;
   }
 }

@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 import * as cdk from "aws-cdk-lib";
-import { RedHawksGameCowStack } from "../lib/red-hawks-game-cow";
 import { Environment } from "../types/environments";
 import { Region } from "../types/regions";
 import { WebSocketStack } from "../lib/web-socket-stack";
@@ -12,6 +11,8 @@ import { DynamoEventSource } from "aws-cdk-lib/aws-lambda-event-sources";
 import { StartingPosition } from "aws-cdk-lib/aws-lambda";
 import { FILE_EXTENSION, FUNCTION_ACTION } from "../constants/functions";
 import { UsersStack } from "../lib/users-stack";
+import { HttpApiGatewayStack } from "../lib/http-api-gateway-stack";
+import { PlayersStack } from "../lib/players-stack";
 
 require("dotenv").config();
 
@@ -30,14 +31,18 @@ const env = {
   region: process.env.AWS_REGION,
 };
 
-const stackName1 = `${process.env.PRODUCT}-${process.env.REGION}-${process.env.ENVIRONMENT}`;
-new RedHawksGameCowStack(
+const playersName = "players";
+const playersStackName = resourceName(baseProps, playersName);
+const playersStack = new PlayersStack(
   app,
-  `${process.env.PRODUCT}-${awsResourceNames().stack}`,
+  `${playersName}-${awsResourceNames().stack}`,
   {
     env,
-    stackName: stackName1,
-    description: `The ${appName} ${process.env.ENVIRONMENT} IaC stack.`,
+    stackName: playersStackName,
+    description: `The ${appName} ${process.env.ENVIRONMENT} ${playersStackName} IaC stack.`,
+    name: playersName,
+    functionDir: playersName,
+    allowedOrigins: [process.env.ALLOWED_ORIGIN as string],
     ...baseProps,
   }
 );
@@ -89,6 +94,30 @@ const usersStack = new UsersStack(
     ...baseProps,
   }
 );
+
+const httpApiGatewayName = "api-gateway";
+const httpApiGatewayStackName = resourceName(baseProps, httpApiGatewayName);
+const httpApiGatewayStack = new HttpApiGatewayStack(
+  app,
+  `${httpApiGatewayName}-${awsResourceNames().stack}`,
+  {
+    env,
+    stackName: httpApiGatewayStackName,
+    description: `The ${appName} ${process.env.ENVIRONMENT} ${httpApiGatewayStackName} IaC stack.`,
+    name: httpApiGatewayName,
+    allowedOrigins: [process.env.ALLOWED_ORIGIN as string],
+    userTableName: usersStack.dynamoDbTable.tableName,
+    ...baseProps,
+  }
+);
+
+const httpApiGatewayRoutes = [
+  playersStack.httpApiGatewayRoutes,
+  gamesStack.httpApiGatewayRoutes,
+  votesStack.httpApiGatewayRoutes,
+  usersStack.httpApiGatewayRoutes,
+].flat();
+httpApiGatewayStack.setRoutes(httpApiGatewayRoutes);
 
 const gamesWsName = "games-ws";
 const gamesWsStackName = resourceName(baseProps, gamesWsName);
