@@ -6,7 +6,7 @@ import { Duration } from "aws-cdk-lib";
 import { resourceName } from "./common";
 import { RetentionDays } from "aws-cdk-lib/aws-logs";
 
-type FunctionMemorySize = 128 | 256 | 512 | 1024 | 2048 | 4096 | 8192;
+type FunctionMemorySize = 128 | 256 | 512 | 1024 | 2048 | 3008 | 4096 | 8192;
 
 interface NodeJsFunctionLambdaProps extends BaseProps {
   name: string;
@@ -35,7 +35,6 @@ export class NodeJsFunctionLambda extends Construct {
     } = props;
 
     const functionName = resourceName(baseProps, name);
-
     const nodeJsFunction = new NodejsFunction(this, functionName, {
       functionName: functionName,
       description: `${baseProps.appName} - ${baseProps.environment} - ${name} Node.js Lambda Function`,

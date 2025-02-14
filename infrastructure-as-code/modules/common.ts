@@ -10,5 +10,7 @@ export const awsResourceNames = () => {
     table: "table",
     stack: "stack",
     stage: "stage",
+    bucket: "bucket",
+    distribution: "distribution",
   };
 };
