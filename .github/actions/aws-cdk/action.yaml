@@ -1,0 +1,61 @@
+name: AWS CDK Infrastructure as Code
+description: Deploys the AWS CDK Infrastructure as Code
+
+inputs:
+  aws_oidc_role:
+    description: The AWS OIDC role to assume
+    required: true
+  aws_region:
+    description: The AWS region to deploy the infrastructure to
+    required: true
+    default: "us-east-1"
+  stack_name:
+    description: The name of the AWS CDK stack to deploy
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Set Envs
+      shell: bash
+      run: |
+        echo "WORKING_DIR=./infrastructure-as-code" >> $GITHUB_ENV
+        echo "FUNCTIONS_DEPENDENCY_DIR=./common/core" >> $GITHUB_ENV
+
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        version: 9
+        run_install: false
+
+    - name: Set up Node
+      uses: actions/setup-node@v4
+      with:
+        node-version: 22.x
+        cache: pnpm
+        cache-dependency-path: ${{ env.WORKING_DIR }}/pnpm-lock.yaml
+
+    - name: Install AWS CDK & esbuild globally
+      shell: bash
+      run: pnpm add -g aws-cdk esbuild
+
+    - name: Install AWS dependencies
+      working-directory: ${{ env.WORKING_DIR }}
+      shell: bash
+      run: pnpm install --frozen-lockfile --prod
+
+    - name: Install Functions dependencies
+      working-directory: ${{ env.FUNCTIONS_DEPENDENCY_DIR }}
+      shell: bash
+      run: pnpm install --frozen-lockfile --prod
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-region: ${{ inputs.aws_region }}
+        role-to-assume: ${{ inputs.aws_oidc_role }}
+
+    - name: Deploy Infrastructure as Code
+      working-directory: ${{ env.WORKING_DIR }}
+      shell: bash
+      run: cdk deploy ${{ inputs.stack_name }} --require-approval never

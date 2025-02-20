@@ -13,7 +13,7 @@ import { FILE_EXTENSION, FUNCTION_ACTION } from "../constants/functions";
 import { UsersStack } from "../lib/users-stack";
 import { HttpApiGatewayStack } from "../lib/http-api-gateway-stack";
 import { PlayersStack } from "../lib/players-stack";
-import { AppStack } from "../lib/app-stack";
+import { WebStack } from "../lib/web-stack";
 
 require("dotenv").config();
 
@@ -32,18 +32,15 @@ const env = {
   region: process.env.AWS_REGION,
 };
 
-const appStackName = resourceName(baseProps, "app");
-const appStack = new AppStack(
-  app,
-  `${appStackName}-${awsResourceNames().stack}`,
-  {
-    env,
-    stackName: appStackName,
-    description: `The ${appName} ${process.env.ENVIRONMENT} ${appStackName} IaC stack.`,
-    name: appStackName,
-    ...baseProps,
-  }
-);
+const webName = "web";
+const webStackName = resourceName(baseProps, "app");
+const webStack = new WebStack(app, `${webName}-${awsResourceNames().stack}`, {
+  env,
+  stackName: webStackName,
+  description: `The ${appName} ${process.env.ENVIRONMENT} ${webStackName} IaC stack.`,
+  name: webStackName,
+  ...baseProps,
+});
 
 const playersName = "players";
 const playersStackName = resourceName(baseProps, playersName);

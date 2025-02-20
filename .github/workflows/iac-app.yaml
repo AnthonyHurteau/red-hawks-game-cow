@@ -1,0 +1,31 @@
+name: Infrastructure as Code - App
+run-name: "iac-app - Env: @${{ github.ref_name }} - @${{ github.actor }}"
+
+on:
+  push:
+    branches:
+      - dev
+      - main
+    paths:
+      - src/app/**
+      - .github/workflows/iac-app.yaml
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  aws-cdk:
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ github.ref_name }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy App Infrastructure as Code
+        uses: ./.github/actions/aws-cdk
+        with:
+          aws_oidc_role: ${{ secrets.AWS_OIDC_ROLE }}
+          aws_region: us-east-1
+          stack_name: web-stack
