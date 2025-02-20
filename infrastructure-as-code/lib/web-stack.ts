@@ -16,15 +16,15 @@ import {
 } from "aws-cdk-lib/aws-cloudfront";
 import { S3BucketOrigin } from "aws-cdk-lib/aws-cloudfront-origins";
 
-interface AppStackProps extends StackProps {
+interface WebStackProps extends StackProps {
   name: string;
 }
 
-export class AppStack extends Stack {
+export class WebStack extends Stack {
   readonly cloudFrontDistribution: Distribution;
   readonly s3bucket: Bucket;
 
-  constructor(scope: Construct, id: string, props: AppStackProps) {
+  constructor(scope: Construct, id: string, props: WebStackProps) {
     super(scope, id, props);
     const { name, ...baseProps } = props;
 

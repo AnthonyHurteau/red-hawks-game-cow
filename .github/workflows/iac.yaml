@@ -1,0 +1,38 @@
+name: Infrastructure as Code - Red Hawks Game Cow
+run-name: "iac - Env: @${{ github.ref_name }} - @${{ github.actor }}"
+
+on:
+  push:
+    branches:
+      - dev
+      - main
+    paths:
+      - .github/workflows/iac.yaml
+      - api/**
+      - common/core/**
+      - web-sockets/**
+      - infrastructure-as-code/**
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  aws-cdk:
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ github.ref_name }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy Infrastructure as Code
+        uses: ./.github/actions/aws-cdk
+        with:
+          aws_oidc_role: ${{ secrets.AWS_OIDC_ROLE }}
+          aws_region: us-east-1
+          aws_account: ${{ secrets.AWS_ACCOUNT }}
+          environment: ${{ github.ref_name }}
+          region: usea1
+          product: rhgc

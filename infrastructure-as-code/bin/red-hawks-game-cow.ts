@@ -13,7 +13,7 @@ import { FILE_EXTENSION, FUNCTION_ACTION } from "../constants/functions";
 import { UsersStack } from "../lib/users-stack";
 import { HttpApiGatewayStack } from "../lib/http-api-gateway-stack";
 import { PlayersStack } from "../lib/players-stack";
-import { AppStack } from "../lib/app-stack";
+import { WebStack } from "../lib/web-stack";
 
 require("dotenv").config();
 
@@ -32,18 +32,15 @@ const env = {
   region: process.env.AWS_REGION,
 };
 
-const appStackName = resourceName(baseProps, "app");
-const appStack = new AppStack(
-  app,
-  `${appStackName}-${awsResourceNames().stack}`,
-  {
-    env,
-    stackName: appStackName,
-    description: `The ${appName} ${process.env.ENVIRONMENT} ${appStackName} IaC stack.`,
-    name: appStackName,
-    ...baseProps,
-  }
-);
+const webName = "web";
+const webStackName = resourceName(baseProps, "app");
+const webStack = new WebStack(app, `${webName}-${awsResourceNames().stack}`, {
+  env,
+  stackName: webStackName,
+  description: `The ${appName} ${process.env.ENVIRONMENT} ${webStackName} IaC stack.`,
+  name: webStackName,
+  ...baseProps,
+});
 
 const playersName = "players";
 const playersStackName = resourceName(baseProps, playersName);
@@ -56,7 +53,6 @@ const playersStack = new PlayersStack(
     description: `The ${appName} ${process.env.ENVIRONMENT} ${playersStackName} IaC stack.`,
     name: playersName,
     functionDir: playersName,
-    allowedOrigins: [process.env.ALLOWED_ORIGIN as string],
     ...baseProps,
   }
 );
@@ -72,7 +68,6 @@ const gamesStack = new GamesStack(
     description: `The ${appName} ${process.env.ENVIRONMENT} ${gamesStackName} IaC stack.`,
     name: gamesName,
     functionDir: gamesName,
-    allowedOrigins: [process.env.ALLOWED_ORIGIN as string],
     ...baseProps,
   }
 );
@@ -88,7 +83,6 @@ const votesStack = new VotesStack(
     description: `The ${appName} ${process.env.ENVIRONMENT} ${votesStackName} IaC stack.`,
     name: votesName,
     functionDir: votesName,
-    allowedOrigins: [process.env.ALLOWED_ORIGIN as string],
     ...baseProps,
   }
 );
@@ -104,7 +98,6 @@ const usersStack = new UsersStack(
     description: `The ${appName} ${process.env.ENVIRONMENT} ${usersStackName} IaC stack.`,
     name: usersName,
     functionDir: usersName,
-    allowedOrigins: [process.env.ALLOWED_ORIGIN as string],
     ...baseProps,
   }
 );
@@ -119,7 +112,9 @@ const httpApiGatewayStack = new HttpApiGatewayStack(
     stackName: httpApiGatewayStackName,
     description: `The ${appName} ${process.env.ENVIRONMENT} ${httpApiGatewayStackName} IaC stack.`,
     name: httpApiGatewayName,
-    allowedOrigins: [process.env.ALLOWED_ORIGIN as string],
+    allowedOrigins: [
+      `https://${webStack.cloudFrontDistribution.distributionDomainName}`,
+    ],
     userTableName: usersStack.dynamoDbTable.tableName,
     ...baseProps,
   }
