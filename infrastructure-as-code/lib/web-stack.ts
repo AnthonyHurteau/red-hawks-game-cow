@@ -1,4 +1,4 @@
-import { CfnOutput, Stack } from "aws-cdk-lib";
+import { CfnOutput, Duration, Stack } from "aws-cdk-lib";
 import { StackProps } from "../types/stack-props";
 import { Construct } from "constructs";
 import {
@@ -46,13 +46,29 @@ export class WebStack extends Stack {
       this,
       `${cloudFrontDistributionName}-${awsResourceNames().distribution}`,
       {
+        comment: `${baseProps.appName} - ${baseProps.environment} - ${name} CloudFront Distribution`,
         httpVersion: HttpVersion.HTTP2_AND_3,
         minimumProtocolVersion: SecurityPolicyProtocol.TLS_V1_2_2021,
         enabled: true,
+        defaultRootObject: "index.html",
         defaultBehavior: {
           origin: S3BucketOrigin.withOriginAccessControl(s3bucket),
           viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
         },
+        errorResponses: [
+          {
+            httpStatus: 403,
+            responseHttpStatus: 200,
+            responsePagePath: "/index.html",
+            ttl: Duration.days(1),
+          },
+          {
+            httpStatus: 404,
+            responseHttpStatus: 200,
+            responsePagePath: "/index.html",
+            ttl: Duration.days(1),
+          },
+        ],
       }
     );
 
