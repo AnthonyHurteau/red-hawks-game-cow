@@ -1,5 +1,5 @@
 name: Build & Deploy Web App - Red Hawks Game Cow
-run-name: "build & deploy web app - Env: @${{ github.ref_name }} - @${{ github.actor }}"
+run-name: "Build & Deploy Web App - Env: @${{ github.ref_name }} - @${{ github.actor }}"
 
 on:
   push:
@@ -68,12 +68,12 @@ jobs:
       - name: Set CloudFormation Variables
         id: cloudformation
         run: |
-          echo "appBucketName=$(echo '${{ steps.cloudformation_outputs.outputs.values }}' | jq -r '.[] | select(.OutputKey == "appBucketName") | .OutputValue')" >> $GITHUB_OUTPUT
-          echo "appDistributionId=$(echo '${{ steps.cloudformation_outputs.outputs.values }}' | jq -r '.[] | select(.OutputKey == "appDistributionId") | .OutputValue')" >> $GITHUB_OUTPUT
+          echo "webBucketName=$(echo '${{ steps.cloudformation_outputs.outputs.values }}' | jq -r '.[] | select(.OutputKey == "webBucketName") | .OutputValue')" >> $GITHUB_OUTPUT
+          echo "webDistributionId=$(echo '${{ steps.cloudformation_outputs.outputs.values }}' | jq -r '.[] | select(.OutputKey == "webDistributionId") | .OutputValue')" >> $GITHUB_OUTPUT
 
       - name: Deploy to S3
         working-directory: ${{ env.WORKING_DIR }}
-        run: aws s3 sync ./dist s3://${{ steps.cloudformation.outputs.appBucketName }} --delete
+        run: aws s3 sync ./dist s3://${{ steps.cloudformation.outputs.webBucketName }} --delete
 
       - name: Invalidate Cloudfront
-        run: export AWS_PAGER=""; aws cloudfront create-invalidation --distribution-id ${{ steps.cloudformation.outputs.appDistributionId }} --paths '/*';
+        run: export AWS_PAGER=""; aws cloudfront create-invalidation --distribution-id ${{ steps.cloudformation.outputs.webDistributionId }} --paths '/*';
