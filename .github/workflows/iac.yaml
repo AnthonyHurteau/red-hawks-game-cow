@@ -18,6 +18,15 @@ permissions:
   id-token: write
   contents: read
 
+env:
+  WORKING_DIR: ./infrastructure-as-code
+  FUNCTIONS_DEPENDENCY_DIR: ./common/core
+  AWS_REGION: us-east-1
+  AWS_ACCOUNT: ${{ secrets.AWS_ACCOUNT }}
+  ENVIRONMENT: ${{ github.ref_name }}
+  REGION: usea1
+  PRODUCT: rhgc
+
 jobs:
   aws-cdk:
     runs-on: ubuntu-latest
@@ -27,12 +36,40 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Deploy Infrastructure as Code
-        uses: ./.github/actions/aws-cdk
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
         with:
-          aws_oidc_role: ${{ secrets.AWS_OIDC_ROLE }}
-          aws_region: us-east-1
-          aws_account: ${{ secrets.AWS_ACCOUNT }}
-          environment: ${{ github.ref_name }}
-          region: usea1
-          product: rhgc
+          version: 9
+          run_install: false
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+          cache: pnpm
+          cache-dependency-path: ${{ env.WORKING_DIR }}/pnpm-lock.yaml
+
+      - name: Install AWS CDK & esbuild globally
+        shell: bash
+        run: pnpm add -g aws-cdk esbuild
+
+      - name: Install AWS CDK dependencies
+        working-directory: ${{ env.WORKING_DIR }}
+        shell: bash
+        run: pnpm install --frozen-lockfile --prod
+
+      - name: Install Functions dependencies
+        working-directory: ${{ env.FUNCTIONS_DEPENDENCY_DIR }}
+        shell: bash
+        run: pnpm install --frozen-lockfile --prod
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ secrets.AWS_OIDC_ROLE }}
+
+      - name: Deploy Infrastructure as Code
+        working-directory: ${{ env.WORKING_DIR }}
+        shell: bash
+        run: cdk deploy --all --require-approval never
