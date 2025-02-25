@@ -1,4 +1,4 @@
-import { Stack } from "aws-cdk-lib";
+import { CfnOutput, Stack } from "aws-cdk-lib";
 import {
   CorsHttpMethod,
   HttpApi,
@@ -83,6 +83,10 @@ export class HttpApiGatewayStack extends Stack {
 
     this.httpApiGateway = httpApiGateway.httpApiGateway;
     this.adminHttpAuthorizer = httpApiGateway.adminHttpAuthorizer;
+
+    new CfnOutput(this, "httpApiUrl", {
+      value: httpApiGateway.httpApiGateway.url!,
+    });
   }
 
   setRoutes(httpApiGatewayRoutes: HttpApiGatewayRoute[]) {

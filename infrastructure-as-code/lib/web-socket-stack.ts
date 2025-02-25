@@ -1,4 +1,4 @@
-import { Stack } from "aws-cdk-lib";
+import { CfnOutput, Stack } from "aws-cdk-lib";
 import { Construct } from "constructs";
 import { StackProps } from "../types/stack-props";
 import * as path from "path";
@@ -129,5 +129,9 @@ export class WebSocketStack extends Stack {
     this.wsSendFunction = wsSendFunction.nodejsFunction;
     this.wsAuthFunction = wsAuthFunction.nodejsFunction;
     this.wsApiGateway = wsApiGateway.webSocketApi;
+
+    new CfnOutput(this, "webSocketApiUrl", {
+      value: wsApiGateway.webSocketApiStage.url,
+    });
   }
 }
