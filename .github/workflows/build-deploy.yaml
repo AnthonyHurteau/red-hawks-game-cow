@@ -1,0 +1,79 @@
+name: Build & Deploy Web App - Red Hawks Game Cow
+run-name: "build & deploy web app - Env: @${{ github.ref_name }} - @${{ github.actor }}"
+
+on:
+  push:
+    branches:
+      - dev
+      - main
+    paths:
+      - .github/workflows/build-deploy.yaml
+      - app/**
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  WORKING_DIR: ./app
+  WEB_STACK_NAME: app
+  REGION: usea1
+  PRODUCT: rhgc
+  ENVIRONMENT: ${{ github.ref_name }}
+
+jobs:
+  aws-cdk:
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ github.ref_name }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+          run_install: false
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+          cache: pnpm
+          cache-dependency-path: app/pnpm-lock.yaml
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: us-east-1
+          role-to-assume: ${{ secrets.AWS_OIDC_ROLE }}
+
+      - name: Install dependencies
+        working-directory: ${{ env.WORKING_DIR }}
+        run: pnpm i
+        # run: pnpm install --frozen-lockfile --prod
+
+      - name: Build App
+        working-directory: ${{ env.WORKING_DIR }}
+        run: npm run build-only
+
+      - name: Get CloudFormation Outputs
+        id: cloudformation_outputs
+        run: |
+          OUTPUT=$(aws cloudformation describe-stacks --stack-name ${{ env.PRODUCT }}-${{ env.WEB_STACK_NAME }}-${{ env.REGION }}-${{ env.ENVIRONMENT }} --query 'Stacks[0].Outputs[]' --output json)
+          OUTPUT_STRING=$(echo "$OUTPUT" | jq -r 'tostring')
+          echo "values=$OUTPUT_STRING" >> $GITHUB_OUTPUT
+
+      - name: Set CloudFormation Variables
+        id: cloudformation
+        run: |
+          echo "appBucketName=$(echo '${{ steps.cloudformation_outputs.outputs.values }}' | jq -r '.[] | select(.OutputKey == "appBucketName") | .OutputValue')" >> $GITHUB_OUTPUT
+          echo "appDistributionId=$(echo '${{ steps.cloudformation_outputs.outputs.values }}' | jq -r '.[] | select(.OutputKey == "appDistributionId") | .OutputValue')" >> $GITHUB_OUTPUT
+
+      - name: Deploy to S3
+        working-directory: ${{ env.WORKING_DIR }}
+        run: aws s3 sync ./dist s3://${{ steps.cloudformation.outputs.appBucketName }} --delete
+
+      - name: Invalidate Cloudfront
+        run: export AWS_PAGER=""; aws cloudfront create-invalidation --distribution-id ${{ steps.cloudformation.outputs.appDistributionId }} --paths '/*';
