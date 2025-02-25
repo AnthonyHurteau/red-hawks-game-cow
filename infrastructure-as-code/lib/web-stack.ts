@@ -1,4 +1,4 @@
-import { Stack } from "aws-cdk-lib";
+import { CfnOutput, Stack } from "aws-cdk-lib";
 import { StackProps } from "../types/stack-props";
 import { Construct } from "constructs";
 import {
@@ -58,5 +58,13 @@ export class WebStack extends Stack {
 
     this.s3bucket = s3bucket;
     this.cloudFrontDistribution = cloudFrontDistribution;
+
+    new CfnOutput(this, "webBucketName", {
+      value: s3bucket.bucketName,
+    });
+
+    new CfnOutput(this, "webDistributionId", {
+      value: cloudFrontDistribution.distributionId,
+    });
   }
 }
