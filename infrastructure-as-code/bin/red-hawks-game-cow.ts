@@ -128,6 +128,9 @@ const httpApiGatewayRoutes = [
 ].flat();
 httpApiGatewayStack.setRoutes(httpApiGatewayRoutes);
 
+usersStack.dynamoDbTable.grantReadData(httpApiGatewayStack.adminAuthFunction);
+usersStack.dynamoDbTable.grantReadData(httpApiGatewayStack.userAuthFunction);
+
 const gamesWsName = "games-ws";
 const gamesWsStackName = resourceName(baseProps, gamesWsName);
 const gamesWebSocketStack = new WebSocketStack(
