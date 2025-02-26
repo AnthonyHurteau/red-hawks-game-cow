@@ -17,6 +17,9 @@ permissions:
 env:
   WORKING_DIR: ./app
   WEB_STACK_NAME: app
+  HTTP_API_STACK_NAME: api-gateway
+  GAMES_WS_STACK_NAME: games-ws
+  VOTES_WS_STACK_NAME: votes-ws
   REGION: usea1
   PRODUCT: rhgc
   ENVIRONMENT: ${{ github.ref_name }}
@@ -54,26 +57,57 @@ jobs:
         run: pnpm i
         # run: pnpm install --frozen-lockfile --prod
 
+      - name: Get CloudFormation Outputs
+        id: web_app_cloudformation_outputs
+        uses: ./.github/actions/cloudformation-output
+        with:
+          stack-name: ${{ env.PRODUCT }}-${{ env.WEB_STACK_NAME }}-${{ env.REGION }}-${{ env.ENVIRONMENT }}
+
+      - name: Get CloudFormation Outputs
+        id: http_api_cloudformation_outputs
+        uses: ./.github/actions/cloudformation-output
+        with:
+          stack-name: ${{ env.PRODUCT }}-${{ env.HTTP_API_STACK_NAME }}-${{ env.REGION }}-${{ env.ENVIRONMENT }}
+
+      - name: Get CloudFormation Outputs
+        id: games_ws_cloudformation_outputs
+        uses: ./.github/actions/cloudformation-output
+        with:
+          stack-name: ${{ env.PRODUCT }}-${{ env.GAMES_WS_STACK_NAME }}-${{ env.REGION }}-${{ env.ENVIRONMENT }}
+
+      - name: Get CloudFormation Outputs
+        id: votes_ws_cloudformation_outputs
+        uses: ./.github/actions/cloudformation-output
+        with:
+          stack-name: ${{ env.PRODUCT }}-${{ env.VOTES_WS_STACK_NAME }}-${{ env.REGION }}-${{ env.ENVIRONMENT }}
+
+      - name: Set CloudFormation Variables
+        id: cloudformation_outputs
+        run: |
+          echo "webBucketName=$(echo '${{ steps.web_app_cloudformation_outputs.outputs.values }}' | jq -r '.[] | select(.OutputKey == "webBucketName") | .OutputValue')" >> $GITHUB_OUTPUT
+          echo "webDistributionId=$(echo '${{ steps.web_app_cloudformation_outputs.outputs.values }}' | jq -r '.[] | select(.OutputKey == "webDistributionId") | .OutputValue')" >> $GITHUB_OUTPUT
+          echo "httpApiUrl=$(echo '${{ steps.http_api_cloudformation_outputs.outputs.values }}' | jq -r '.[] | select(.OutputKey == "httpApiUrl") | .OutputValue')" >> $GITHUB_OUTPUT
+          echo "gamesWebSocketApiUrl=$(echo '${{ steps.games_ws_cloudformation_outputs.outputs.values }}' | jq -r '.[] | select(.OutputKey == "webSocketApiUrl") | .OutputValue')" >> $GITHUB_OUTPUT
+          echo "votesWebSocketApiUrl=$(echo '${{ steps.votes_ws_cloudformation_outputs.outputs.values }}' | jq -r '.[] | select(.OutputKey == "webSocketApiUrl") | .OutputValue')" >> $GITHUB_OUTPUT
+
+      - name: Set Vite Envs
+        run: |
+          echo "VITE_ENV=${{ env.ENVIRONMENT }}" >> $GITHUB_ENV
+          echo "VITE_API_URL=${{ steps.cloudformation_outputs.outputs.httpApiUrl }}" >> $GITHUB_ENV
+          echo "VITE_GAMES_PATH=games" >> $GITHUB_ENV
+          echo "VITE_VOTES_PATH=votes" >> $GITHUB_ENV
+          echo "VITE_USERS_PATH=users" >> $GITHUB_ENV
+          echo "VITE_PLAYERS_PATH=players" >> $GITHUB_ENV
+          echo "VITE_GAMES_WS_ENDPOINT=${{ steps.cloudformation_outputs.outputs.gamesWebSocketApiUrl }}" >> $GITHUB_ENV
+          echo "VITE_VOTES_WS_ENDPOINT=${{ steps.cloudformation_outputs.outputs.votesWebSocketApiUrl }}" >> $GITHUB_ENV
+
       - name: Build App
         working-directory: ${{ env.WORKING_DIR }}
         run: npm run build-only
 
-      - name: Get CloudFormation Outputs
-        id: cloudformation_outputs
-        run: |
-          OUTPUT=$(aws cloudformation describe-stacks --stack-name ${{ env.PRODUCT }}-${{ env.WEB_STACK_NAME }}-${{ env.REGION }}-${{ env.ENVIRONMENT }} --query 'Stacks[0].Outputs[]' --output json)
-          OUTPUT_STRING=$(echo "$OUTPUT" | jq -r 'tostring')
-          echo "values=$OUTPUT_STRING" >> $GITHUB_OUTPUT
-
-      - name: Set CloudFormation Variables
-        id: cloudformation
-        run: |
-          echo "webBucketName=$(echo '${{ steps.cloudformation_outputs.outputs.values }}' | jq -r '.[] | select(.OutputKey == "webBucketName") | .OutputValue')" >> $GITHUB_OUTPUT
-          echo "webDistributionId=$(echo '${{ steps.cloudformation_outputs.outputs.values }}' | jq -r '.[] | select(.OutputKey == "webDistributionId") | .OutputValue')" >> $GITHUB_OUTPUT
-
       - name: Deploy to S3
         working-directory: ${{ env.WORKING_DIR }}
-        run: aws s3 sync ./dist s3://${{ steps.cloudformation.outputs.webBucketName }} --delete
+        run: aws s3 sync ./dist s3://${{ steps.cloudformation_outputs.outputs.webBucketName }} --delete
 
       - name: Invalidate Cloudfront
-        run: export AWS_PAGER=""; aws cloudfront create-invalidation --distribution-id ${{ steps.cloudformation.outputs.webDistributionId }} --paths '/*';
+        run: export AWS_PAGER=""; aws cloudfront create-invalidation --distribution-id ${{ steps.cloudformation_outputs.outputs.webDistributionId }} --paths '/*';

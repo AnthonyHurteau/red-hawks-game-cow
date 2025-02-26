@@ -1,0 +1,23 @@
+name: Get CloudFormation Outputs
+description: Retrieves CloudFormation outputs using AWS CLI
+
+inputs:
+  stack-name:
+    description: The name or the unique stack ID of the stack
+    required: true
+
+outputs:
+  values:
+    description: The CloudFormation outputs
+    value: ${{ steps.cloudformation_outputs.outputs.values }}
+
+runs:
+  using: composite
+  steps:
+    - name: Get CloudFormation Outputs
+      id: cloudformation_outputs
+      shell: bash
+      run: |
+        OUTPUT=$(aws cloudformation describe-stacks --stack-name ${{ inputs.stack-name }} --query 'Stacks[0].Outputs[]' --output json)
+        OUTPUT_STRING=$(echo "$OUTPUT" | jq -r 'tostring')
+        echo "values=$OUTPUT_STRING" >> $GITHUB_OUTPUT
