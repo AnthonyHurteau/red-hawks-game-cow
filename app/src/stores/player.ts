@@ -5,7 +5,7 @@ import type { IPlayer, PlayerType } from "@common/models/player"
 
 const API_URL = import.meta.env.VITE_API_URL
 const PLAYER_PATH = import.meta.env.VITE_PLAYERS_PATH
-const URL = `${API_URL}/${PLAYER_PATH}`
+const URL = `${API_URL}${PLAYER_PATH}`
 
 export const usePlayerStore = defineStore("player", () => {
   const corePlayers = ref<IPlayer[]>([])

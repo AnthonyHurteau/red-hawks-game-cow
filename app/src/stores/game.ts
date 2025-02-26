@@ -9,7 +9,7 @@ import type { IWsEntity } from "@common/core/src/models/wsEntity"
 
 const API_URL = import.meta.env.VITE_API_URL
 const PATH = import.meta.env.VITE_GAMES_PATH
-const URL = `${API_URL}/${PATH}`
+const URL = `${API_URL}${PATH}`
 const WS_ENDPOINT = import.meta.env.VITE_GAMES_WS_ENDPOINT
 const WS_NAME = "Active Game"
 
