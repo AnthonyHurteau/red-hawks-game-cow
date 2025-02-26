@@ -121,7 +121,7 @@ export class GamesStack extends Stack {
       },
       {
         integrationName: deleteGameFunctionName,
-        path: gamesBasePath,
+        path: `${gamesBasePath}/{id}`,
         httpMethod: HttpMethod.DELETE,
         nodeJsFunction: deleteGameFunction.nodejsFunction,
         tableAccess: "readWrite",

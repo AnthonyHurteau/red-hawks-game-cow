@@ -96,7 +96,7 @@ export class UsersStack extends Stack {
     const httpApiGatewayRoutes: HttpApiGatewayRoute[] = [
       {
         integrationName: getUserFunctionName,
-        path: usersBasePath,
+        path: `${usersBasePath}/{id}`,
         httpMethod: HttpMethod.GET,
         nodeJsFunction: getUserFunction.nodejsFunction,
         tableAccess: "read",
@@ -120,7 +120,7 @@ export class UsersStack extends Stack {
       },
       {
         integrationName: deleteUserFunctionName,
-        path: usersBasePath,
+        path: `${usersBasePath}/{id}`,
         httpMethod: HttpMethod.DELETE,
         nodeJsFunction: deleteUserFunction.nodejsFunction,
         tableAccess: "readWrite",
