@@ -1,4 +1,4 @@
-import { APIGatewayAuthorizerCallback, APIGatewayRequestAuthorizerEventV2, Context } from "aws-lambda";
+import { APIGatewayAuthorizerCallback, APIGatewayRequestAuthorizerEvent, Context } from "aws-lambda";
 import { IUserDbEntity, UserDto } from "common/core/src/models/user";
 import { getDocumentsByPrimaryKeyAsync } from "common/core/src/services/dynamoDbClient";
 import { buildPolicy } from "common/core/src/services/authPolicyHelper";
@@ -16,7 +16,7 @@ import { buildPolicy } from "common/core/src/services/authPolicyHelper";
 const TABLE_NAME = process.env.TABLE_NAME;
 
 export const lambdaHandler = async (
-    event: APIGatewayRequestAuthorizerEventV2,
+    event: APIGatewayRequestAuthorizerEvent,
     context: Context,
     callback: APIGatewayAuthorizerCallback,
 ) => {
@@ -28,10 +28,10 @@ export const lambdaHandler = async (
 
         if (result && result.length > 0) {
             const userDto = new UserDto(result[0]);
-            const policy = buildPolicy(event.routeArn, userDto.id, "Allow");
+            const policy = buildPolicy(event.methodArn, userDto.id, "Allow");
             callback(null, policy);
         }
     }
 
-    callback("Unauthorized", buildPolicy(event.routeArn, "UnauthorizedUser", "Deny"));
+    callback("Unauthorized", buildPolicy(event.methodArn, "UnauthorizedUser", "Deny"));
 };
