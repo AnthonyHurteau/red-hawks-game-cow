@@ -20,7 +20,7 @@ export const lambdaHandler = async (
     context: Context,
     callback: APIGatewayAuthorizerCallback,
 ) => {
-    const authHeader = event.headers?.Authorization;
+    const authHeader = event.headers?.authorization || event.headers?.Authorization;
 
     if (authHeader) {
         const userId = authHeader;
