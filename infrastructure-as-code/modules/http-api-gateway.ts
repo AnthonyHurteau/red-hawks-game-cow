@@ -43,7 +43,7 @@ export class HttpApiGateway extends Construct {
       {
         responseTypes: [HttpLambdaResponseType.IAM],
         identitySource: ["$request.header.Authorization"],
-        resultsCacheTtl: Duration.minutes(15),
+        resultsCacheTtl: Duration.seconds(0),
       }
     );
 
@@ -57,7 +57,7 @@ export class HttpApiGateway extends Construct {
       {
         responseTypes: [HttpLambdaResponseType.IAM],
         identitySource: ["$request.header.Authorization"],
-        resultsCacheTtl: Duration.minutes(15),
+        resultsCacheTtl: Duration.seconds(0),
       }
     );
 
