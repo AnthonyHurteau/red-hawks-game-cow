@@ -13,8 +13,25 @@ export default defineConfig({
       includeAssets: ["favicon.ico"],
       manifest: {
         name: "Red Hawks Game Cow PWA",
+        description: "Le vote de la ptite vache du match!",
         short_name: "RHGCPWA",
         theme_color: "#6e1a1a",
+        screenshots: [
+          {
+            src: "screenshot-narrow.png",
+            sizes: "375x667",
+            type: "image/png",
+            form_factor: "narrow",
+            label: "Mobile Vote Screen"
+          },
+          {
+            src: "screenshot-wide.png",
+            sizes: "1117x920",
+            type: "image/png",
+            form_factor: "wide",
+            label: "Desktop Vote Screen"
+          }
+        ],
         icons: [
           {
             src: "img/icons/manifest-icon-192.maskable.png",
