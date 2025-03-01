@@ -98,6 +98,7 @@ const usersStack = new UsersStack(
     description: `The ${appName} ${process.env.ENVIRONMENT} ${usersStackName} IaC stack.`,
     name: usersName,
     functionDir: usersName,
+    adminPassword: process.env.ADMIN_PASSWORD as string,
     ...baseProps,
   }
 );

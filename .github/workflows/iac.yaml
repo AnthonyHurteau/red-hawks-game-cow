@@ -26,6 +26,7 @@ env:
   ENVIRONMENT: ${{ github.ref_name }}
   REGION: usea1
   PRODUCT: rhgc
+  ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
 
 jobs:
   aws-cdk:

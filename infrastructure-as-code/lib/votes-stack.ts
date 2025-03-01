@@ -133,7 +133,10 @@ export class VotesStack extends Stack {
           __dirname,
           `${functionPath}/${FUNCTION_ACTION.mock}.${FILE_EXTENSION}`
         ),
-        environmentVariables: { TABLE_NAME: dynamoDbTable.tableV2.tableName },
+        environmentVariables: {
+          TABLE_NAME: dynamoDbTable.tableV2.tableName,
+          NUMBER_OF_VOTES: "10",
+        },
         ...baseProps,
       }
     );
