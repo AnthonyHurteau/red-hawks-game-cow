@@ -7,7 +7,7 @@ import { ref } from "vue"
 
 const router = useRouter()
 const isPressing = ref(false)
-const pressTimer = ref<number | null>(null)
+const pressTimer = ref<ReturnType<typeof setTimeout> | null>(null)
 const pressStartTime = ref<number>(0)
 
 const handlePressStart = () => {
