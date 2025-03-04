@@ -51,7 +51,7 @@ const filteredNavItems: ComputedRef<NavItem[]> = computed(() => {
       <template #container="{ closeCallback }">
         <div class="flex flex-col h-full">
           <div class="flex items-center justify-between px-6 py-4 shrink-0 h-24">
-            <div class="inline-flex items-center gap-2 h-full">
+            <div class="inline-flex items-center gap-2 h-full w-20">
               <AppLogo />
             </div>
             <span>
