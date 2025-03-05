@@ -196,7 +196,7 @@ export class VotesStack extends Stack {
         path: `${votesBasePath}/mock`,
         httpMethod: HttpMethod.POST,
         nodeJsFunction: mockVotesFunction.nodejsFunction,
-        tableAccess: "read",
+        tableAccess: "readWrite",
         authorizer: "admin",
       },
     ];
