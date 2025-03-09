@@ -101,6 +101,10 @@ jobs:
           echo "VITE_GAMES_WS_ENDPOINT=${{ steps.cloudformation_outputs.outputs.gamesWebSocketApiUrl }}" >> $GITHUB_ENV
           echo "VITE_VOTES_WS_ENDPOINT=${{ steps.cloudformation_outputs.outputs.votesWebSocketApiUrl }}" >> $GITHUB_ENV
 
+      - name: Set Node Envs
+        run: |
+          echo "NODE_ENV=production" >> $GITHUB_ENV
+
       - name: Build App
         working-directory: ${{ env.WORKING_DIR }}
         run: npm run build-only
