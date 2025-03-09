@@ -41,21 +41,21 @@ const getPlayerName = (playerId: string) => {
 
       <div
         v-if="topPlayers.length >= 1"
-        class="flex-1 skew-y-3 bg-highlight-emphasis shadow-lg animate-pulse translate-x-2"
+        class="flex-1 -skew-y-8 bg-highlight-emphasis shadow-lg animate-pulse translate-x-2"
       >
         <h1 class="text-2xl tracking-wide">&#8902; {{ getPlayerName(topPlayers[0][0]) }}</h1>
       </div>
 
       <div
         v-if="topPlayers.length >= 2"
-        class="flex-1 skew-y-6 bg-highlight shadow-lg pr-4 mt-14"
+        class="flex-1 skew-x-6 bg-highlight shadow-lg pr-4 mt-14"
       >
         <h2 class="text-l">&#8902;&#8902; {{ getPlayerName(topPlayers[1][0]) }}</h2>
       </div>
 
       <div
         v-if="topPlayers.length >= 3"
-        class="flex-1 skew-y-8 bg-emphasis shadow-lg pl-8 mt-4 translate-x-1"
+        class="flex-1 -skew-y-8 bg-emphasis shadow-lg pl-8 mt-4 translate-x-1"
       >
         <h2 class="text-l">&#8902;&#8902;&#8902; {{ getPlayerName(topPlayers[2][0]) }}</h2>
       </div>

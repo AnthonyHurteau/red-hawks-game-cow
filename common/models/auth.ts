@@ -1,4 +1,4 @@
-import { IUser, User } from "./user";
+import { type IUser, User } from "./user";
 
 export interface IAuth extends IUser {
   password: string;

@@ -6,15 +6,18 @@ import { useGameStore } from "./stores/game"
 import { useUserStore } from "./stores/user"
 import { useVoteStore } from "./stores/vote"
 import { useLoadingStore } from "./stores/loading"
+import { useConfigStore } from "./stores/config"
 
 const loadingStore = useLoadingStore()
 const gameStore = useGameStore()
 const userStore = useUserStore()
 const voteStore = useVoteStore()
+const configStrore = useConfigStore()
 
 onMounted(async () => {
   loadingStore.setVoteLoading(true)
   loadingStore.setAdminLoading(true)
+  configStrore.getInitialTheme()
   await userStore.getUser()
 })
 

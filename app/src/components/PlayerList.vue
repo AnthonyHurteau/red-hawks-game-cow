@@ -33,7 +33,7 @@ const selectedPlayer = computed({
   >
     <template #option="slotProps">
       <div
-        class="flex w-full h-12 items-center justify-around rounded-border border-2 border-primary shadow-xl"
+        class="flex w-full h-12 items-center justify-around rounded-border border-2 border-primary shadow-md"
       >
         <div class="basis-1/12">
           {{ slotProps.option.position }}

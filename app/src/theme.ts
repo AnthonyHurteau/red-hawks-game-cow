@@ -1,5 +1,5 @@
-import { definePreset } from "@primevue/themes"
-import Aura from "@primevue/themes/aura"
+import { definePreset } from "@primeuix/themes"
+import Aura from "@primeuix/themes/aura"
 
 export const AppTheme = definePreset(Aura, {
   semantic: {
@@ -25,15 +25,15 @@ export const AppTheme = definePreset(Aura, {
           activeColor: "{primary.400}"
         },
         highlight: {
-          background: "{zinc.950}",
-          focusBackground: "{zinc.700}",
+          background: "{primary.950}",
+          focusBackground: "{primary.800}",
           color: "#ffffff",
           focusColor: "#ffffff"
         },
         content: {
-          background: "{surface.0}",
-          hoverBackground: "{surface.100}",
-          borderColor: "{surface.200}",
+          background: "{surface.100}",
+          hoverBackground: "{surface.200}",
+          borderColor: "{surface.900}",
           color: "{text.color}",
           hoverColor: "{text.hover.color}"
         },

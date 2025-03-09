@@ -45,7 +45,7 @@ const handlePressEnd = () => {
         @mouseleave="handlePressEnd"
         @touchstart="handlePressStart"
         @touchend="handlePressEnd"
-        @contextmenu="($event) => $event.preventDefault()"
+        @contextmenu="($event: MouseEvent) => $event.preventDefault()"
       >
         <AppLogo />
       </div>
