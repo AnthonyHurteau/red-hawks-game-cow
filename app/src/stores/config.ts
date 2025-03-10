@@ -12,14 +12,26 @@ export const useConfigStore = defineStore("config", () => {
 
     if (storageDarkMode !== null) {
       isDarkMode.value = storageDarkMode
-      document.documentElement.classList.toggle(DARK_MODE_KEY, isDarkMode.value)
+    } else {
+      const prefersDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches
+      isDarkMode.value = prefersDarkMode
     }
+
+    setDocumentTheme()
   }
 
   function toggleDarkMode() {
     isDarkMode.value = !isDarkMode.value
-    document.documentElement.classList.toggle(DARK_MODE_KEY)
     setItem(DARK_MODE_KEY, isDarkMode.value)
+    setDocumentTheme()
+  }
+
+  const setDocumentTheme = () => {
+    if (isDarkMode.value) {
+      document.documentElement.classList.add(DARK_MODE_KEY)
+    } else {
+      document.documentElement.classList.remove(DARK_MODE_KEY)
+    }
   }
 
   return {

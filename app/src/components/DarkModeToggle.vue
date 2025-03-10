@@ -12,6 +12,6 @@ const lightMode = "Mode clair"
     @click="configStrore.toggleDarkMode()"
   >
     <i :class="[configStrore.isDarkMode ? 'pi pi-sun' : 'pi pi-moon', 'pr-2']"></i>
-    <span class="font-medium">{{ configStrore.isDarkMode ? darkMode : lightMode }}</span>
+    <span class="font-medium">{{ configStrore.isDarkMode ? lightMode : darkMode }}</span>
   </li>
 </template>

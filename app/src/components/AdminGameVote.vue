@@ -59,11 +59,13 @@ const getPlayerName = (playerId: string) => {
       >
         <div
           :class="[
-            'flex h-12 items-center justify-around rounded-border border-2 border-primary bg-highlight shadow-xl transition duration-1000 ease-in-out text-xs',
+            'flex h-12 items-center justify-around rounded-border border-2 border-primary dark:bg-highlight shadow-xl transition duration-1000 ease-in-out text-xs',
             voteGraphBasis(votes)
           ]"
         >
-          <div class="absolute inset-0 overflow-visible whitespace-nowrap pt-4 pl-2">
+          <div
+            class="absolute left-2 -top-10 overflow-visible whitespace-nowrap h-4 bg-surface-100 dark:bg-transparent"
+          >
             {{ gameStore.activeGame?.isVoteComplete ? getPlayerName(playerId) : "" }}
           </div>
         </div>
