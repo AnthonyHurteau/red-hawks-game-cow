@@ -19,7 +19,8 @@ const groupedVotes = computed(() => {
     return accumulator
   }, {} as IGroupedVotes)
 
-  return Object.entries(grouped).sort((a, b) => b[1].length - a[1].length)
+  const result = Object.entries(grouped).sort((a, b) => b[1].length - a[1].length)
+  return result
 })
 
 const voteGraphBasis = computed(() => (votes: Vote[]) => {
@@ -64,7 +65,7 @@ const getPlayerName = (playerId: string) => {
           ]"
         >
           <div
-            class="absolute left-2 -top-10 overflow-visible whitespace-nowrap h-4 bg-surface-100 dark:bg-transparent"
+            class="absolute left-2 overflow-visible whitespace-nowrap h-4 bg-surface-100 dark:bg-transparent"
           >
             {{ gameStore.activeGame?.isVoteComplete ? getPlayerName(playerId) : "" }}
           </div>
