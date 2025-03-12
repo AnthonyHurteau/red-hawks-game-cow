@@ -12,22 +12,23 @@ export default defineConfig({
     vue(),
     VitePWA({
       registerType: "autoUpdate",
-      includeAssets: ["favicon.ico", "apple-touch-icon.png"],
+      includeAssets: ["favicon.ico"],
       manifest: {
         name: "Red Hawks Game Cow PWA",
         description: "Le vote de la ptite vache du match!",
-        short_name: "RHGCPWA",
+        short_name: "Red Hawks",
         theme_color: "#6e1a1a",
+        background_color: "#6e1a1a",
         screenshots: [
           {
-            src: "screenshot-narrow.png",
+            src: "img/screenshot-narrow.png",
             sizes: "375x667",
             type: "image/png",
             form_factor: "narrow",
             label: "Mobile Vote Screen"
           },
           {
-            src: "screenshot-wide.png",
+            src: "img/screenshot-wide.png",
             sizes: "1117x920",
             type: "image/png",
             form_factor: "wide",
@@ -36,12 +37,23 @@ export default defineConfig({
         ],
         icons: [
           {
-            src: "img/icons/manifest-icon-192.maskable.png",
+            src: "img/pwa-64x64.png",
+            sizes: "64x64",
+            type: "image/png"
+          },
+          {
+            src: "img/pwa-192x192.png",
             sizes: "192x192",
             type: "image/png"
           },
           {
-            src: "img/icons/manifest-icon-512.maskable.png",
+            src: "img/pwa-512x512.png",
+            sizes: "512x512",
+            type: "image/png",
+            purpose: "any"
+          },
+          {
+            src: "img/maskable-icon-512x512.png",
             sizes: "512x512",
             type: "image/png",
             purpose: "maskable"
