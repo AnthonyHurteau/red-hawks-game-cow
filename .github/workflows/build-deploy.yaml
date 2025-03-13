@@ -5,7 +5,7 @@ on:
   push:
     branches:
       - dev
-      - main
+      - prod
     paths:
       - .github/workflows/build-deploy.yaml
       - app/**
@@ -27,8 +27,6 @@ env:
 jobs:
   aws-cdk:
     runs-on: ubuntu-latest
-    environment:
-      name: ${{ github.ref_name }}
 
     steps:
       - uses: actions/checkout@v4
