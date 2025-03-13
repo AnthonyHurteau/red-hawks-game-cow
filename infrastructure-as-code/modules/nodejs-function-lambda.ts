@@ -26,7 +26,7 @@ export class NodeJsFunctionLambda extends Construct {
     super(scope, id);
     const {
       name,
-      memorySize = 2048,
+      memorySize = 3008,
       entryPath,
       environmentVariables,
       timeout = 10,
@@ -39,7 +39,7 @@ export class NodeJsFunctionLambda extends Construct {
       functionName: functionName,
       description: `${baseProps.appName} - ${baseProps.environment} - ${name} Node.js Lambda Function`,
       runtime: Runtime.NODEJS_20_X,
-      memorySize: memorySize,
+      memorySize: baseProps.environment === "prod" ? memorySize : 2048,
       timeout: Duration.seconds(timeout),
       architecture: Architecture.ARM_64,
       layers: layers,
