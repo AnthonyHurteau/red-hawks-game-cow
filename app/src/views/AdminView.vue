@@ -5,16 +5,16 @@ import AdminGameVote from "@/components/AdminGameVote.vue"
 import AdminControlFooter from "@/components/AdminControlFooter.vue"
 import { useUserStore } from "@/stores/user"
 import { useVoteStore } from "@/stores/vote"
-import { onUnmounted } from "vue"
+import { computed, onUnmounted } from "vue"
+import { useLoadingStore } from "@/stores/loading"
 
+const loadingStore = useLoadingStore()
 const userStore = useUserStore()
 const voteStore = useVoteStore()
+
 voteStore.wsConnect()
-userStore.$subscribe(async (mutation, state) => {
-  if (state.user?.type === "admin") {
-    voteStore.wsConnect()
-  }
-})
+
+const loading = computed(() => loadingStore.voteLoading || loadingStore.adminLoading)
 
 onUnmounted(() => {
   if (userStore.user?.type === "admin") {
@@ -33,9 +33,9 @@ onUnmounted(() => {
       </h1>
     </div>
     <div class="row-span-8 flex justify-center items-center">
-      <AppLoading v-if="userStore.loading" />
-      <AdminPassword v-if="!userStore.loading && userStore.user?.type !== 'admin'" />
-      <AdminGameVote v-if="!userStore.loading && userStore.user?.type === 'admin'" />
+      <AppLoading v-if="loading" />
+      <AdminPassword v-if="!loading && userStore.user?.type !== 'admin'" />
+      <AdminGameVote v-if="!loading && userStore.user?.type === 'admin'" />
     </div>
     <div class="row-span-1">
       <AdminControlFooter v-if="userStore.user?.type === 'admin'" />

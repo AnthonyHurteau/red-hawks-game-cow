@@ -37,14 +37,14 @@ Resources:
         Authorizers:
           AuthUser:
             FunctionPayloadType: REQUEST
-            AuthorizerPayloadFormatVersion: "2.0"
+            AuthorizerPayloadFormatVersion: "1.0"
             FunctionArn: !GetAtt AuthUser.Arn
             Identity:
               Headers:
                 - Authorization
           AuthAdmin:
             FunctionPayloadType: REQUEST
-            AuthorizerPayloadFormatVersion: "2.0"
+            AuthorizerPayloadFormatVersion: "1.0"
             FunctionArn: !GetAtt AuthAdmin.Arn
             Identity:
               Headers:

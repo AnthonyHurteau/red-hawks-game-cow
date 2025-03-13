@@ -1,15 +1,8 @@
+@import "tailwindcss";
+@import "tailwindcss";
+@import "tailwindcss-primeui";
+@custom-variant dark (&:where(.rhgc-dark, .rhgc-dark *));
 @import "primeicons/primeicons.css";
-
-@layer tailwind-base, primevue, tailwind-utilities;
-
-@layer tailwind-base {
-  @tailwind base;
-}
-
-@layer tailwind-utilities {
-  @tailwind components;
-  @tailwind utilities;
-}
 
 *,
 *::before,

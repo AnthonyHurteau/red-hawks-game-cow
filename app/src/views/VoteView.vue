@@ -5,7 +5,9 @@ import VoteTitle from "@/components/VoteTitle.vue"
 import WinningCows from "@/components/WinningCows.vue"
 import { useGameStore } from "@/stores/game"
 import { onUnmounted } from "vue"
+import { useLoadingStore } from "@/stores/loading"
 
+const loadingStore = useLoadingStore()
 const gameStore = useGameStore()
 gameStore.wsConnect()
 
@@ -20,7 +22,9 @@ onUnmounted(() => {
       <VoteTitle />
     </div>
     <div class="row-span-8 flex justify-center items-center h-full">
-      <AppLoading v-if="gameStore.loading" />
+      <AppLoading v-if="loadingStore.voteLoading" />
+      <PlayerList v-else-if="gameStore.activeGame && !gameStore.activeGame.isVoteComplete" />
+      <WinningCows v-else-if="gameStore.activeGame && gameStore.activeGame.isVoteComplete" />
       <div
         v-else-if="!gameStore.activeGame"
         class="flex justify-center items-center grow"
@@ -31,8 +35,6 @@ onUnmounted(() => {
           Aucun vote n'a été activé!
         </h1>
       </div>
-      <PlayerList v-else-if="!gameStore.activeGame.isVoteComplete" />
-      <WinningCows v-else-if="gameStore.activeGame.isVoteComplete" />
     </div>
   </div>
 </template>

@@ -9,6 +9,7 @@ declare global {
       REGION: Region;
       PRODUCT: string;
       ALLOWED_ORIGIN: string;
+      ADMIN_PASSWORD: string;
     }
   }
 }

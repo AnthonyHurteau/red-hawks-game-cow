@@ -4,7 +4,9 @@
       <div class="flex-1 skew-x-6 bg-highlight shadow-lg w-32 pr-4 -translate-x-16">
         <h2 class="text-xl">La</h2>
       </div>
-      <div class="flex-1 skew-y-3 bg-emphasis shadow-lg w-80">
+      <div
+        class="flex-1 skew-y-3 bg-emphasis shadow-xl w-80 border-1 border-highlight-emphasis z-10"
+      >
         <h1 class="text-3xl tracking-wide inline-block">&#8902;&#8902;&#8902;</h1>
         <h2 class="text-xs inline-block -translate-y-1">&nbsp;petite&nbsp;</h2>
         <h1 class="text-3xl tracking-wide inline-block">VACHE &#8902;&#8902;&#8902;</h1>

@@ -21,7 +21,7 @@ export class PlayersStack extends Stack {
 
   constructor(scope: Construct, id: string, props: ServiceStackProps) {
     super(scope, id, props);
-    const { name, allowedOrigins, functionDir, ...baseProps } = props;
+    const { name, functionDir, ...baseProps } = props;
     const functionPath = `${API_BASE_PATH}/${functionDir}`;
 
     const dynamoDbTable = new DynamoDbTable(

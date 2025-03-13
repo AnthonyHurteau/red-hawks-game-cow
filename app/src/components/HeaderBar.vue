@@ -7,7 +7,7 @@ import { ref } from "vue"
 
 const router = useRouter()
 const isPressing = ref(false)
-const pressTimer = ref<number | null>(null)
+const pressTimer = ref<ReturnType<typeof setTimeout> | null>(null)
 const pressStartTime = ref<number>(0)
 
 const handlePressStart = () => {
@@ -36,7 +36,7 @@ const handlePressEnd = () => {
   <div
     class="sticky top-0 h-full w-full z-10 flex items-center justify-between bg-primary shadow-lg"
   >
-    <div class="px-2 h-full flex items-center justify-start">
+    <div class="px-2 h-full w-24 flex items-center justify-start">
       <div
         :class="{ 'opacity-50': isPressing }"
         class="transition-opacity duration-300 ease-in-out h-full w-full"
@@ -45,7 +45,7 @@ const handlePressEnd = () => {
         @mouseleave="handlePressEnd"
         @touchstart="handlePressStart"
         @touchend="handlePressEnd"
-        @contextmenu="($event) => $event.preventDefault()"
+        @contextmenu="($event: MouseEvent) => $event.preventDefault()"
       >
         <AppLogo />
       </div>

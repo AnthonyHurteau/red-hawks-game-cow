@@ -1,4 +1,4 @@
-import { Stack } from "aws-cdk-lib";
+import { CfnOutput, Stack } from "aws-cdk-lib";
 import {
   CorsHttpMethod,
   HttpApi,
@@ -17,6 +17,7 @@ import {
 } from "../types/http-api-gateway-route";
 import { HttpLambdaIntegration } from "aws-cdk-lib/aws-apigatewayv2-integrations";
 import { HttpLambdaAuthorizer } from "aws-cdk-lib/aws-apigatewayv2-authorizers";
+import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 
 interface HttpApiGatewayStackProps extends StackProps {
   name: string;
@@ -27,6 +28,8 @@ interface HttpApiGatewayStackProps extends StackProps {
 export class HttpApiGatewayStack extends Stack {
   readonly httpApiGateway: HttpApi;
   readonly adminHttpAuthorizer: HttpLambdaAuthorizer;
+  readonly adminAuthFunction: NodejsFunction;
+  readonly userAuthFunction: NodejsFunction;
 
   constructor(scope: Construct, id: string, props: HttpApiGatewayStackProps) {
     super(scope, id, props);
@@ -83,6 +86,12 @@ export class HttpApiGatewayStack extends Stack {
 
     this.httpApiGateway = httpApiGateway.httpApiGateway;
     this.adminHttpAuthorizer = httpApiGateway.adminHttpAuthorizer;
+    this.adminAuthFunction = adminAuthFunction.nodejsFunction;
+    this.userAuthFunction = userAuthFunction.nodejsFunction;
+
+    new CfnOutput(this, "httpApiUrl", {
+      value: httpApiGateway.httpApiGateway.url!,
+    });
   }
 
   setRoutes(httpApiGatewayRoutes: HttpApiGatewayRoute[]) {

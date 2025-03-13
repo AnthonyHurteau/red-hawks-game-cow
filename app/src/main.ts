@@ -25,10 +25,10 @@ app.use(PrimeVue, {
     preset: AppTheme,
     options: {
       prefix: "p",
-      darkModeSelector: "system",
+      darkModeSelector: ".rhgc-dark",
       cssLayer: {
         name: "primevue",
-        order: "tailwind-base, primevue, tailwind-utilities"
+        order: "theme, base, primevue"
       }
     }
   }

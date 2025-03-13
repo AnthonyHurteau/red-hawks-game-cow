@@ -43,7 +43,7 @@ export class HttpApiGateway extends Construct {
       {
         responseTypes: [HttpLambdaResponseType.IAM],
         identitySource: ["$request.header.Authorization"],
-        resultsCacheTtl: Duration.minutes(15),
+        resultsCacheTtl: Duration.seconds(0),
       }
     );
 
@@ -57,7 +57,7 @@ export class HttpApiGateway extends Construct {
       {
         responseTypes: [HttpLambdaResponseType.IAM],
         identitySource: ["$request.header.Authorization"],
-        resultsCacheTtl: Duration.minutes(15),
+        resultsCacheTtl: Duration.seconds(0),
       }
     );
 
@@ -66,6 +66,7 @@ export class HttpApiGateway extends Construct {
       apiName: httpApiGatewayName,
       description: `${baseProps.appName} - ${baseProps.environment} - ${name} HTTP API Gateway`,
       defaultAuthorizer: userHttpAuthorizer,
+      createDefaultStage: true,
       corsPreflight: {
         allowCredentials: false,
         allowHeaders: ["content-type", "Authorization"],

@@ -1,5 +1,5 @@
-import { definePreset } from "@primevue/themes"
-import Aura from "@primevue/themes/aura"
+import { definePreset } from "@primeuix/themes"
+import Aura from "@primeuix/themes/aura"
 
 export const AppTheme = definePreset(Aura, {
   semantic: {
@@ -22,18 +22,19 @@ export const AppTheme = definePreset(Aura, {
           color: "{primary.900}",
           inverseColor: "#ffffff",
           hoverColor: "{primary.700}",
-          activeColor: "{primary.400}"
+          activeColor: "{primary.950}",
+          focusBackground: "{primary.950}"
         },
         highlight: {
-          background: "{zinc.950}",
-          focusBackground: "{zinc.700}",
+          background: "{primary.950}",
+          focusBackground: "{primary.800}",
           color: "#ffffff",
           focusColor: "#ffffff"
         },
         content: {
-          background: "{surface.0}",
-          hoverBackground: "{surface.100}",
-          borderColor: "{surface.200}",
+          background: "{surface.100}",
+          hoverBackground: "{surface.200}",
+          borderColor: "{surface.900}",
           color: "{text.color}",
           hoverColor: "{text.hover.color}"
         },
@@ -61,7 +62,7 @@ export const AppTheme = definePreset(Aura, {
           hoverBackground: "color-mix(in srgb, {primary.400}, transparent 76%)"
         },
         highlight: {
-          background: "color-mix(in srgb, {primary.950}, transparent 75%)",
+          background: "color-mix(in srgb, {primary.900}, transparent 75%)",
           focusBackground: "color-mix(in srgb, {primary.400}, transparent 76%)",
           color: "rgba(255,255,255,.87)",
           focusColor: "rgba(255,255,255,.87)"
@@ -86,6 +87,24 @@ export const AppTheme = definePreset(Aura, {
           800: "{zinc.800}",
           900: "{zinc.900}",
           950: "{zinc.950}"
+        }
+      }
+    }
+  },
+  components: {
+    listbox: {
+      colorScheme: {
+        light: {
+          option: {
+            selectedFocusBackground: "{primary.950}",
+            focusBackground: "{primary.950}"
+          }
+        },
+        dark: {
+          option: {
+            selectedFocusBackground: "color-mix(in srgb, {primary.900}, transparent 75%)",
+            focusBackground: "color-mix(in srgb, {primary.900}, transparent 75%)"
+          }
         }
       }
     }

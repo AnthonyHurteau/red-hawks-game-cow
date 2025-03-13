@@ -9,7 +9,7 @@ import { Auth, type IAuth } from "@common/models/auth"
 export const USER_KEY = "user"
 const API_URL = import.meta.env.VITE_API_URL
 const USER_PATH = import.meta.env.VITE_USERS_PATH
-const USER_URL = `${API_URL}/${USER_PATH}`
+const USER_URL = `${API_URL}${USER_PATH}`
 
 export const useUserStore = defineStore("user", () => {
   const user = ref<IUser>()

@@ -20,7 +20,7 @@ export class VotesStack extends Stack {
 
   constructor(scope: Construct, id: string, props: ServiceStackProps) {
     super(scope, id, props);
-    const { name, allowedOrigins, functionDir, ...baseProps } = props;
+    const { name, functionDir, ...baseProps } = props;
     const functionPath = `${API_BASE_PATH}/${functionDir}`;
 
     const dynamoDbTable = new DynamoDbTable(
@@ -133,7 +133,10 @@ export class VotesStack extends Stack {
           __dirname,
           `${functionPath}/${FUNCTION_ACTION.mock}.${FILE_EXTENSION}`
         ),
-        environmentVariables: { TABLE_NAME: dynamoDbTable.tableV2.tableName },
+        environmentVariables: {
+          TABLE_NAME: dynamoDbTable.tableV2.tableName,
+          NUMBER_OF_VOTES: "10",
+        },
         ...baseProps,
       }
     );
@@ -193,7 +196,7 @@ export class VotesStack extends Stack {
         path: `${votesBasePath}/mock`,
         httpMethod: HttpMethod.POST,
         nodeJsFunction: mockVotesFunction.nodejsFunction,
-        tableAccess: "read",
+        tableAccess: "readWrite",
         authorizer: "admin",
       },
     ];

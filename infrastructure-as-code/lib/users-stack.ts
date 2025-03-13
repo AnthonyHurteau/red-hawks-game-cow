@@ -14,13 +14,17 @@ import {
 } from "../constants/functions";
 import { HttpApiGatewayRoute } from "../types/http-api-gateway-route";
 
+interface UserStackProps extends ServiceStackProps {
+  adminPassword: string;
+}
+
 export class UsersStack extends Stack {
   readonly dynamoDbTable: TableV2;
   readonly httpApiGatewayRoutes: HttpApiGatewayRoute[];
 
-  constructor(scope: Construct, id: string, props: ServiceStackProps) {
+  constructor(scope: Construct, id: string, props: UserStackProps) {
     super(scope, id, props);
-    const { name, allowedOrigins, functionDir, ...baseProps } = props;
+    const { name, functionDir, adminPassword, ...baseProps } = props;
     const functionPath = `${API_BASE_PATH}/${functionDir}`;
 
     const dynamoDbTable = new DynamoDbTable(
@@ -57,7 +61,10 @@ export class UsersStack extends Stack {
           __dirname,
           `${functionPath}/${FUNCTION_ACTION.create}.${FILE_EXTENSION}`
         ),
-        environmentVariables: { TABLE_NAME: dynamoDbTable.tableV2.tableName },
+        environmentVariables: {
+          TABLE_NAME: dynamoDbTable.tableV2.tableName,
+          ADMIN_PASSWORD: adminPassword,
+        },
         ...baseProps,
       }
     );
@@ -96,7 +103,7 @@ export class UsersStack extends Stack {
     const httpApiGatewayRoutes: HttpApiGatewayRoute[] = [
       {
         integrationName: getUserFunctionName,
-        path: usersBasePath,
+        path: `${usersBasePath}/{id}`,
         httpMethod: HttpMethod.GET,
         nodeJsFunction: getUserFunction.nodejsFunction,
         tableAccess: "read",
@@ -120,7 +127,7 @@ export class UsersStack extends Stack {
       },
       {
         integrationName: deleteUserFunctionName,
-        path: usersBasePath,
+        path: `${usersBasePath}/{id}`,
         httpMethod: HttpMethod.DELETE,
         nodeJsFunction: deleteUserFunction.nodejsFunction,
         tableAccess: "readWrite",

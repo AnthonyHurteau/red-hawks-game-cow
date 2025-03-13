@@ -6,10 +6,11 @@ import { Vote, type IVote } from "@common/models/vote"
 import type { IPlayer } from "@common/models/player"
 import { createWebSocketAsync, close, onClose, onError, onOpen } from "@/services/webSocket"
 import type { IWsEntity } from "@common/core/src/models/wsEntity"
+import { useLoadingStore } from "./loading"
 
 const API_URL = import.meta.env.VITE_API_URL
 const PATH = import.meta.env.VITE_VOTES_PATH
-const URL = `${API_URL}/${PATH}`
+const URL = `${API_URL}${PATH}`
 const WS_ENDPOINT = import.meta.env.VITE_VOTES_WS_ENDPOINT
 const WS_NAME = "Votes"
 
@@ -20,6 +21,7 @@ export const useVoteStore = defineStore("votes", () => {
   const loading = ref(false)
   const error = ref<Error>()
 
+  const loadingStore = useLoadingStore()
   const userStore = useUserStore()
 
   async function getVotes() {

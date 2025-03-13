@@ -10,7 +10,7 @@ const getRandomInterval = (min: number, max: number): number => {
 }
 
 let cowNumber: 1 | 2 = getRandomInterval(1, 2) as 1 | 2
-let intervalId: number | undefined
+let intervalId: ReturnType<typeof setInterval> | undefined
 
 const getCowImageUrl = (): string => {
   return new URL(`../assets/${props.cowType}-cow-${cowNumber}.png`, import.meta.url).href
