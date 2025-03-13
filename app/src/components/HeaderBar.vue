@@ -10,6 +10,8 @@ const isPressing = ref(false)
 const pressTimer = ref<ReturnType<typeof setTimeout> | null>(null)
 const pressStartTime = ref<number>(0)
 
+const ENV = import.meta.env.VITE_ENV
+
 const handlePressStart = () => {
   isPressing.value = true
   pressStartTime.value = Date.now()
@@ -50,6 +52,7 @@ const handlePressEnd = () => {
         <AppLogo />
       </div>
     </div>
+    <div class="flex text-white text-lg">{{ ENV === "dev" ? "Dev" : "" }}</div>
     <div class="flex pr-5">
       <NavDrawer />
     </div>
