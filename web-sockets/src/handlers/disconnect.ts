@@ -23,7 +23,7 @@ export const lambdaHandler = async (event: APIGatewayEvent): Promise<APIGatewayP
             return {
                 statusCode: 200,
                 body: JSON.stringify({
-                    message: "Connected",
+                    message: "Disconnected",
                 }),
             };
         }

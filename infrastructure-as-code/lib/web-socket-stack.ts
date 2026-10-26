@@ -50,7 +50,7 @@ export class WebSocketStack extends Stack {
         name: wsDisconnectFunctionName,
         entryPath: path.join(
           __dirname,
-          `${WS_BASE_PATH}/handlers/${FUNCTION_ACTION.connect}.ts`
+          `${WS_BASE_PATH}/handlers/${FUNCTION_ACTION.disconnect}.ts`
         ),
         environmentVariables: { TABLE_NAME: dynamoDbTable.tableV2.tableName },
         ...baseProps,
