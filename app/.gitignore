@@ -28,3 +28,8 @@ coverage
 *.sw?
 
 *.tsbuildinfo
+
+# local env files (never commit)
+.env
+.env.*
+!.env.example
