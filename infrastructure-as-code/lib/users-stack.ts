@@ -13,10 +13,9 @@ import {
   FUNCTION_ACTION,
 } from "../constants/functions";
 import { HttpApiGatewayRoute } from "../types/http-api-gateway-route";
+import { grantSecrets } from "../modules/secrets";
 
-interface UserStackProps extends ServiceStackProps {
-  adminPassword: string;
-}
+type UserStackProps = ServiceStackProps;
 
 export class UsersStack extends Stack {
   readonly dynamoDbTable: TableV2;
@@ -24,7 +23,7 @@ export class UsersStack extends Stack {
 
   constructor(scope: Construct, id: string, props: UserStackProps) {
     super(scope, id, props);
-    const { name, functionDir, adminPassword, ...baseProps } = props;
+    const { name, functionDir, ...baseProps } = props;
     const functionPath = `${API_BASE_PATH}/${functionDir}`;
 
     const dynamoDbTable = new DynamoDbTable(
@@ -61,10 +60,7 @@ export class UsersStack extends Stack {
           __dirname,
           `${functionPath}/${FUNCTION_ACTION.create}.${FILE_EXTENSION}`
         ),
-        environmentVariables: {
-          TABLE_NAME: dynamoDbTable.tableV2.tableName,
-          ADMIN_PASSWORD: adminPassword,
-        },
+        environmentVariables: { TABLE_NAME: dynamoDbTable.tableV2.tableName },
         ...baseProps,
       }
     );
@@ -99,6 +95,27 @@ export class UsersStack extends Stack {
       }
     );
 
+    const adminUserFunctionName = `${name}-${FUNCTION_ACTION.admin}`;
+    const adminUserFunction = new NodeJsFunctionLambda(
+      this,
+      `${adminUserFunctionName}-${awsResourceNames().function}`,
+      {
+        name: adminUserFunctionName,
+        entryPath: path.join(
+          __dirname,
+          `${functionPath}/${FUNCTION_ACTION.admin}.${FILE_EXTENSION}`
+        ),
+        environmentVariables: { TABLE_NAME: dynamoDbTable.tableV2.tableName },
+        ...baseProps,
+      }
+    );
+
+    grantSecrets(createUserFunction.nodejsFunction, baseProps, ["token-secret"]);
+    grantSecrets(adminUserFunction.nodejsFunction, baseProps, [
+      "token-secret",
+      "admin-password",
+    ]);
+
     const usersBasePath = "/users";
     const httpApiGatewayRoutes: HttpApiGatewayRoute[] = [
       {
@@ -107,7 +124,7 @@ export class UsersStack extends Stack {
         httpMethod: HttpMethod.GET,
         nodeJsFunction: getUserFunction.nodejsFunction,
         tableAccess: "read",
-        authorizer: "none",
+        authorizer: "user",
       },
       {
         integrationName: createUserFunctionName,
@@ -116,6 +133,14 @@ export class UsersStack extends Stack {
         nodeJsFunction: createUserFunction.nodejsFunction,
         tableAccess: "write",
         authorizer: "none",
+      },
+      {
+        integrationName: adminUserFunctionName,
+        path: `${usersBasePath}/admin`,
+        httpMethod: HttpMethod.POST,
+        nodeJsFunction: adminUserFunction.nodejsFunction,
+        tableAccess: "readWrite",
+        authorizer: "user",
       },
       {
         integrationName: updateUserFunctionName,

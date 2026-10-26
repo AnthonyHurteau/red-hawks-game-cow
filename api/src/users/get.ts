@@ -1,51 +1,26 @@
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
 import { IUserDbEntity, UserDto } from "common/core/src/models/user";
 import { getDocumentsByPrimaryKeyAsync } from "common/core/src/services/dynamoDbClient";
+import { badRequest, getCaller, response, unauthorized } from "common/core/src/services/caller";
 
-/**
- *
- * Event doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html#api-gateway-simple-proxy-for-lambda-input-format
- * @param {Object} event - API Gateway Lambda Proxy Input Format
- *
- * Return doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html
- * @returns {Object} object - API Gateway Lambda Proxy Output Format
- *
- */
+const TABLE_NAME = process.env.TABLE_NAME as string;
 
-const TABLE_NAME = process.env.TABLE_NAME;
-
+// Authenticated (user): a user may read only themselves; admins may read anyone.
 export const lambdaHandler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {
-    if (event.pathParameters && event.pathParameters.id) {
-        try {
-            const id = event.pathParameters.id;
-            const result = await getDocumentsByPrimaryKeyAsync<IUserDbEntity>(id, TABLE_NAME);
+    const caller = getCaller(event);
+    const id = event.pathParameters?.id;
+    if (!caller) return unauthorized();
+    if (!id) return badRequest();
+    if (id !== caller.userId && caller.userType !== "admin") return unauthorized();
 
-            if (result && result.length > 0) {
-                const userDto = new UserDto(result[0]);
-                return {
-                    statusCode: 200,
-                    body: JSON.stringify(userDto),
-                };
-            } else {
-                return {
-                    statusCode: 204,
-                    body: "No content",
-                };
-            }
-        } catch (error) {
-            return {
-                statusCode: 400,
-                body: JSON.stringify({
-                    message: "Bad Request",
-                }),
-            };
+    try {
+        const result = await getDocumentsByPrimaryKeyAsync<IUserDbEntity>(id, TABLE_NAME);
+        if (result && result.length > 0) {
+            return response(200, new UserDto(result[0]));
         }
+        return response(204, "No content");
+    } catch (err) {
+        console.error(err instanceof Error ? err.message : err);
+        return badRequest();
     }
-
-    return {
-        statusCode: 400,
-        body: JSON.stringify({
-            message: "Bad Request",
-        }),
-    };
 };

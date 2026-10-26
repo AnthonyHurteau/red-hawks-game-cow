@@ -10,6 +10,7 @@ import { awsResourceNames } from "../modules/common";
 import { DynamoDbTable } from "../modules/dynamo-db-table";
 import { TableV2 } from "aws-cdk-lib/aws-dynamodb";
 import { FUNCTION_ACTION, WS_BASE_PATH } from "../constants/functions";
+import { grantSecrets } from "../modules/secrets";
 
 interface WebSocketStackProps extends StackProps {
   name: string;
@@ -85,6 +86,8 @@ export class WebSocketStack extends Stack {
         ...baseProps,
       }
     );
+
+    grantSecrets(wsAuthFunction.nodejsFunction, baseProps, ["token-secret"]);
 
     const wsApiGateway = new WebSocketApiGateway(
       this,

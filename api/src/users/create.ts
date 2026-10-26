@@ -1,64 +1,34 @@
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
-import { IUser, User } from "common/models/user";
-import { IUserDbEntity, UserDbEntity, UserDto } from "common/core/src/models/user";
+import { UserDbEntity, UserDto, IUserDbEntity } from "common/core/src/models/user";
+import { User } from "common/models/user";
+import { ISession } from "common/models/session";
 import { timeToLive } from "common/core/src/services/timeToLiveHelper";
-import { IAuth } from "common/models/auth";
-import { createDocumentAsync, deleteDocumentAsync } from "common/core/src/services/dynamoDbClient";
+import { createDocumentAsync } from "common/core/src/services/dynamoDbClient";
+import { issueTokenAsync } from "common/core/src/services/token";
+import { badRequest, response } from "common/core/src/services/caller";
 
-/**
- *
- * Event doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html#api-gateway-simple-proxy-for-lambda-input-format
- * @param {Object} event - API Gateway Lambda Proxy Input Format
- *
- * Return doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html
- * @returns {Object} object - API Gateway Lambda Proxy Output Format
- *
- */
+const TABLE_NAME = process.env.TABLE_NAME as string;
 
-const TABLE_NAME = process.env.TABLE_NAME;
-
+// Unauthenticated: creates a new anonymous user. The id is always generated
+// here; anything the client sends for id or type is ignored.
 export const lambdaHandler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {
     try {
-        const user = JSON.parse(event.body as string) as IAuth;
-        // Set user type to user by default
-        user.type = "user";
+        const body = JSON.parse(event.body || "{}") as Partial<User>;
+        const user = new User({
+            id: "",
+            type: "user",
+            userAgent: typeof body.userAgent === "string" ? body.userAgent : "",
+            lastLogin: new Date().toISOString(),
+        });
 
-        if (user.password) {
-            if (user.password === process.env.ADMIN_PASSWORD) {
-                const url = process.env.USERS_ENDPOINT;
-
-                // The user type is the actual sort key of the user in DynamoDB
-                // Because dynamoDB doesn't allow the modification of sortkeys, we need to delete the user and create a new one
-                const deleteUser = new User(user);
-                await deleteDocumentAsync<IUser>(deleteUser, TABLE_NAME);
-                user.type = "admin";
-            } else {
-                return {
-                    statusCode: 403,
-                    body: JSON.stringify({
-                        message: "Unauthorized",
-                    }),
-                };
-            }
-        }
-
-        const ttl = timeToLive(6, "months");
-        const userDbEntity = new UserDbEntity(user, ttl);
-
+        const userDbEntity = new UserDbEntity(user, timeToLive(6, "months"));
         await createDocumentAsync<IUserDbEntity>(userDbEntity, TABLE_NAME);
-        const userDto = new UserDto(userDbEntity);
 
-        return {
-            statusCode: 200,
-            body: JSON.stringify(userDto),
-        };
+        const userDto = new UserDto(userDbEntity);
+        const session: ISession = { user: userDto, token: await issueTokenAsync(userDto.id, "user") };
+        return response(200, session);
     } catch (err) {
-        console.error(err);
-        return {
-            statusCode: 400,
-            body: JSON.stringify({
-                message: "Bad Request",
-            }),
-        };
+        console.error(err instanceof Error ? err.message : err);
+        return badRequest();
     }
 };

@@ -1,4 +1,5 @@
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
+import { getCaller, unauthorized } from "common/core/src/services/caller";
 import { IVote } from "common/models/vote";
 import { IVoteDbEntity, VoteDto } from "common/core/src/models/vote";
 import { deleteDocumentAsync, getDocumentsByPrimaryKeyAsync } from "common/core/src/services/dynamoDbClient";
@@ -16,6 +17,10 @@ import { deleteDocumentAsync, getDocumentsByPrimaryKeyAsync } from "common/core/
 const TABLE_NAME = process.env.TABLE_NAME;
 
 export const lambdaHandler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {
+    const caller = getCaller(event);
+    if (!caller) return unauthorized();
+    if (event.pathParameters?.userId !== caller.userId && caller.userType !== "admin") return unauthorized();
+
     if (event.pathParameters && event.pathParameters.userId) {
         try {
             const userId = event.pathParameters.userId;
