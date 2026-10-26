@@ -1,12 +1,11 @@
-import { useUserStore } from "@/stores/user"
-import type { IUser } from "@common/models/user"
+import { getToken, useUserStore } from "@/stores/user"
 
 export const CLOSED_MANUALLY = "closed manually"
 const RECONNECT_INTERVAL = 5000
 
 export const createWebSocketAsync = async (endpoint: string) => {
   const userStore = useUserStore()
-  const user: IUser = await new Promise((resolve) => {
+  await new Promise((resolve) => {
     const unsubscribe = userStore.$subscribe((mutation, state) => {
       if (state.user) {
         unsubscribe()
@@ -20,7 +19,7 @@ export const createWebSocketAsync = async (endpoint: string) => {
     }
   })
 
-  const url = `${endpoint}?userId=${user.id}`
+  const url = `${endpoint}?token=${encodeURIComponent(getToken() ?? "")}`
   const ws = new WebSocket(url)
   return ws
 }

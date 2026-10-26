@@ -1,28 +1,48 @@
 import { ref } from "vue"
 import { defineStore } from "pinia"
-import { getItem, setItem } from "@/services/localStorage"
-import { v4 as uuidv4 } from "uuid"
-import { get, post, put } from "@/services/api"
-import { User, type IUser } from "@common/models/user"
-import { Auth, type IAuth } from "@common/models/auth"
+import { getItem, removeItem, setItem } from "@/services/localStorage"
+import { post, put } from "@/services/api"
+import { type IUser } from "@common/models/user"
+import type { ISession } from "@common/models/session"
 
-export const USER_KEY = "user"
+// The session token the API hands out. No password for players: the app gets
+// one automatically the first time and keeps it in local storage.
+export const TOKEN_KEY = "token"
+// Pre-token versions stored the raw user id here; it is no longer accepted.
+const LEGACY_USER_KEY = "user"
 const API_URL = import.meta.env.VITE_API_URL
 const USER_PATH = import.meta.env.VITE_USERS_PATH
 const USER_URL = `${API_URL}${USER_PATH}`
+
+export const getToken = () => getItem<string>(TOKEN_KEY)
 
 export const useUserStore = defineStore("user", () => {
   const user = ref<IUser>()
   const error = ref<Error>()
   const loading = ref(false)
 
+  const saveSession = (session: ISession) => {
+    setItem(TOKEN_KEY, session.token)
+    user.value = session.user
+  }
+
   async function getUser() {
     loading.value = true
 
     try {
       if (!user.value) {
-        const userId = getUserIdFromStorage()
-        await getOrCreateUserAsync(userId)
+        removeItem(LEGACY_USER_KEY)
+        if (getToken()) {
+          try {
+            // Refresh lastLogin; fails if the token expired or the user was removed.
+            user.value = await put<Partial<IUser>, IUser>(USER_URL, { userAgent: navigator.userAgent })
+            return
+          } catch {
+            removeItem(TOKEN_KEY)
+          }
+        }
+        const session = await post<Partial<IUser>, ISession>(USER_URL, { userAgent: navigator.userAgent }, false)
+        saveSession(session)
       }
     } catch (e) {
       error.value = e as Error
@@ -31,40 +51,12 @@ export const useUserStore = defineStore("user", () => {
     }
   }
 
-  const getUserIdFromStorage = () => {
-    const result = getItem<string>(USER_KEY)
-    let userId: string
-    if (result) {
-      userId = result
-    } else {
-      userId = uuidv4()
-      setItem(USER_KEY, userId)
-    }
-    return userId
-  }
-
-  const getOrCreateUserAsync = async (userId: string) => {
-    const getUrl = `${USER_URL}/${userId}`
-    const result = await get<IUser>(getUrl, undefined, false)
-    if (result) {
-      result.lastLogin = new Date().toISOString()
-      result.userAgent = navigator.userAgent
-      const modifiedUser = await put<IUser>(USER_URL, result)
-      user.value = modifiedUser
-    } else {
-      const newUser = new User({ id: userId })
-      const result = await post<IUser>(USER_URL, newUser, false)
-      user.value = result
-    }
-  }
-
   async function setAdmin(password: string) {
     loading.value = true
     try {
       if (user.value) {
-        const auth: IAuth = new Auth(user.value, password)
-        const result = await post<IAuth>(USER_URL, auth)
-        user.value = result
+        const session = await post<{ password: string }, ISession>(`${USER_URL}/admin`, { password })
+        saveSession(session)
       }
     } catch (e) {
       error.value = e as Error

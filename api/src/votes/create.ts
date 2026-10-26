@@ -1,4 +1,5 @@
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
+import { getCaller, unauthorized } from "common/core/src/services/caller";
 import { IVote } from "common/models/vote";
 import { IVoteDbEntity, VoteDbEntity, VoteDto } from "common/core/src/models/vote";
 import { createDocumentAsync } from "common/core/src/services/dynamoDbClient";
@@ -16,8 +17,13 @@ import { createDocumentAsync } from "common/core/src/services/dynamoDbClient";
 const TABLE_NAME = process.env.TABLE_NAME;
 
 export const lambdaHandler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {
+    const caller = getCaller(event);
+    if (!caller) return unauthorized();
+
     try {
         const vote = JSON.parse(event.body as string) as IVote;
+        // A user can only vote as themselves.
+        vote.userId = caller.userId;
         const voteDbEntity = new VoteDbEntity(vote);
         await createDocumentAsync<IVoteDbEntity>(voteDbEntity, TABLE_NAME);
 

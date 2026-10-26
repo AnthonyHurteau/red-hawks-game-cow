@@ -18,6 +18,7 @@ import {
 import { HttpLambdaIntegration } from "aws-cdk-lib/aws-apigatewayv2-integrations";
 import { HttpLambdaAuthorizer } from "aws-cdk-lib/aws-apigatewayv2-authorizers";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
+import { grantSecrets } from "../modules/secrets";
 
 interface HttpApiGatewayStackProps extends StackProps {
   name: string;
@@ -64,6 +65,9 @@ export class HttpApiGatewayStack extends Stack {
         ...baseProps,
       }
     );
+
+    grantSecrets(userAuthFunction.nodejsFunction, baseProps, ["token-secret"]);
+    grantSecrets(adminAuthFunction.nodejsFunction, baseProps, ["token-secret"]);
 
     const httpApiGateway = new HttpApiGateway(
       this,

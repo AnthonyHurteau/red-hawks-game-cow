@@ -32,7 +32,7 @@ export class WebSocketApiGateway extends Construct {
       webSocketApiAuthName,
       authFunction,
       {
-        identitySource: ["route.request.querystring.userId"],
+        identitySource: ["route.request.querystring.token"],
       }
     );
 

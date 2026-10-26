@@ -1,6 +1,5 @@
 import axios, { AxiosHeaders, type AxiosRequestHeaders, type AxiosResponse } from "axios"
-import { getItem } from "./localStorage"
-import { USER_KEY } from "@/stores/user"
+import { getToken } from "@/stores/user"
 
 export const get = async <T>(
   url: string,
@@ -19,10 +18,10 @@ export const get = async <T>(
   }
 }
 
-export const post = async <T>(url: string, data: T, auth = true): Promise<T> => {
+export const post = async <T, R = T>(url: string, data: T, auth = true): Promise<R> => {
   try {
     const headers = auth ? getAuthorizationHeaders() : undefined
-    const response = await axios.post<T>(url, data, { headers })
+    const response = await axios.post<R>(url, data, { headers })
     return response.data
   } catch (error) {
     console.error("Error creating data:", error)
@@ -30,10 +29,10 @@ export const post = async <T>(url: string, data: T, auth = true): Promise<T> => 
   }
 }
 
-export const put = async <T>(url: string, data: T, auth = true): Promise<T> => {
+export const put = async <T, R = T>(url: string, data: T, auth = true): Promise<R> => {
   try {
     const headers = auth ? getAuthorizationHeaders() : undefined
-    const response = await axios.put<T>(url, data, { headers })
+    const response = await axios.put<R>(url, data, { headers })
     return response.data
   } catch (error) {
     console.error("Error updating data:", error)
@@ -54,8 +53,8 @@ export const remove = async <T>(url: string, id: string, auth = true): Promise<A
 }
 
 const getAuthorizationHeaders = (): AxiosRequestHeaders => {
-  const userId = getItem<string>(USER_KEY)
   const headers = new AxiosHeaders()
-  headers.set("Authorization", userId)
+  const token = getToken()
+  if (token) headers.set("Authorization", `Bearer ${token}`)
   return headers
 }
