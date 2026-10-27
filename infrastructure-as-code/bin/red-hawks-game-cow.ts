@@ -199,7 +199,7 @@ if (baseProps.environment === "prod") {
     alertEmail,
     httpApiId: httpApiGatewayStack.httpApiGateway.apiId,
     distributionId: webStack.cloudFrontDistribution.distributionId,
-    monthlyBudgetUsd: 10,
+    monthlyBudgetUsd: 1,
     ...baseProps,
   });
 }
