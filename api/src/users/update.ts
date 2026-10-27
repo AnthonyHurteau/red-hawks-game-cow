@@ -2,7 +2,7 @@ import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
 import { getDocumentBySortKeyAsync, updateDocumentAsync } from "common/core/src/services/dynamoDbClient";
 import { IUserDbEntity, UserDto } from "common/core/src/models/user";
 import { User } from "common/models/user";
-import { badRequest, getCaller, response, unauthorized } from "common/core/src/services/caller";
+import { badRequest, readUserAgent, getCaller, response, unauthorized } from "common/core/src/services/caller";
 
 const TABLE_NAME = process.env.TABLE_NAME as string;
 
@@ -14,10 +14,12 @@ export const lambdaHandler = async (event: APIGatewayProxyEventV2): Promise<APIG
 
     try {
         const body = JSON.parse(event.body || "{}") as Partial<User>;
+        const userAgent = readUserAgent(body.userAgent);
+        if (userAgent === undefined) return badRequest();
         const user = new User({
             id: caller.userId,
             type: caller.userType,
-            userAgent: typeof body.userAgent === "string" ? body.userAgent : "",
+            userAgent,
             lastLogin: new Date().toISOString(),
         });
         await updateDocumentAsync(user, TABLE_NAME);
