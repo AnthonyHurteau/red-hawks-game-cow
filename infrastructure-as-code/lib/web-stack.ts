@@ -10,7 +10,10 @@ import {
 import { awsResourceNames, resourceName } from "../modules/common";
 import {
   Distribution,
+  HeadersFrameOption,
+  HeadersReferrerPolicy,
   HttpVersion,
+  ResponseHeadersPolicy,
   SecurityPolicyProtocol,
   ViewerProtocolPolicy,
 } from "aws-cdk-lib/aws-cloudfront";
@@ -41,6 +44,62 @@ export class WebStack extends Stack {
       }
     );
 
+    // The app only talks to its own API Gateway HTTP and WebSocket endpoints.
+    const apiOrigins = [
+      `https://*.execute-api.${this.region}.amazonaws.com`,
+      `wss://*.execute-api.${this.region}.amazonaws.com`,
+    ].join(" ");
+    const contentSecurityPolicy = [
+      "default-src 'self'",
+      "script-src 'self'",
+      "style-src 'self'",
+      "img-src 'self' data:",
+      "font-src 'self'",
+      `connect-src 'self' ${apiOrigins}`,
+      "manifest-src 'self'",
+      "worker-src 'self'",
+      "object-src 'none'",
+      "base-uri 'self'",
+      "form-action 'self'",
+      "frame-ancestors 'none'",
+    ].join("; ");
+
+    const responseHeadersPolicy = new ResponseHeadersPolicy(
+      this,
+      `${resourceName(baseProps, name)}-response-headers`,
+      {
+        comment: `${baseProps.appName} - ${baseProps.environment} - ${name} security headers`,
+        securityHeadersBehavior: {
+          strictTransportSecurity: {
+            accessControlMaxAge: Duration.days(365),
+            includeSubdomains: false,
+            override: true,
+          },
+          contentTypeOptions: { override: true },
+          frameOptions: {
+            frameOption: HeadersFrameOption.DENY,
+            override: true,
+          },
+          referrerPolicy: {
+            referrerPolicy: HeadersReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN,
+            override: true,
+          },
+        },
+        // Report-only first: violations show in the browser console without
+        // breaking the app. Switch to securityHeadersBehavior.contentSecurityPolicy
+        // once the console is clean.
+        customHeadersBehavior: {
+          customHeaders: [
+            {
+              header: "Content-Security-Policy-Report-Only",
+              value: contentSecurityPolicy,
+              override: true,
+            },
+          ],
+        },
+      }
+    );
+
     const cloudFrontDistributionName = resourceName(baseProps, name);
     const cloudFrontDistribution = new Distribution(
       this,
@@ -54,6 +113,7 @@ export class WebStack extends Stack {
         defaultBehavior: {
           origin: S3BucketOrigin.withOriginAccessControl(s3bucket),
           viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+          responseHeadersPolicy,
         },
         errorResponses: [
           {
