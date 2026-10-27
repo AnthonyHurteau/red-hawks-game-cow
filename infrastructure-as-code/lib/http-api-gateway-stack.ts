@@ -1,5 +1,7 @@
 import { CfnOutput, Stack } from "aws-cdk-lib";
 import {
+  CfnRoute,
+  CfnStage,
   CorsHttpMethod,
   HttpApi,
   HttpNoneAuthorizer,
@@ -111,6 +113,29 @@ export class HttpApiGatewayStack extends Stack {
         authorizer: this.getAuthorizer(route.authorizer),
       });
     });
+    this.setThrottling();
+  }
+
+  // Throttling is set on the default stage. Limits are shared by all callers,
+  // so they cap cost from floods rather than block a single client.
+  private setThrottling() {
+    const stage = this.httpApiGateway.defaultStage!.node
+      .defaultChild as CfnStage;
+    stage.defaultRouteSettings = {
+      throttlingRateLimit: 50,
+      throttlingBurstLimit: 100,
+    };
+    // RouteSettings is raw JSON, so keys use CloudFormation casing.
+    // Tighter limits on routes that create users or check the admin password.
+    stage.routeSettings = {
+      "POST /users": { ThrottlingRateLimit: 5, ThrottlingBurstLimit: 10 },
+      "POST /users/admin": { ThrottlingRateLimit: 1, ThrottlingBurstLimit: 3 },
+    };
+    // Route settings refer to routes by key, so the routes must exist first.
+    this.httpApiGateway.node
+      .findAll()
+      .filter((c) => c instanceof CfnRoute)
+      .forEach((route) => stage.addDependency(route as CfnRoute));
   }
 
   private getAuthorizer(authorizer: Authorizer) {
