@@ -14,6 +14,7 @@ import { UsersStack } from "../lib/users-stack";
 import { HttpApiGatewayStack } from "../lib/http-api-gateway-stack";
 import { PlayersStack } from "../lib/players-stack";
 import { WebStack } from "../lib/web-stack";
+import { MonitoringStack } from "../lib/monitoring-stack";
 
 require("dotenv").config();
 
@@ -180,3 +181,25 @@ votesWebScoketStack.wsSendFunction.addEventSource(
 );
 
 usersStack.dynamoDbTable.grantReadData(votesWebScoketStack.wsAuthFunction);
+
+// Alarms, alert topic and budget are account-wide, so they live in prod only
+// (CloudWatch's free tier allows 10 alarms per account).
+if (baseProps.environment === "prod") {
+  const alertEmail = process.env.ALERT_EMAIL;
+  if (!alertEmail) {
+    throw new Error("ALERT_EMAIL must be set for prod deploys.");
+  }
+  const monitoringName = "monitoring";
+  const monitoringStackName = resourceName(baseProps, monitoringName);
+  new MonitoringStack(app, `${monitoringName}-${awsResourceNames().stack}`, {
+    env,
+    stackName: monitoringStackName,
+    description: `The ${appName} ${process.env.ENVIRONMENT} ${monitoringStackName} IaC stack.`,
+    name: monitoringName,
+    alertEmail,
+    httpApiId: httpApiGatewayStack.httpApiGateway.apiId,
+    distributionId: webStack.cloudFrontDistribution.distributionId,
+    monthlyBudgetUsd: 1,
+    ...baseProps,
+  });
+}

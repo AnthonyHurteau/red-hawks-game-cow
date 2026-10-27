@@ -21,6 +21,7 @@ env:
   FUNCTIONS_DEPENDENCY_DIR: ./common/core
   AWS_REGION: us-east-1
   AWS_ACCOUNT: ${{ secrets.AWS_ACCOUNT }}
+  ALERT_EMAIL: ${{ secrets.ALERT_EMAIL }}
   ENVIRONMENT: ${{ github.ref_name }}
   REGION: usea1
   PRODUCT: rhgc
