@@ -3,7 +3,7 @@ import { UserDbEntity, UserDto, IUserDbEntity } from "common/core/src/models/use
 import { User } from "common/models/user";
 import { ISession } from "common/models/session";
 import { timeToLive } from "common/core/src/services/timeToLiveHelper";
-import { createDocumentAsync, deleteDocumentAsync } from "common/core/src/services/dynamoDbClient";
+import { createDocumentAsync, deleteDocumentAsync, getDocumentBySortKeyAsync } from "common/core/src/services/dynamoDbClient";
 import { getSecretAsync } from "common/core/src/services/secrets";
 import { issueTokenAsync, safeEqual } from "common/core/src/services/token";
 import { badRequest, getCaller, response, unauthorized } from "common/core/src/services/caller";
@@ -29,11 +29,16 @@ export const lambdaHandler = async (event: APIGatewayProxyEventV2): Promise<APIG
             return unauthorized();
         }
 
+        // Pass userAgent explicitly: the shared User model defaults it to
+        // navigator.userAgent, which doesn't exist in Lambda.
+        const existing = await getDocumentBySortKeyAsync<IUserDbEntity>(caller.userId, caller.userType, TABLE_NAME);
+        const userAgent = existing?.userAgent ?? "";
+
         // The user type is the sort key, so moving to admin means delete + create.
         if (caller.userType === "user") {
-            await deleteDocumentAsync(new User({ id: caller.userId, type: "user" }), TABLE_NAME);
+            await deleteDocumentAsync(new User({ id: caller.userId, type: "user", userAgent }), TABLE_NAME);
         }
-        const admin = new User({ id: caller.userId, type: "admin" });
+        const admin = new User({ id: caller.userId, type: "admin", userAgent });
         const userDbEntity = new UserDbEntity(admin, timeToLive(6, "months"));
         await createDocumentAsync<IUserDbEntity>(userDbEntity, TABLE_NAME);
 
