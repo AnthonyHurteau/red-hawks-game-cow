@@ -61,6 +61,9 @@ export class WebSocketApiGateway extends Construct {
       stageName: baseProps.environment,
       description: `${baseProps.environment} ${name} stage`,
       autoDeploy: true,
+      // Caps new connections ($connect) and any other calls, shared by all
+      // clients. Clients never send messages; they only receive pushes.
+      throttle: { rateLimit: 10, burstLimit: 20 },
     });
 
     this.webSocketApiStage = webSocketStage;
