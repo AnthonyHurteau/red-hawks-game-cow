@@ -5,7 +5,7 @@ import { ISession } from "common/models/session";
 import { timeToLive } from "common/core/src/services/timeToLiveHelper";
 import { createDocumentAsync } from "common/core/src/services/dynamoDbClient";
 import { issueTokenAsync } from "common/core/src/services/token";
-import { badRequest, response } from "common/core/src/services/caller";
+import { badRequest, readUserAgent, response } from "common/core/src/services/caller";
 
 const TABLE_NAME = process.env.TABLE_NAME as string;
 
@@ -14,10 +14,12 @@ const TABLE_NAME = process.env.TABLE_NAME as string;
 export const lambdaHandler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {
     try {
         const body = JSON.parse(event.body || "{}") as Partial<User>;
+        const userAgent = readUserAgent(body.userAgent);
+        if (userAgent === undefined) return badRequest();
         const user = new User({
             id: "",
             type: "user",
-            userAgent: typeof body.userAgent === "string" ? body.userAgent : "",
+            userAgent,
             lastLogin: new Date().toISOString(),
         });
 

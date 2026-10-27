@@ -25,3 +25,12 @@ export const response = (statusCode: number, body: unknown) => ({
 
 export const unauthorized = () => response(403, { message: "Forbidden" });
 export const badRequest = () => response(400, { message: "Bad Request" });
+
+// Longest userAgent we store. Real browser user agents are well under this.
+export const MAX_USER_AGENT_LENGTH = 512;
+
+// Returns the userAgent from a request body, "" if missing, or undefined if too long.
+export const readUserAgent = (value: unknown): string | undefined => {
+    if (typeof value !== "string") return "";
+    return value.length <= MAX_USER_AGENT_LENGTH ? value : undefined;
+};
