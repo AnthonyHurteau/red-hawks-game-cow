@@ -52,7 +52,9 @@ export class WebStack extends Stack {
     const contentSecurityPolicy = [
       "default-src 'self'",
       "script-src 'self'",
-      "style-src 'self'",
+      // PrimeVue's theme injects <style> tags at runtime. A nonce isn't possible
+      // with static S3 hosting, so inline styles are allowed (scripts are not).
+      "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data:",
       "font-src 'self'",
       `connect-src 'self' ${apiOrigins}`,
@@ -84,18 +86,10 @@ export class WebStack extends Stack {
             referrerPolicy: HeadersReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN,
             override: true,
           },
-        },
-        // Report-only first: violations show in the browser console without
-        // breaking the app. Switch to securityHeadersBehavior.contentSecurityPolicy
-        // once the console is clean.
-        customHeadersBehavior: {
-          customHeaders: [
-            {
-              header: "Content-Security-Policy-Report-Only",
-              value: contentSecurityPolicy,
-              override: true,
-            },
-          ],
+          contentSecurityPolicy: {
+            contentSecurityPolicy,
+            override: true,
+          },
         },
       }
     );
