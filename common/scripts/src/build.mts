@@ -1,4 +1,5 @@
-import esbuild, { BuildOptions } from "esbuild";
+import esbuild from "esbuild";
+import type { BuildOptions } from "esbuild";
 import path from "path";
 import fs from "fs";
 
