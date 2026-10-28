@@ -14,6 +14,9 @@ updates:
       # TypeScript 7 has no JS API yet; ts-node and typescript-eslint need it.
       - dependency-name: typescript
         versions: [">=7"]
+      # Keep Node types on the runtime's major (Lambda, CI and .nvmrc are Node 24).
+      - dependency-name: "@types/node"
+        versions: [">=25"]
 
   - package-ecosystem: npm
     directory: /api
@@ -28,6 +31,9 @@ updates:
       # TypeScript 7 has no JS API yet; ts-node and typescript-eslint need it.
       - dependency-name: typescript
         versions: [">=7"]
+      # Keep Node types on the runtime's major (Lambda, CI and .nvmrc are Node 24).
+      - dependency-name: "@types/node"
+        versions: [">=25"]
 
   - package-ecosystem: npm
     directory: /web-sockets
@@ -42,6 +48,9 @@ updates:
       # TypeScript 7 has no JS API yet; ts-node and typescript-eslint need it.
       - dependency-name: typescript
         versions: [">=7"]
+      # Keep Node types on the runtime's major (Lambda, CI and .nvmrc are Node 24).
+      - dependency-name: "@types/node"
+        versions: [">=25"]
 
   - package-ecosystem: npm
     directory: /infrastructure-as-code
@@ -56,6 +65,9 @@ updates:
       # TypeScript 7 has no JS API yet; ts-node and typescript-eslint need it.
       - dependency-name: typescript
         versions: [">=7"]
+      # Keep Node types on the runtime's major (Lambda, CI and .nvmrc are Node 24).
+      - dependency-name: "@types/node"
+        versions: [">=25"]
 
   - package-ecosystem: npm
     directory: /app
@@ -70,6 +82,9 @@ updates:
       # TypeScript 7 has no JS API yet; ts-node and typescript-eslint need it.
       - dependency-name: typescript
         versions: [">=7"]
+      # Keep Node types on the runtime's major (Lambda, CI and .nvmrc are Node 24).
+      - dependency-name: "@types/node"
+        versions: [">=25"]
       # Versions after these moved to the commercial PrimeUI License.
       - dependency-name: primevue
         versions: [">=5"]
