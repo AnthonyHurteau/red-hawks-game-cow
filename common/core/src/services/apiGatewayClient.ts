@@ -4,11 +4,12 @@ import {
     PostToConnectionCommandInput,
 } from "@aws-sdk/client-apigatewaymanagementapi";
 import { APIGatewayProxyEvent } from "aws-lambda";
+import { IBaseEntity } from "common/models/baseEntity";
 import { IWsEntity } from "src/models/wsEntity";
 
 export const postToConnectionAsync = async (
     connectionId: string,
-    data: IWsEntity,
+    data: IWsEntity<IBaseEntity>,
     wsEndpoint?: string,
     event?: APIGatewayProxyEvent,
 ): Promise<void> => {
