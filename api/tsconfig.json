@@ -5,20 +5,22 @@
     "preserveConstEnums": true,
     "noEmit": true,
     "sourceMap": false,
-    "module": "es2020",
-    "moduleResolution": "node",
+    "module": "esnext",
+    "moduleResolution": "bundler",
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "baseUrl": ".",
+    "types": ["node", "aws-lambda"],
     "paths": {
+      "src/models/*": [
+        "../common/core/src/models/*",
+      ],
       "common/*": [
         "../common/*",
       ],
     },
   },
   "include": [
-    "buildFiles.mts",
     "src/**/*.ts",
     "types/**/*.d.ts"
   ],

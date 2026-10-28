@@ -7,7 +7,7 @@ Description: >
 Globals:
   Function:
     Timeout: 10
-    Runtime: nodejs20.x
+    Runtime: nodejs24.x
     MemorySize: 4096
     Architectures:
       - arm64
