@@ -5,26 +5,17 @@
   "author": "Anthony Hurteau",
   "license": "MIT",
   "scripts": {
-    "lint": "eslint '*.ts' --quiet --fix",
-    "build": "npm-run-all clean esbuild",
-    "clean": "rimraf ./dist && rimraf ./.aws-sam",
-    "esbuild": "ts-node --esm ../common/scripts/src/build.mts --sourceDir src --entryPointImport buildFiles.mts"
+    "lint": "eslint . --fix"
   },
-  "dependencies": {},
   "devDependencies": {
-    "@types/aws-lambda": "^8.10.147",
-    "@types/node": "^22.7.5",
-    "@types/uuid": "^10.0.0",
-    "@typescript-eslint/eslint-plugin": "^8.8.1",
-    "@typescript-eslint/parser": "^8.8.1",
-    "esbuild": "^0.24.0",
-    "eslint": "^9.12.0",
-    "eslint-config-prettier": "^9.1.0",
-    "eslint-plugin-prettier": "^5.2.1",
-    "npm-run-all": "^4.1.5",
-    "prettier": "^3.3.3",
-    "rimraf": "^6.0.1",
-    "ts-node": "^10.9.1",
-    "typescript": "^5.6.3"
+    "@types/aws-lambda": "^8.10.164",
+    "@types/node": "^24.19.2",
+    "@typescript-eslint/eslint-plugin": "^8.72.1",
+    "@typescript-eslint/parser": "^8.72.1",
+    "eslint": "^10.13.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.7",
+    "prettier": "^3.9.10",
+    "typescript": "^6.0.3"
   }
 }
