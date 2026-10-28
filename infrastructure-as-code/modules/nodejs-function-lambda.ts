@@ -1,3 +1,4 @@
+import * as path from "path";
 import { Construct } from "constructs";
 import { BaseProps } from "../types/base-props";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
@@ -18,6 +19,8 @@ interface NodeJsFunctionLambdaProps extends BaseProps {
 }
 
 const LAMBDA_HANDLER = "lambdaHandler";
+// Lambda code lives in api/ and web-sockets/, outside this folder.
+const PROJECT_ROOT = path.join(__dirname, "..", "..");
 
 export class NodeJsFunctionLambda extends Construct {
   readonly nodejsFunction: NodejsFunction;
@@ -38,13 +41,14 @@ export class NodeJsFunctionLambda extends Construct {
     const nodeJsFunction = new NodejsFunction(this, functionName, {
       functionName: functionName,
       description: `${baseProps.appName} - ${baseProps.environment} - ${name} Node.js Lambda Function`,
-      runtime: Runtime.NODEJS_20_X,
+      runtime: Runtime.NODEJS_24_X,
       memorySize: baseProps.environment === "prod" ? memorySize : 2048,
       timeout: Duration.seconds(timeout),
       architecture: Architecture.ARM_64,
       layers: layers,
       handler: LAMBDA_HANDLER,
       entry: entryPath,
+      projectRoot: PROJECT_ROOT,
       logRetention: RetentionDays.ONE_WEEK,
       environment: environmentVariables,
     });
