@@ -13,6 +13,9 @@ import Drawer from "primevue/drawer"
 import Button from "primevue/button"
 import Password from "primevue/password"
 import FloatLabel from "primevue/floatlabel"
+import InputText from "primevue/inputtext"
+import Select from "primevue/select"
+import Dialog from "primevue/dialog"
 
 const app = createApp(App)
 
@@ -39,5 +42,8 @@ app.component("AppProgressSpinner", ProgressSpinner)
 app.component("AppDrawer", Drawer)
 app.component("AppPassword", Password)
 app.component("AppFloatLabel", FloatLabel)
+app.component("AppInputText", InputText)
+app.component("AppSelect", Select)
+app.component("AppDialog", Dialog)
 
 app.mount("#app")
