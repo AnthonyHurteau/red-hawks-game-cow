@@ -75,6 +75,48 @@ Resources:
             Path: /players
             Method: get
             ApiId: !Ref HttpApi
+  CreatePlayer:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: dist/players
+      Handler: create.lambdaHandler
+      Events:
+        Event:
+          Type: HttpApi
+          Properties:
+            Auth:
+              Authorizer: AuthAdmin
+            Path: /players
+            Method: post
+            ApiId: !Ref HttpApi
+  UpdatePlayer:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: dist/players
+      Handler: update.lambdaHandler
+      Events:
+        Event:
+          Type: HttpApi
+          Properties:
+            Auth:
+              Authorizer: AuthAdmin
+            Path: /players
+            Method: put
+            ApiId: !Ref HttpApi
+  DeletePlayer:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: dist/players
+      Handler: delete.lambdaHandler
+      Events:
+        Event:
+          Type: HttpApi
+          Properties:
+            Auth:
+              Authorizer: AuthAdmin
+            Path: /players/{id}
+            Method: delete
+            ApiId: !Ref HttpApi
   # Games
   GetGame:
     Type: AWS::Serverless::Function

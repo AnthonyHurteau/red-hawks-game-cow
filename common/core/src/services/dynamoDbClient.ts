@@ -1,13 +1,14 @@
 import { IDbEntity } from "../models/dbEntity";
 import { IBaseEntity } from "common/models/baseEntity";
 import { IItem } from "../models/item";
-import { AttributeValue, DynamoDBClient } from "@aws-sdk/client-dynamodb";
+import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import {
     QueryCommand,
     QueryCommandInput,
     ScanCommand,
     BatchWriteCommand,
     BatchWriteCommandInput,
+    BatchWriteCommandOutput,
     DeleteCommand,
     DeleteCommandInput,
     DynamoDBDocumentClient,
@@ -35,14 +36,10 @@ export const getDocumentsByPrimaryKeyAsync = async <T extends IDbEntity>(
         },
     };
     const command = new QueryCommand(input);
-    try {
-        const result = await dynamoDBDocumentClient.send(command);
+    const result = await dynamoDBDocumentClient.send(command);
 
-        if (result.Items) {
-            return result.Items as T[];
-        }
-    } catch (error) {
-        console.error(error);
+    if (result.Items) {
+        return result.Items as T[];
     }
 };
 
@@ -56,12 +53,8 @@ export const getDocumentBySortKeyAsync = async <T extends IDbEntity>(
         Key: { pk, sk },
     };
     const command = new GetCommand(input);
-    try {
-        const result = await dynamoDBDocumentClient.send(command);
-        return result.Item as T;
-    } catch (error) {
-        console.error(error);
-    }
+    const result = await dynamoDBDocumentClient.send(command);
+    return result.Item as T;
 };
 
 export const getDocumentsAsync = async <T extends IDbEntity>(tableName: string): Promise<T[] | undefined> => {
@@ -69,13 +62,9 @@ export const getDocumentsAsync = async <T extends IDbEntity>(tableName: string):
         TableName: tableName,
     };
     const command = new ScanCommand(input);
-    try {
-        const result = await dynamoDBDocumentClient.send(command);
+    const result = await dynamoDBDocumentClient.send(command);
 
-        return result.Items as T[];
-    } catch (error) {
-        console.error(error);
-    }
+    return result.Items as T[];
 };
 
 export const getItemDocumentsAsync = async <T extends IItem>(tableName: string): Promise<T[] | undefined> => {
@@ -83,13 +72,9 @@ export const getItemDocumentsAsync = async <T extends IItem>(tableName: string):
         TableName: tableName,
     };
     const command = new ScanCommand(input);
-    try {
-        const result = await dynamoDBDocumentClient.send(command);
+    const result = await dynamoDBDocumentClient.send(command);
 
-        return result.Items as T[];
-    } catch (error) {
-        console.error(error);
-    }
+    return result.Items as T[];
 };
 
 export const createDocumentAsync = async <T extends IDbEntity>(entity: T, tableName: string) => {
@@ -98,11 +83,7 @@ export const createDocumentAsync = async <T extends IDbEntity>(entity: T, tableN
         Item: entity,
     };
     const command = new PutCommand(input);
-    try {
-        await dynamoDBDocumentClient.send(command);
-    } catch (error) {
-        console.error(error);
-    }
+    await dynamoDBDocumentClient.send(command);
 };
 
 export const createDocumentsAsync = async <T extends IDbEntity>(entities: T[], tableName: string) => {
@@ -115,12 +96,7 @@ export const createDocumentsAsync = async <T extends IDbEntity>(entities: T[], t
             })),
         },
     };
-    const command = new BatchWriteCommand(input);
-    try {
-        await dynamoDBDocumentClient.send(command);
-    } catch (error) {
-        console.error(error);
-    }
+    await batchWriteAsync(input);
 };
 
 export const updateDocumentAsync = async <T extends IBaseEntity>(entity: T, tableName: string) => {
@@ -138,11 +114,7 @@ export const updateDocumentAsync = async <T extends IBaseEntity>(entity: T, tabl
             Item: dbEntity,
         };
         const command = new PutCommand(input);
-        try {
-            await dynamoDBDocumentClient.send(command);
-        } catch (error) {
-            console.error(error);
-        }
+        await dynamoDBDocumentClient.send(command);
     }
 };
 
@@ -152,11 +124,7 @@ export const updateItemDocumentAsync = async <T extends IItem>(item: T, tableNam
         Item: item,
     };
     const command = new PutCommand(input);
-    try {
-        await dynamoDBDocumentClient.send(command);
-    } catch (error) {
-        console.error(error);
-    }
+    await dynamoDBDocumentClient.send(command);
 };
 
 export const deleteDocumentAsync = async <T extends IBaseEntity>(entity: T, tableName: string) => {
@@ -165,11 +133,7 @@ export const deleteDocumentAsync = async <T extends IBaseEntity>(entity: T, tabl
         Key: { pk: entity.dbEntityPrimaryKey, sk: entity.dbEntitySortKey },
     };
     const command = new DeleteCommand(input);
-    try {
-        await dynamoDBDocumentClient.send(command);
-    } catch (error) {
-        console.error(error);
-    }
+    await dynamoDBDocumentClient.send(command);
 };
 
 export const deleteItemDocumentAsync = async <T extends IItem>(item: T, tableName: string) => {
@@ -178,11 +142,7 @@ export const deleteItemDocumentAsync = async <T extends IItem>(item: T, tableNam
         Key: { pk: item.pk },
     };
     const command = new DeleteCommand(input);
-    try {
-        await dynamoDBDocumentClient.send(command);
-    } catch (error) {
-        console.error(error);
-    }
+    await dynamoDBDocumentClient.send(command);
 };
 
 export const deleteDocumentsAsync = async <T extends IBaseEntity>(entities: T[], tableName: string) => {
@@ -197,11 +157,38 @@ export const deleteDocumentsAsync = async <T extends IBaseEntity>(entities: T[],
             [tableName]: deleteRequests,
         },
     };
-    const command = new BatchWriteCommand(input);
-    try {
-        await dynamoDBDocumentClient.send(command);
-    } catch (error) {
-        console.error(error);
+    await batchWriteAsync(input);
+};
+
+// DynamoDB accepts at most 25 requests per BatchWriteItem call.
+const BATCH_WRITE_LIMIT = 25;
+const BATCH_WRITE_MAX_ATTEMPTS = 5;
+
+/**
+ * Writes every request, splitting into chunks of 25 and retrying any items DynamoDB
+ * reports as unprocessed (e.g. throttling). Throws if anything is still unwritten.
+ */
+const batchWriteAsync = async (input: BatchWriteCommandInput) => {
+    for (const [tableName, requests] of Object.entries(input.RequestItems ?? {})) {
+        for (let i = 0; i < requests.length; i += BATCH_WRITE_LIMIT) {
+            let pending: BatchWriteCommandInput["RequestItems"] = {
+                [tableName]: requests.slice(i, i + BATCH_WRITE_LIMIT),
+            };
+            for (let attempt = 1; pending && Object.keys(pending).length > 0; attempt++) {
+                if (attempt > BATCH_WRITE_MAX_ATTEMPTS) {
+                    throw new Error(
+                        `Batch write to ${tableName} left unprocessed items after ${BATCH_WRITE_MAX_ATTEMPTS} attempts`,
+                    );
+                }
+                if (attempt > 1) {
+                    await new Promise((resolve) => setTimeout(resolve, 50 * 2 ** attempt));
+                }
+                const result: BatchWriteCommandOutput = await dynamoDBDocumentClient.send(
+                    new BatchWriteCommand({ RequestItems: pending }),
+                );
+                pending = result.UnprocessedItems;
+            }
+        }
     }
 };
 

@@ -1,6 +1,6 @@
 import { IItem } from "../../../common/core/src/models/item";
 import { DynamoDBStreamEvent } from "aws-lambda";
-import { postToConnectionAsync } from "common/core/src/services/apiGatewayClient";
+import { isGoneConnectionError, postToConnectionAsync } from "common/core/src/services/apiGatewayClient";
 import {
     deleteItemDocumentAsync,
     getItemDocumentsAsync,
@@ -35,8 +35,8 @@ export const lambdaHandler = async (event: DynamoDBStreamEvent) => {
                     const postCalls = connections.map(async (connection) => {
                         try {
                             await postToConnectionAsync(connection.pk, wsGame, WS_ENDPOINT);
-                        } catch (err: any) {
-                            if (err.statusCode === 410) {
+                        } catch (err) {
+                            if (isGoneConnectionError(err)) {
                                 console.log(`Found stale connection, deleting ${connection.pk}`);
                                 const item: IItem = { pk: connection.pk };
                                 await deleteItemDocumentAsync<IItem>(item, TABLE_NAME);

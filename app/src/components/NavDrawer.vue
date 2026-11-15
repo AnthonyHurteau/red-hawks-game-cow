@@ -27,6 +27,12 @@ const navItems: Ref<NavItem[]> = ref([
     icon: "pi pi-cog",
     routeName: ROUTE_NAMES.ADMIN,
     adminOnly: true
+  },
+  {
+    title: "Alignement",
+    icon: "pi pi-users",
+    routeName: ROUTE_NAMES.ROSTER,
+    adminOnly: true
   }
 ])
 

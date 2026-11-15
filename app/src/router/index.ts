@@ -3,7 +3,8 @@ import VoteView from "../views/VoteView.vue"
 
 export const enum ROUTE_NAMES {
   VOTE = "vote",
-  ADMIN = "admin"
+  ADMIN = "admin",
+  ROSTER = "roster"
 }
 
 const router = createRouter({
@@ -18,6 +19,11 @@ const router = createRouter({
       path: "/admin",
       name: ROUTE_NAMES.ADMIN,
       component: () => import("../views/AdminView.vue")
+    },
+    {
+      path: "/admin/roster",
+      name: ROUTE_NAMES.ROSTER,
+      component: () => import("../views/RosterView.vue")
     }
   ]
 })

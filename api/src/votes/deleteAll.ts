@@ -1,4 +1,4 @@
-import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
+import { APIGatewayProxyResultV2 } from "aws-lambda";
 import { IVoteDbEntity, VoteDto } from "common/core/src/models/vote";
 import { deleteDocumentsAsync, getDocumentsAsync } from "common/core/src/services/dynamoDbClient";
 
@@ -14,7 +14,7 @@ import { deleteDocumentsAsync, getDocumentsAsync } from "common/core/src/service
 
 const TABLE_NAME = process.env.TABLE_NAME;
 
-export const lambdaHandler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {
+export const lambdaHandler = async (): Promise<APIGatewayProxyResultV2> => {
     try {
         const existingVotes = await getDocumentsAsync<IVoteDbEntity>(TABLE_NAME);
         if (existingVotes && existingVotes.length > 0) {

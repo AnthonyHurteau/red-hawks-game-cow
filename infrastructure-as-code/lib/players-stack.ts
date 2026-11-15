@@ -71,15 +71,84 @@ export class PlayersStack extends Stack {
       }
     );
 
-    const usersBasePath = "/players";
+    const createPlayerFunctionName = `${name}-${FUNCTION_ACTION.create}`;
+    const createPlayerFunction = new NodeJsFunctionLambda(
+      this,
+      `${createPlayerFunctionName}-${awsResourceNames().function}`,
+      {
+        name: createPlayerFunctionName,
+        entryPath: path.join(
+          __dirname,
+          `${functionPath}/${FUNCTION_ACTION.create}.${FILE_EXTENSION}`
+        ),
+        environmentVariables: { TABLE_NAME: dynamoDbTable.tableV2.tableName },
+        ...baseProps,
+      }
+    );
+
+    const updatePlayerFunctionName = `${name}-${FUNCTION_ACTION.update}`;
+    const updatePlayerFunction = new NodeJsFunctionLambda(
+      this,
+      `${updatePlayerFunctionName}-${awsResourceNames().function}`,
+      {
+        name: updatePlayerFunctionName,
+        entryPath: path.join(
+          __dirname,
+          `${functionPath}/${FUNCTION_ACTION.update}.${FILE_EXTENSION}`
+        ),
+        environmentVariables: { TABLE_NAME: dynamoDbTable.tableV2.tableName },
+        ...baseProps,
+      }
+    );
+
+    const deletePlayerFunctionName = `${name}-${FUNCTION_ACTION.delete}`;
+    const deletePlayerFunction = new NodeJsFunctionLambda(
+      this,
+      `${deletePlayerFunctionName}-${awsResourceNames().function}`,
+      {
+        name: deletePlayerFunctionName,
+        entryPath: path.join(
+          __dirname,
+          `${functionPath}/${FUNCTION_ACTION.delete}.${FILE_EXTENSION}`
+        ),
+        environmentVariables: { TABLE_NAME: dynamoDbTable.tableV2.tableName },
+        ...baseProps,
+      }
+    );
+
+    const playersBasePath = "/players";
     const httpApiGatewayRoutes: HttpApiGatewayRoute[] = [
       {
         integrationName: getPlayerFunctionName,
-        path: usersBasePath,
+        path: playersBasePath,
         httpMethod: HttpMethod.GET,
         nodeJsFunction: getPlayerFunction.nodejsFunction,
         tableAccess: "read",
         authorizer: "user",
+      },
+      {
+        integrationName: createPlayerFunctionName,
+        path: playersBasePath,
+        httpMethod: HttpMethod.POST,
+        nodeJsFunction: createPlayerFunction.nodejsFunction,
+        tableAccess: "write",
+        authorizer: "admin",
+      },
+      {
+        integrationName: updatePlayerFunctionName,
+        path: playersBasePath,
+        httpMethod: HttpMethod.PUT,
+        nodeJsFunction: updatePlayerFunction.nodejsFunction,
+        tableAccess: "readWrite",
+        authorizer: "admin",
+      },
+      {
+        integrationName: deletePlayerFunctionName,
+        path: `${playersBasePath}/{id}`,
+        httpMethod: HttpMethod.DELETE,
+        nodeJsFunction: deletePlayerFunction.nodejsFunction,
+        tableAccess: "readWrite",
+        authorizer: "admin",
       },
     ];
 

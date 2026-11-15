@@ -38,6 +38,7 @@ export const lambdaHandler = async (event: APIGatewayProxyEventV2): Promise<APIG
                 };
             }
         } catch (error) {
+            console.error(error);
             return {
                 statusCode: 400,
                 body: JSON.stringify({
