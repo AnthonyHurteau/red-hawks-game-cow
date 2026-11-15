@@ -3,7 +3,11 @@ import { UserDbEntity, UserDto, IUserDbEntity } from "common/core/src/models/use
 import { User } from "common/models/user";
 import { ISession } from "common/models/session";
 import { timeToLive } from "common/core/src/services/timeToLiveHelper";
-import { createDocumentAsync, deleteDocumentAsync, getDocumentBySortKeyAsync } from "common/core/src/services/dynamoDbClient";
+import {
+    createDocumentAsync,
+    deleteDocumentAsync,
+    getDocumentBySortKeyAsync,
+} from "common/core/src/services/dynamoDbClient";
 import { getSecretAsync } from "common/core/src/services/secrets";
 import { issueTokenAsync, safeEqual } from "common/core/src/services/token";
 import { badRequest, getCaller, response, unauthorized } from "common/core/src/services/caller";

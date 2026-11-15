@@ -54,7 +54,7 @@ const getPlayerName = (playerId: string) => {
       leave-action="absolute"
     >
       <div
-        v-for="([playerId, votes], index) in groupedVotes"
+        v-for="[playerId, votes] in groupedVotes"
         :key="playerId"
         class="flex basis-full justify-start relative"
       >

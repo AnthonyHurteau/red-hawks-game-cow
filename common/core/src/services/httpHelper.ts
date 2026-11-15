@@ -40,7 +40,7 @@ export const putAsync = async <T>(url: string, body: T): Promise<T> => {
         });
 };
 
-export const deleteAsync = async <T>(url: string): Promise<Response> => {
+export const deleteAsync = async (url: string): Promise<Response> => {
     return await fetch(url, {
         method: "DELETE",
     })

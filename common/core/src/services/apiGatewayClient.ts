@@ -1,5 +1,6 @@
 import {
     ApiGatewayManagementApi,
+    GoneException,
     PostToConnectionCommand,
     PostToConnectionCommandInput,
 } from "@aws-sdk/client-apigatewaymanagementapi";
@@ -28,9 +29,13 @@ export const postToConnectionAsync = async (
     };
     const command = new PostToConnectionCommand(params);
 
-    try {
-        await apiGatewayClient.send(command);
-    } catch (error) {
-        console.error(error);
-    }
+    await apiGatewayClient.send(command);
+};
+
+/** True when API Gateway reports the websocket connection no longer exists (HTTP 410). */
+export const isGoneConnectionError = (error: unknown): boolean => {
+    return (
+        error instanceof GoneException ||
+        (error as { $metadata?: { httpStatusCode?: number } })?.$metadata?.httpStatusCode === 410
+    );
 };

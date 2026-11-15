@@ -8,8 +8,7 @@ export interface Caller {
 
 // Identity set by the Lambda authorizer. Never trust ids from the body or path instead.
 export const getCaller = (event: APIGatewayProxyEventV2): Caller | undefined => {
-    const context = (event.requestContext as { authorizer?: { lambda?: Record<string, unknown> } }).authorizer
-        ?.lambda;
+    const context = (event.requestContext as { authorizer?: { lambda?: Record<string, unknown> } }).authorizer?.lambda;
     const userId = context?.userId;
     const userType = context?.userType;
     if (typeof userId === "string" && (userType === "user" || userType === "admin")) {
